@@ -2328,9 +2328,10 @@ export class Game {
         if (/Bonapartistes/i.test(ev.condition ?? '') && !who.flags.bonapartist) continue;
         any = true;
         if (ev.noCombatCard) {
-          this.active = idx;
-          if (n > 1) this.who();
-          this.resolveFieldEvent(ev, c);
+          // Il rejoint la file au lieu d'être résolu sur-le-champ : une carte se
+          // joue dans son ordre de lecture, et le second évènement attend que le
+          // premier soit terminé pour tous ceux qu'il concerne.
+          battles.push({ ev: { ...ev, id: ev.id ?? c.id, noCombatCard: true }, name: ev.name ?? c.name, who: idx });
           continue;
         }
         if (ev.excluded !== undefined || ev.oneCombatCard || ev.oneEvent || ev.values) {
@@ -2393,6 +2394,13 @@ export class Game {
       return;
     }
     if (this.chars.length > 1) this.who();
+    // un évènement de terrain n'appelle pas de carte Combat, mais il prend son
+    // rang dans la file : c'est ainsi que l'ordre de lecture est respecté
+    if (t.ev.noCombatCard) {
+      this.resolveFieldEvent(t.ev, this.currentCard?.card as CampaignCard);
+      this.nextBattle();
+      return;
+    }
     this.resolveBattle(t.ev, t.name);
   }
 
