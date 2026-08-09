@@ -101,7 +101,14 @@ export function Rivals({
               {rankOf(c)}
               {c.title ? ` · ${cap(c.title)}` : ''}
             </div>
-            <div className="rival-cmd">{commandName(c.assignment) || '—'}</div>
+            <div className="rival-cmd">
+              {commandName(c.assignment) || '—'}
+              <span className="rival-standing">
+                {c.marechal || rankOf(c).startsWith('Général')
+                  ? '🎩'
+                  : `S ${c.standing >= 0 ? '+' : ''}${c.standing}`}
+              </span>
+            </div>
             <div className="rival-health">
               <i style={{ width: `${Math.max(0, Math.min(100, c.H))}%` }} />
               <span>{c.H}</span>

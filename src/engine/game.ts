@@ -1334,11 +1334,19 @@ export class Game {
     const lohM = ch.loh > 0 && !ch.armsOfHonor ? LOH_LEVELS[ch.loh - 1].income : 0;
     const total = rankM + officeM + titleM + lohM;
     const dest = ch.absent?.type === 'prisoner' ? 'MParis' : 'M';
-    this.info(
-      `Solde : ${total} F${dest === 'MParis' ? ' — versés à Paris, il est prisonnier' : ''}`,
-      `grade ${rankM} · office ${officeM} · titre ${titleM} · Légion d’Honneur ${lohM}`,
+    // Une seule ligne, de la même forme que la récupération — « Bourse +4 → 9 » —
+    // et le calcul derrière, à dérouler d'un clic.
+    const prop = dest === 'MParis' ? 'mParis' : 'mPurse';
+    const before = ch[prop];
+    if (total > 0) this.applyStat(dest, total, 'solde', true);
+    const gained = ch[prop] - before;
+    this.add(
+      `${dest === 'MParis' ? 'Paris' : 'Bourse'} +${gained} → ${ch[prop]}`
+        + (dest === 'MParis' ? ' (prisonnier : versé à Paris)' : ''),
+      gained > 0 ? 'gain' : 'info',
+      undefined,
+      `grade ${rankM} · office ${officeM} · titre ${titleM} · Légion d’Honneur ${lohM} = ${total} F`,
     );
-    if (total > 0) this.applyStat(dest, total, 'solde');
   }
 
   private buildDeck(code: string) {
@@ -1410,7 +1418,10 @@ export class Game {
 
   private stepDraw() {
     if (this.roundEnded || this.deck.length === 0) {
+      // le round se ferme : la table se débarrasse aussi de la carte Combat,
+      // qui restait sinon affichée jusqu'au prochain tirage
       this.currentCard = null;
+      this.combatCard = null;
       this.stage = 'round-over';
       this.sub = 0;
       return;
@@ -2272,13 +2283,20 @@ export class Game {
   private resolveCampaignEvent(c: CampaignCard) {
     const ch = this.ch;
     if (c.id === 'the-terror') {
-      // la carte le dit : elle ne trouve pas un homme absent
-      if (ch.absent) { this.info('Absent : la Terreur ne l’atteint pas.'); return; }
-      const r = d10(this.rng);
-      this.roll(`La Terreur : 1D10=${r}`);
-      if (r === 1) { this.warn('Guillotiné !'); this.die(); }
-      else if (r <= 3) { this.warn('Emprisonné : prochaine carte sans effet.'); ch.flags.skipReason = 'Emprisonné'; }
-      else this.info('Exonéré.');
+      // « commands: all » : chacun passe devant le Comité, non le seul piocheur.
+      // Un absent, lui, n'est pas là pour qu'on l'y traîne.
+      const first = this.active;
+      for (let i = 0; i < this.chars.length; i++) {
+        this.active = (first + i) % this.chars.length;
+        if (this.ch.absent) { this.info('Absent : la Terreur ne l’atteint pas.'); continue; }
+        if (this.chars.length > 1) this.who();
+        const r = d10(this.rng);
+        this.roll(`La Terreur : 1D10=${r}`);
+        if (r === 1) { this.warn('Guillotiné !'); this.die(); }
+        else if (r <= 3) { this.warn('Emprisonné : prochaine carte sans effet.'); this.ch.flags.skipReason = 'Emprisonné'; }
+        else this.info('Exonéré.');
+      }
+      this.active = first;
       return;
     }
     const drawer = this.active;
@@ -2300,7 +2318,10 @@ export class Game {
         if (engaged(cmds, this.chars[drawer])) { any = true; armistice = true; }
         continue;
       }
-      for (const idx of rotation) {
+      // certaines actions n'appartiennent qu'à celui qui a tiré la carte : les
+      // autres n'y étaient pas, quand bien même leur commandement y figure
+      const rota = ev.drawingGrognardOnly ? [drawer] : rotation;
+      for (const idx of rota) {
         const who = this.chars[idx];
         if (!engaged(cmds, who) || who.absent) continue;
         // les batailles des Cent-Jours n'engagent que les Bonapartistes
@@ -2336,10 +2357,13 @@ export class Game {
     const gStart = this.ch.G;
     const vals = ev.values ? (ev.values[this.category()] ?? ev.values.any) : null;
     if (vals) {
-      const { W, P, ...rest } = vals;
-      this.applyEffects(rest);
+      // l'ordre de la carte : on encaisse d'abord, on récolte ensuite — sinon
+      // un homme monte en grade avant qu'on sache s'il finit prisonnier
+      const { W, P, M, ...rest } = vals;
       if (W) this.checkWound(W);
       if (P && this.ch.absent?.type !== 'death') this.checkPrisoner(P);
+      this.applyEffects(rest);
+      if (M && this.ch.absent?.type !== 'prisoner') this.applyStat('M', M, 'butin');
     }
     if ((ev.legionOfHonor || ev.armsOfHonor) &&
         this.ch.absent?.type !== 'death' && this.ch.absent?.type !== 'prisoner') {
@@ -2469,10 +2493,9 @@ export class Game {
         this.info(this.ch.standing > 0 ? 'Cité dans les dépêches (standing).' : 'Son fait d’armes est passé sous silence (standing).');
       }
     }
-    if (N) this.applyStat('N', N, 'bataille');
-    if (G) this.applyStat('G', G, 'bataille');
-    if (E) this.applyStat('E', E, 'bataille');
-
+    // L'ordre de la carte, et il compte : blessure, capture, puis seulement les
+    // gains. Autrement le Grognard était promu avant qu'on sache s'il tombait
+    // aux mains de l'ennemi — et un prisonnier ne monte pas en grade.
     let becamePrisoner = false;
     if (glory) {
       const W = (cb.W ?? 0) + num(evv.W);
@@ -2483,6 +2506,10 @@ export class Game {
         becamePrisoner = ch.absent?.type === 'prisoner';
       }
     } else this.info('À distance respectueuse : ni blessure ni capture possibles.');
+
+    if (N) this.applyStat('N', N, 'bataille');
+    if (G) this.applyStat('G', G, 'bataille');
+    if (E) this.applyStat('E', E, 'bataille');
 
     if (ch.absent?.type !== 'death' && !becamePrisoner) {
       if (cb.M) this.applyStat('M', cb.M, 'butin');
