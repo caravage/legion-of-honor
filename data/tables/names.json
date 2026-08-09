@@ -1,0 +1,37 @@
+{
+  "comment": "Grognard Name Generator. Jets en 1d6+1d6 lus comme un couple (dé1-dé2). Noms tirés des listes de généraux napoléoniens.",
+  "middleNameCount": { "comment": "2d6", "2-6": 0, "7-9": 1, "10-12": 2 },
+  "rule": "Si un second prénom est identique au prénom ou à l'autre second prénom, relancer.",
+  "given": {
+    "1-1": "Louis", "1-2": "Adrien", "1-3": "Claude", "1-4": "Gilbert", "1-5": "François", "1-6": "Adolphe",
+    "2-1": "Étienne", "2-2": "Jérôme", "2-3": "Pierre", "2-4": "Michel", "2-5": "Nicolas", "2-6": "Maximilien",
+    "3-1": "Jean-Baptiste", "3-2": "Anatole", "3-3": "Auguste", "3-4": "Hippolyte", "3-5": "André", "3-6": "Toussaint",
+    "4-1": "André-Philippe", "4-2": "Dominique", "4-3": "Charles", "4-4": "François", "4-5": "Laurent", "4-6": "Marc",
+    "5-1": "Jean", "5-2": "Jean-Louis", "5-3": "René", "5-4": "Antoine", "5-5": "Guillaume", "5-6": "Jean-Joseph",
+    "6-1": "Jacques", "6-2": "Georges", "6-3": "Martin", "6-4": "Édouard", "6-5": "Honoré", "6-6": "Henri"
+  },
+  "second": {
+    "1-1": "Alexandre", "1-2": "Xavier", "1-3": "Simeon", "1-4": "Roussel", "1-5": "Gabriel", "1-6": "Édouard",
+    "2-1": "Jacques", "2-2": "Philibert", "2-3": "Jeannot", "2-4": "Louis", "2-5": "Charles", "2-6": "Desvaux",
+    "3-1": "Mathieu", "3-2": "François", "3-3": "Frédéric", "3-4": "Gaudens", "3-5": "Nicholas", "3-6": "Claude",
+    "4-1": "Maurice", "4-2": "Alexis", "4-3": "Pierre", "4-4": "Christophe", "4-5": "Nicolas", "4-6": "Aloyse",
+    "5-1": "Charles", "5-2": "Joseph", "5-3": "Martin", "5-4": "Maurice", "5-5": "Marie", "5-6": "Sebastien",
+    "6-1": "Antoine", "6-2": "Jean", "6-3": "Étienne", "6-4": "Nicolas", "6-5": "Benoît", "6-6": "Isidore"
+  },
+  "third": {
+    "1-1": "Philibert", "1-2": "Joseph", "1-3": "Alexandre", "1-4": "Victor", "1-5": "Binet", "1-6": "Casimir",
+    "2-1": "Joseph", "2-2": "Julien", "2-3": "Joseph", "2-4": "Viesse", "2-5": "Augustin", "2-6": "Auguste",
+    "3-1": "Guillaume", "3-2": "Benoît", "3-3": "Louis", "3-4": "Henri", "3-5": "Louis", "3-6": "Claude",
+    "4-1": "Hippolyte", "4-2": "Guy", "4-3": "François", "4-4": "Martin", "4-5": "Antoine", "4-6": "Victor",
+    "5-1": "Valentin", "5-2": "Ignace", "5-3": "Marcellin", "5-4": "Valentin", "5-5": "Aimé", "5-6": "Marie",
+    "6-1": "Alexis", "6-2": "Simon", "6-3": "Adrien", "6-4": "Isidore", "6-5": "Michel", "6-6": "Pascal"
+  },
+  "surname": {
+    "1-1": "Brue", "1-2": "Delort", "1-3": "Domon", "1-4": "Maurin", "1-5": "Lagarde", "1-6": "Mortier",
+    "2-1": "Jamin", "2-2": "Mouton", "2-3": "Bauduin", "2-4": "Lefol", "2-5": "Oudinot", "2-6": "Grenier",
+    "3-1": "Jourdan", "3-2": "Vinot", "3-3": "Nogues", "3-4": "Jeanin", "3-5": "Pegot", "3-6": "Bessières",
+    "4-1": "Suchet", "4-2": "Hubert", "4-3": "Gauthier", "4-4": "Habert", "4-5": "Gérard", "4-6": "Dufour",
+    "5-1": "Girard", "5-2": "Lefebvre", "5-3": "Pécheux", "5-4": "Gervais", "5-5": "Brune", "5-6": "Bourgeois",
+    "6-1": "Vichery", "6-2": "Chastel", "6-3": "Foy", "6-4": "Sérurier", "6-5": "Watier", "6-6": "Husson"
+  }
+}

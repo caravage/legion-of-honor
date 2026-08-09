@@ -1,0 +1,19 @@
+{
+  "comment": "Fair Sex Sheet + résumé des règles optionnelles XXIII (depuis Rules Summary Sheet). Détail complet du chapitre XXIII à vérifier au livret optionnel.",
+  "ladies": ["Babette", "Brigitte", "Eva", "Hortense", "Joan", "Juliet", "Marie", "Pauline", "Rachelle", "Yvette"],
+  "trackNote": "Chaque dame a 3 compteurs C (charme), I (influence), M (argent), chacun 1-10. Variations en Fair Sex Phase via Lady Quality Table (fate-sheet.json).",
+  "meetALady": "Amener une nouvelle dame en jeu ; jets pour ses C, I, M. Peut ensuite courtiser/proposer (pas forcément la même dame).",
+  "attractiveness": "M/25down + C + nb de grades au-dessus de sergent + titre (5 comte, 10 duc, 15 prince) + 5 si office + ardor.",
+  "ardor": "+1 par échec de cour/demande auprès de la même dame.",
+  "courtPropose": "Coût M-5. Si 1D10 <= (attractiveness - (C+I+M) de la dame), elle devient épouse ou maîtresse.",
+  "support": "Support Phase : épouse = C+I+M payé depuis Paris ; maîtresse = (C+I+M)/2down payé depuis la bourse. Si fonds insuffisants : épouse -> Paris à 0 et G-(manque/2down) ; maîtresse -> perdue, plus jamais courtisable.",
+  "income": "M de l'épouse x3 ajouté à Paris en Income Phase.",
+  "gloryPhase": "G + C de l'épouse et de chaque maîtresse. Si cocu : G-3 par Grognard ayant sa femme pour maîtresse.",
+  "indiscretion": "Via le C d'une maîtresse en Glory Phase : le Grognard annonce le G cherché (<= C). 1D10 <= G cherché : pas de G pour le C de l'épouse cette phase et influence de l'épouse inutilisable pour la saison. Vérifier pour chaque maîtresse.",
+  "influenceUse": "L'influence (I) de l'épouse + toutes maîtresses modifie le 1D10 de demande de transfert ; évite les duels (1D10 <= I de la dame avec le plus haut I) ; aide à chercher office (soustraire I de la dame choisie).",
+  "cuckold": "Si l'épouse est maîtresse d'un autre : cocu, partie lésée envers lui (défi possible quel que soit le grade). Le défié renonce à sa maîtresse dans tous les cas. Divorce possible en Fair Sex Phase : G-1D10, plus jamais la courtiser.",
+  "retireMistress": "Annoncer au début de la Fair Sex Phase ; plus jamais la courtiser.",
+  "charmBonus": "C+1 pour les deux duellistes si duel pour cocuage.",
+  "cureBonus": "Prendre une cure avec épouse/maîtresse : H+4 au lieu de H+2.",
+  "verify": true
+}

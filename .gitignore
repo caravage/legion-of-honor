@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.local
+tsconfig.tsbuildinfo
+# planches sources (très lourdes) — seules les découpes sont versionnées
+public/cards/*.png

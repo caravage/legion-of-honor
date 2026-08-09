@@ -1,0 +1,143 @@
+{
+  "comment": "In Garrison Event Cards 19-40 (numérotation 22-30, 32-34, 36-37 déduite de l'ordre des rounds — connus sûrs : 19, 20, 21, 23, 31, 35, 38, 39, 40). Effets condensés (données fonctionnelles).",
+  "cards": [
+    {
+      "id": "louis-xvi-arrested", "num": 19, "round": "I-1", "name": "Louis XVI Arrested",
+      "condition": "Armée de Réserve ou en permission",
+      "choice": { "label": "Chanter la Marseillaise", "effects": { "N": "+1 si 1D10 1-5", "G": 1, "E": 1, "M": "+1D10/2up" } },
+      "wwt": { "restrictedTo": "army-reserve" }
+    },
+    {
+      "id": "you-are-denounced", "num": 20, "round": "I-2", "name": "You are Denounced",
+      "appliesEvenIfAbsent": true,
+      "roll": { "die": "1D10", "results": { "1": "guillotined (mort)", "2-3": "emprisonné : perd son prochain tour (pioche mais n'applique pas)", "4-10": "exonéré (aucun effet)" } }
+    },
+    {
+      "id": "louis-xvi-guillotined", "num": 21, "round": "II-1", "name": "Louis XVI Guillotined",
+      "condition": "Armée de Réserve",
+      "choice": { "label": "Prendre part au régicide (annoncer immédiatement)", "effects": { "N": "+3 si 1D10 1-5", "G": 6, "E": 1 }, "flag": "regicide (-1 à la persécution des Bourbons)" },
+      "wwt": { "restrictedTo": "army-reserve" }
+    },
+    {
+      "id": "coup-9-thermidor", "num": 22, "round": "III-1", "name": "Coup d'état of 9 Thermidor", "numVerify": true,
+      "condition": "Armée de Réserve",
+      "effects": { "N": "+1 si 1D10 1-5, sinon -1 si 6-10", "G": 1, "E": 1 }
+    },
+    {
+      "id": "coup-13-vendemiaire", "num": 23, "round": "III-2", "name": "Coup d'état of 13 Vendemiaire",
+      "condition": "Armée de Réserve",
+      "effects": { "N": 4, "G": 1, "E": 1 },
+      "option": "Peut être réaffecté à l'Armée d'Italie (immédiatement après résolution)",
+      "wwt": { "restrictedTo": "army-reserve", "sameOption": true }
+    },
+    {
+      "id": "marriage-josephine", "num": 24, "round": "III-3", "name": "Marriage of Buonaparte & Josephine", "numVerify": true,
+      "condition": "N >= 8 (y compris permission/retraite) : doit assister",
+      "effects": { "N": 2, "G": 1, "C": 1, "M": -5 }, "insufficientFunds": { "ifTotalMBelow": 5, "instead": { "N": -2 } },
+      "meetALady": true
+    },
+    {
+      "id": "wurmser-mantua", "num": 25, "round": "IV-1", "name": "Würmser's Capitulation at Mantua", "numVerify": true,
+      "condition": "Non-absents de l'Armée d'Italie",
+      "effects": { "N": 1, "G": 3, "E": 2, "M": "+1D10" }
+    },
+    {
+      "id": "coup-18-fructidor", "num": 26, "round": "IV-2", "name": "Coup d'état of 18 Fructidor", "numVerify": true,
+      "condition": "Armée de Réserve, non absent",
+      "effects": { "N": 3, "G": 1, "E": 1 },
+      "wwt": { "restrictedTo": "army-reserve" }
+    },
+    {
+      "id": "coup-18-brumaire", "num": 27, "round": "V-1", "name": "Coup d'état of 18 Brumaire", "numVerify": true,
+      "condition": "Armée de Réserve",
+      "effects": { "N": 6, "G": 1, "E": 1 },
+      "wwt": { "restrictedTo": "army-reserve" }
+    },
+    {
+      "id": "infernal-machine", "num": 28, "round": "VI-1", "name": "The Infernal Machine", "numVerify": true,
+      "condition": "Non absent",
+      "effects": { "N": 3, "G": 1, "C": 1 }, "meetALady": true,
+      "wwt": true
+    },
+    {
+      "id": "fall-moreau-pichegru", "num": 29, "round": "VI-2", "name": "The Fall of Moreau and Pichegru", "numVerify": true,
+      "condition": "N >= 5",
+      "effects": { "promotion": "grade supérieur sans minimums (poste de conspirateur)", "M": "-2 si promu" }
+    },
+    {
+      "id": "execution-enghien", "num": 30, "round": "VI-3", "name": "Execution of Duc D'Enghien", "numVerify": true,
+      "effects": { "N": 5, "G": 1, "E": 1, "M": "+1D10/2up" },
+      "note": "Participe même si zeal sur la carte précédente"
+    },
+    {
+      "id": "grand-review-boulogne", "num": 31, "round": "VI-4", "name": "Grand Review at Boulogne",
+      "subEvents": [
+        { "name": "Creation of the Marshalate", "effects": { "G": "+1 tous non-absents sauf II Corps" }, "unlock": "titre de maréchal disponible" },
+        { "name": "The Grand Review", "perRank": { "line": { "N": 3, "E": 2 }, "field": { "N": 2, "E": 2 }, "general": { "N": 1, "E": 2 } } }
+      ],
+      "unlocks": ["Légion d'Honneur (conversion des Arms of Honor)"],
+      "wwt": true
+    },
+    {
+      "id": "crowning-of-napoleon", "num": 32, "round": "VI-5", "name": "Crowning of Napoleon", "numVerify": true,
+      "condition": "Non-absents et en permission avec S >= +2",
+      "effects": { "G": 1, "C": 1, "M": -3 }, "insufficientFunds": { "ifTotalMBelow": 3, "instead": "ne peut pas assister" },
+      "meetALady": true
+    },
+    {
+      "id": "christmas-warsaw", "num": 33, "round": "IX-1", "name": "Christmas Camp in Warsaw", "numVerify": true,
+      "condition": "III, IV, VII et Reserve Corps",
+      "effects": { "N": "+1D10/3down" },
+      "meetALady": true
+    },
+    {
+      "id": "peace-of-tilsit", "num": 34, "round": "X-1", "name": "Peace of Tilsit", "numVerify": true,
+      "condition": "III Corps",
+      "effects": { "N": "+1D10/3down", "G": 1, "E": 1 }
+    },
+    {
+      "id": "revolt-of-may-2nd", "num": 35, "round": "X-2", "name": "Revolt of May 2nd",
+      "appliesEvenIfAbsent": true,
+      "roll": { "die": "1D10", "results": { "1-4": "envoyé en Espagne : 2D10 sur les commandements d'Espagne (immédiat)", "5-10": "aucun effet" } },
+      "note": "Sans les règles optionnelles Espagne : pas de réaffectation, tour perdu"
+    },
+    {
+      "id": "marriage-marie-louise", "num": 36, "round": "XII-1", "name": "Marriage of Napoleon & Marie Louise", "numVerify": true,
+      "condition": "Non-absents hors Espagne avec N >= 20 : doivent assister",
+      "effects": { "N": 2, "C": 1, "M": -10, "H": 5 }, "insufficientFunds": { "ifTotalMBelow": 10, "instead": { "N": -2 } },
+      "meetALady": true
+    },
+    {
+      "id": "birth-king-of-rome", "num": 37, "round": "XII-2", "name": "Birth of the King of Rome", "numVerify": true,
+      "condition": "Non-absents hors Espagne",
+      "effects": { "N": "+1D10/3up", "M": -5, "C": 1 }, "insufficientFunds": { "ifTotalMBelow": 5, "instead": { "N": -2 } },
+      "meetALady": true
+    },
+    {
+      "id": "the-abdication", "num": 38, "round": "XVI-1", "name": "The Abdication",
+      "loyalty": {
+        "royalist": { "rank": "+1 niveau (max général), sans minimums", "N": -10 },
+        "bonapartist": "Absent jusqu'à The Emperor Returns ; aucun revenu grade/titre/office pendant l'absence"
+      },
+      "order": "Chaque Grognard (même absent, sauf mort) déclare, en commençant par le senior"
+    },
+    {
+      "id": "the-emperor-returns", "num": 39, "round": "XVI-2", "name": "The Emperor Returns",
+      "subEvents": [
+        {
+          "name": "The Emperor Returns",
+          "loyalty": {
+            "royalist": "Retraite définitive, absent pour le reste de la partie",
+            "bonapartist": { "N": 5, "G": 3, "E": 1, "exception": "pas de gains si royaliste à la carte 38 (turncoat, -1 persécution)" }
+          }
+        },
+        { "name": "The March on Paris", "choice": { "label": "Marcher sur Paris (Bonapartistes non absents)", "effects": { "N": 5, "G": 6, "E": 2 }, "flag": "marched (-1 persécution)" } }
+      ],
+      "after": "Bonapartistes : 2D10 pour l'affectation de la saison XVI + jet de standing ; demande de transfert possible"
+    },
+    {
+      "id": "round-ends-card", "num": 40, "round": "VII-1/VIII-1/XI-1/XIII-1/XIV-1/XV-1", "name": "Round Ends on Next 'End of Round'",
+      "special": "Sert d'event card de substitution pour les rounds In Garrison sans event ; récupérée après usage pour les rounds suivants"
+    }
+  ]
+}

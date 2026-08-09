@@ -1,0 +1,100 @@
+{
+  "comment": "Campaign Season Sheet. rounds: numéro = In Garrison, lettre = On Campaign. eventCards par round (ids internes). notes = règles spéciales de la saison.",
+  "seasons": [
+    {
+      "num": 1, "roman": "I", "name": "The Brunswick Manifesto", "years": "1792",
+      "noSegment": true,
+      "rounds": ["I-1", "I-2", "I-A", "I-B"],
+      "events": { "I-1": ["louis-xvi-arrested"], "I-2": ["you-are-denounced"], "I-A": ["battle-of-valmy"], "I-B": ["battle-of-jemappes"] },
+      "notes": ["N non requis pour promotion avant la saison VI", "Pas de titres avant la saison VII"]
+    },
+    {
+      "num": 2, "roman": "II", "name": "War of the 1st Coalition Continues", "years": "1793-4",
+      "rounds": ["II-1", "II-A", "II-B", "II-C"],
+      "events": { "II-1": ["louis-xvi-guillotined"], "II-A": ["neerwinden-traitor"], "II-B": ["rebellion-vendee", "siege-of-toulon"], "II-C": ["the-terror", "battle-of-fleurus"] }
+    },
+    {
+      "num": 3, "roman": "III", "name": "War of the 1st Coalition Ends", "years": "1794-7",
+      "rounds": ["III-1", "III-2", "III-3", "III-A", "III-B"],
+      "events": { "III-1": ["coup-9-thermidor"], "III-2": ["coup-13-vendemiaire"], "III-3": ["marriage-josephine"], "III-A": ["lodi-castiglione"], "III-B": ["arcola-rivoli"] }
+    },
+    {
+      "num": 4, "roman": "IV", "name": "War of the 2nd Coalition Begins", "years": "1798-9",
+      "rounds": ["IV-1", "IV-2", "IV-A", "IV-B", "IV-C"],
+      "events": { "IV-1": ["wurmser-mantua"], "IV-2": ["coup-18-fructidor"], "IV-A": ["battle-of-the-pyramids"], "IV-B": ["first-zurich-trebbia"], "IV-C": ["victories-and-defeat"] }
+    },
+    {
+      "num": 5, "roman": "V", "name": "War of the 2nd Coalition Ends", "years": "1799-1800",
+      "rounds": ["V-1", "V-A", "V-B"],
+      "events": { "V-1": ["coup-18-brumaire"], "V-A": ["st-bernard-marengo"], "V-B": ["battle-of-hohenlinden"] }
+    },
+    {
+      "num": 6, "roman": "VI", "name": "France at Peace", "years": "1800-4",
+      "rounds": ["VI-1", "VI-2", "VI-3", "VI-4", "VI-5"],
+      "events": { "VI-1": ["infernal-machine"], "VI-2": ["fall-moreau-pichegru"], "VI-3": ["execution-enghien"], "VI-4": ["grand-review-boulogne"], "VI-5": ["crowning-of-napoleon"] },
+      "notes": ["Retirer 'You are Accused' après VI-3", "VI-4 : Arms of Honor -> Légion d'Honneur", "N requis pour promotion à partir d'ici"]
+    },
+    {
+      "num": 7, "roman": "VII", "name": "War of the 3rd Coalition", "years": "1805",
+      "rounds": ["VII-1", "VII-A", "VII-B"],
+      "events": { "VII-1": ["round-ends-card"], "VII-A": ["elchingen-danube"], "VII-B": ["battle-of-austerlitz"] },
+      "notes": ["Cartes Etienne Gerard entrent en jeu", "Titres et LoH attribuables"]
+    },
+    {
+      "num": 8, "roman": "VIII", "name": "War of the 4th Coalition Begins", "years": "1806",
+      "rounds": ["VIII-1", "VIII-A"],
+      "events": { "VIII-1": ["round-ends-card"], "VIII-A": ["jena-auerstadt"] }
+    },
+    {
+      "num": 9, "roman": "IX", "name": "War of the 4th Coalition Ends", "years": "1806-7",
+      "rounds": ["IX-1", "IX-A", "IX-B"],
+      "events": { "IX-1": ["christmas-warsaw"], "IX-A": ["battle-of-eylau"], "IX-B": ["danzig-friedland"] }
+    },
+    {
+      "num": 10, "roman": "X", "name": "Peace of Tilsit / War in Spain", "years": "1807-8",
+      "rounds": ["X-1", "X-2", "X-#?"],
+      "events": { "X-1": ["peace-of-tilsit"], "X-2": ["revolt-of-may-2nd"], "X-#?": ["battle-in-spain"] },
+      "notes": ["X-#? : rounds On Campaign supplémentaires uniquement pour Grognards en Espagne (règles optionnelles Espagne)"]
+    },
+    {
+      "num": 11, "roman": "XI", "name": "War with Austria", "years": "1809",
+      "rounds": ["XI-1", "XI-A", "XI-B", "XI-C"],
+      "events": { "XI-1": ["round-ends-card"], "XI-A": ["battle-of-eckmuhl"], "XI-B": ["vienna-aspern-essling"], "XI-C": ["battle-of-wagram"] },
+      "notes": ["Ajouter la carte In Garrison 'Assigned to Spain' (règles Espagne)", "Battle in Spain selon Spain Battle Chart"]
+    },
+    {
+      "num": 12, "roman": "XII", "name": "Empire at Peace", "years": "1810-11",
+      "rounds": ["XII-1", "XII-2", "XII-#?"],
+      "events": { "XII-1": ["marriage-marie-louise"], "XII-2": ["birth-king-of-rome"], "XII-#?": ["battle-in-spain"] }
+    },
+    {
+      "num": 13, "roman": "XIII", "name": "War with Russia", "years": "1812",
+      "rounds": ["XIII-1", "XIII-A", "XIII-B", "XIII-C"],
+      "events": { "XIII-1": ["round-ends-card"], "XIII-A": ["march-into-russia"], "XIII-B": ["battle-of-borodino"], "XIII-C": ["moscow-berezina"] }
+    },
+    {
+      "num": 14, "roman": "XIV", "name": "The German Campaign", "years": "1813",
+      "rounds": ["XIV-1", "XIV-A", "XIV-B", "XIV-C"],
+      "events": { "XIV-1": ["round-ends-card"], "XIV-A": ["lutzen-bautzen-armistice"], "XIV-B": ["dresden-katzbach"], "XIV-C": ["battle-of-leipzig"] },
+      "notes": ["Pas d'échange de prisonniers en fin de saison XIV"]
+    },
+    {
+      "num": 15, "roman": "XV", "name": "Campaign for la Patrie", "years": "1814",
+      "rounds": ["XV-1", "XV-A", "XV-B"],
+      "events": { "XV-1": ["round-ends-card"], "XV-A": ["battle-of-la-rothiere"], "XV-B": ["six-days-of-glory"] },
+      "notes": ["Retirer Battle in Spain et Assigned to Spain en fin de saison", "Transfert Garde Impériale possible (saisons XV-XVI)"]
+    },
+    {
+      "num": 16, "roman": "XVI", "name": "The Hundred Days", "years": "1814-15",
+      "rounds": ["XVI-1", "XVI-2", "XVI-A"],
+      "events": { "XVI-1": ["the-abdication"], "XVI-2": ["the-emperor-returns"], "XVI-A": ["battle-of-ligny", "battle-of-quatre-bras", "battle-of-wavre", "battle-of-waterloo"] },
+      "notes": [
+        "XVI-A : seul Ligny dans le deck On Campaign ; après résolution, plus de pioche — résoudre Quatre Bras, Wavre, Waterloo en séquence par cartes Combat",
+        "Waterloo : insérer Victory at Mont St. Jean!, retirer les 2 Carry the Day",
+        "Carry the Day tiré à Ligny/QB/Wavre : peut faire défausser+repiocher la première carte Combat d'un Grognard à Waterloo (sauf si carte 180 : fin immédiate)"
+      ]
+    }
+  ],
+  "roundEndsCardRounds": ["VII-1", "VIII-1", "XI-1", "XIII-1", "XIV-1", "XV-1"],
+  "deckBuilding": "Deck du round = event cards du round + assez de cartes In Garrison / On Campaign pour un total de 3 cartes par Grognard. End of Round? avant que tous les events soient tirés : le round continue (tour perdu) ; après : fin immédiate du round."
+}

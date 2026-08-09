@@ -1,0 +1,29 @@
+{
+  "comment": "Assignment Sheet — commandements par saison avec plages 2D10 inclusives. dissolved: fin de saison indiquée.",
+  "bySeason": {
+    "I":    [ { "cmd": "army-north", "range": [1, 20] }, { "cmd": "army-center", "range": [21, 40], "dissolved": true, "note": "Début saison II : 1D10 impair -> Sambre-Meuse, pair -> Rhin-Moselle, sans jet de réaffectation" }, { "cmd": "army-rhine", "range": [41, 60], "becomes": "army-rhine-moselle" }, { "cmd": "army-italy", "range": [61, 80] }, { "cmd": "army-reserve", "range": [81, 100] } ],
+    "II-III": [ { "cmd": "army-north", "range": [1, 20] }, { "cmd": "army-sambre-meuse", "range": [21, 40], "dissolvedIn": "III" }, { "cmd": "army-italy", "range": [41, 60] }, { "cmd": "army-rhine-moselle", "range": [61, 80] }, { "cmd": "army-reserve", "range": [81, 100] } ],
+    "IV":   [ { "cmd": "army-north", "range": [1, 16] }, { "cmd": "army-helvetia", "range": [17, 32] }, { "cmd": "army-italy", "range": [33, 48] }, { "cmd": "army-rhine-moselle", "range": [49, 64], "becomes": "army-rhine" }, { "cmd": "army-reserve", "range": [65, 82] }, { "cmd": "army-orient", "range": [83, 100], "dissolved": true } ],
+    "V":    [ { "cmd": "army-north", "range": [1, 20], "dissolved": true }, { "cmd": "army-helvetia", "range": [21, 40], "dissolved": true }, { "cmd": "army-italy", "range": [41, 60], "dissolved": true }, { "cmd": "army-rhine", "range": [61, 80], "dissolved": true }, { "cmd": "army-reserve", "range": [81, 100], "dissolved": true } ],
+    "VI-VII": [ { "cmd": "corps-1", "range": [1, 16] }, { "cmd": "corps-2", "range": [17, 32], "dissolvedIn": "VII" }, { "cmd": "corps-3", "range": [33, 48] }, { "cmd": "corps-4", "range": [49, 64] }, { "cmd": "corps-5", "range": [65, 82] }, { "cmd": "corps-6", "range": [83, 100] } ],
+    "VIII": [ { "cmd": "corps-1", "range": [1, 16] }, { "cmd": "corps-3", "range": [17, 32] }, { "cmd": "corps-4", "range": [33, 48] }, { "cmd": "corps-5", "range": [49, 64], "dissolved": true }, { "cmd": "corps-6", "range": [65, 82] }, { "cmd": "corps-7", "range": [83, 100] } ],
+    "IX":   [ { "cmd": "corps-1", "range": [1, 16], "dissolved": true }, { "cmd": "corps-3", "range": [17, 32] }, { "cmd": "corps-4", "range": [33, 48] }, { "cmd": "corps-6", "range": [49, 64], "dissolved": true }, { "cmd": "corps-7", "range": [65, 82], "dissolved": true }, { "cmd": "corps-reserve", "range": [83, 100] } ],
+    "X":    [ { "cmd": "corps-2", "range": [1, 20] }, { "cmd": "corps-3", "range": [21, 40] }, { "cmd": "corps-4", "range": [41, 60], "dissolved": true }, { "cmd": "corps-reserve", "range": [61, 80], "dissolved": true }, { "cmd": "army-italy", "range": [81, 100] } ],
+    "XI-XII": [ { "cmd": "corps-2", "range": [1, 16], "dissolvedIn": "XII" }, { "cmd": "corps-3", "range": [17, 32], "becomes": "corps-1" }, { "cmd": "corps-4", "range": [33, 48], "dissolvedIn": "XII" }, { "cmd": "corps-9", "range": [49, 64], "dissolvedIn": "XII" }, { "cmd": "corps-11", "range": [65, 82], "dissolvedIn": "XII" }, { "cmd": "army-italy", "range": [83, 100], "becomes": "corps-4" } ],
+    "XIII": [ { "cmd": "corps-1", "range": [1, 16], "dissolved": true }, { "cmd": "corps-3", "range": [17, 32], "dissolved": true }, { "cmd": "corps-4", "range": [33, 48] }, { "cmd": "corps-7", "range": [49, 64] }, { "cmd": "corps-8", "range": [65, 82], "dissolved": true }, { "cmd": "corps-10", "range": [83, 100] } ],
+    "XIV":  [ { "cmd": "corps-3", "range": [1, 16], "dissolved": true }, { "cmd": "corps-4", "range": [17, 32] }, { "cmd": "corps-5", "range": [33, 48], "dissolved": true, "prisonerNote": "Prisonnier pendant la saison XV sans affectation" }, { "cmd": "corps-6", "range": [49, 64] }, { "cmd": "corps-7", "range": [65, 82], "dissolved": true, "prisonerNote": "Prisonnier pendant la saison XV sans affectation" }, { "cmd": "corps-10", "range": [83, 100], "dissolved": true } ],
+    "XV":   [ { "cmd": "corps-2", "range": [1, 16], "dissolved": true }, { "cmd": "corps-4", "range": [17, 32], "dissolved": true, "prisonerNote": "Prisonnier à partir du round XV-A jusqu'à la fin de saison" }, { "cmd": "corps-6", "range": [33, 48], "dissolved": true }, { "cmd": "corps-11", "range": [49, 64], "dissolved": true, "prisonerNote": "Prisonnier à partir du round XV-A jusqu'à la fin de saison" }, { "cmd": "corps-reserve", "range": [65, 82], "dissolved": true }, { "cmd": "imperial-guard", "range": [83, 100], "payMultiplier": 1.5 } ],
+    "XVI":  [ { "cmd": "corps-1", "range": [1, 16] }, { "cmd": "corps-2", "range": [17, 32] }, { "cmd": "corps-3", "range": [33, 48] }, { "cmd": "corps-4", "range": [49, 64] }, { "cmd": "corps-6", "range": [65, 82] }, { "cmd": "imperial-guard", "range": [83, 100], "payMultiplier": 1.5 } ]
+  },
+  "spain": {
+    "comment": "Disponibles saisons X à XV, tous dissous fin XV.",
+    "commands": [ { "cmd": "army-andalusia", "range": [1, 25] }, { "cmd": "army-castille", "range": [26, 50] }, { "cmd": "army-portugal", "range": [51, 75] }, { "cmd": "army-catalonia", "range": [76, 100] } ]
+  },
+  "transfers": {
+    "sergentToMajor": "1D10 >= (n) de la case de standing -> transfert approuvé vers tout commandement disponible",
+    "colonelToGdD": "1D10 < N/x arrondi bas (colonel x=15, GdB x=20, GdD x=25) -> approuvé",
+    "generalMarechal": "Pas de demande de transfert",
+    "imperialGuard": "Saisons XV-XVI : réussi si 1D10 <= N/25up + 1 par niveau LoH ; automatique après 5 blessures (hors duels, depuis dernière mort)"
+  },
+  "precludedSeniorCommands": [ { "cmd": "army-reserve", "seasons": ["V"] }, { "cmd": "army-italy", "seasons": ["II", "III"] }, { "cmd": "army-orient", "seasons": ["IV"] } ]
+}

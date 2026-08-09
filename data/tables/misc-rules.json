@@ -1,0 +1,49 @@
+{
+  "characterCreation": {
+    "assignment": "2D10 sur la ligne saison I de l'Assignment Sheet",
+    "rank": "1D10 : 1-5 sergent, 6-10 sous-lieutenant (sans minimums)",
+    "N": "1D10/4down", "G": "1D10", "E": "1D10/2up",
+    "moneyParis": "2D10/4down", "moneyPurse": "1D10",
+    "H": "100 - 1D10", "F": "1D10/3up", "C": "à définir (règle Fair Sex : jet initial à vérifier)", "S": "+0 (case 5)"
+  },
+  "money": {
+    "incomeSources": "grade + titre noble le plus élevé + office + niveau LoH courant ; Garde Impériale : M du grade x1.5up",
+    "absentIncome": "grade et office /2down ; retraité : pas d'office ; mort : rien ; prisonnier : tout va à Paris",
+    "expenditures": "toujours depuis la bourse (exception Fair Sex : support de l'épouse depuis Paris)",
+    "plunderedOnCapture": "toute la bourse perdue (après gains de la carte)",
+    "loans": "multijoueur — sans objet en solo (ou PNJ prêteur à définir)"
+  },
+  "absences": {
+    "furlough": "Annonce en début d'In Garrison Round, S-1 par round. Une action par carte tirée : escrime F+1, cure H+2 (H+4 avec dame), meet a lady/court/propose, corruption, transfert, office. Fin auto au premier On Campaign Round.",
+    "convalescence": "Blessure grave/sévère/mauvaise. Jet de récupération par Recovery Phase (voir fate-sheet).",
+    "retirement": "Volontaire (début de saison) ou involontaire (H=0). Pas de commandement. Une action par carte comme permission (sans corruption/transfert/office ; à vérifier). Retour en début de saison ; santé involontaire : retour si H>=1.",
+    "death": "Retour en début de saison suivante : N/G/E/M/C/F x0.75up ; grade recalculé au plus haut éligible ; H = moyenne des vivants (solo : à adapter, ex. 75-1D10) ; LoH -1 niveau ; perd office et titres ; réaffecté (pas l'Espagne).",
+    "prisoner": "Jusqu'à l'échange en fin de saison (pas fin XIV). Évasion : voir on-campaign.json. Revenus vers Paris. Pas de promotion/LoH/titre.",
+    "commonRules": "Absent : pas de réaffectation, cartes piochées sans effet (sauf 20 et 75), event cards s'appliquent, revenus /2."
+  },
+  "winning": {
+    "multiplayer": "1 PV par catégorie : plus haut grade (départage titre), plus de gloire, plus haut LoH, plus d'argent (Paris+bourse). Victoire immortelle : tirer Victory at Mont St. Jean!",
+    "soloAdaptation": "À définir : score de carrière (grade final, G, LoH, M, titres) + hall of fame local ; victoire absolue si carte 180."
+  },
+  "soloAdaptations": {
+    "comment": "Décisions de conception pour le mode solo (1 Grognard, app = MJ). À valider.",
+    "seniorGrognard": "Le joueur est toujours senior : l'app construit les decks et distribue.",
+    "weWereThere": "1D10 <= 1 (un seul Grognard en jeu) — garder tel quel : rare mais possible.",
+    "comradesInArms": "Impossible en solo (jamais deux mêmes cartes tirées). Option : désactiver, ou PNJ camarade (à concevoir).",
+    "duelsBetweenPlayers": "Sans objet ; duels contre PNJ de cartes conservés (Burger, champion, huntmaster, second de Feraud -> PNJ).",
+    "cardsTargetingOtherPlayers": {
+      "challenge-to-horse-race": "PNJ : l'adversaire roule 1D10 normalement",
+      "spread-rumors": "Cibler un officier PNJ sans effet, ou retirer la carte — proposé : la carte devient 'rumeurs contre vous' inversée ? à décider",
+      "celebratory-drinking-bout": "PNJ buveurs (2-4 camarades avec santé 1D10+60) — à décider",
+      "second-to-dhubert": "Duel contre PNJ (F = 1D10)",
+      "dangerous-mission": "Pas d'autre Grognard : doit accepter (règle existante)",
+      "sack-the-town": "Le joueur garde tout le butin",
+      "gamble-with-grognard": "Contre PNJ ou désactivé (gamble contre la maison conservé)",
+      "spread-rumors-of-cowardice": "Retirer ou inverser — à décider",
+      "affect-transfer": "Sans objet",
+      "loans": "Sans objet ou usurier PNJ"
+    },
+    "seniorCommander": "Le joueur général/maréchal est senior commander de son commandement ; commandements exclus inchangés.",
+    "deckSize": "3 cartes par Grognard -> decks de 3 + events en solo : à équilibrer (proposé : garder 3 cartes, rounds plus courts, ou passer à 5-6 pour plus de jeu — à décider)."
+  }
+}

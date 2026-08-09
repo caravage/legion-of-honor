@@ -1,0 +1,52 @@
+{
+  "comment": "Grognard Sheet — grades, seuils de promotion (N/G/E) et revenu M par Income Phase. category: line/field/general.",
+  "ranks": [
+    { "id": "sergent",             "name": "Sergent",             "category": "line",    "income": 2,  "promotion": { "N": 0,  "G": 0,   "E": 0 } },
+    { "id": "sous-lieutenant",     "name": "Sous-Lieutenant",     "category": "line",    "income": 4,  "promotion": { "N": 0,  "G": 20,  "E": 20 } },
+    { "id": "lieutenant",          "name": "Lieutenant",          "category": "line",    "income": 6,  "promotion": { "N": 0,  "G": 50,  "E": 45 } },
+    { "id": "capitaine",           "name": "Capitaine",           "category": "line",    "income": 8,  "promotion": { "N": 0,  "G": 80,  "E": 65 } },
+    { "id": "chef-de-bataillon",   "name": "Chef de Bataillon",   "category": "field",   "income": 10, "promotion": { "N": 0,  "G": 105, "E": 90 } },
+    { "id": "major",               "name": "Major",               "category": "field",   "income": 12, "promotion": { "N": 0,  "G": 130, "E": 110 } },
+    { "id": "colonel",             "name": "Colonel",             "category": "field",   "income": 14, "promotion": { "N": 40, "G": 155, "E": 130 } },
+    { "id": "general-de-brigade",  "name": "Général de Brigade",  "category": "field",   "income": 16, "promotion": { "N": 50, "G": 190, "E": 155 } },
+    { "id": "general-de-division", "name": "Général de Division", "category": "general", "income": 18, "promotion": { "N": 65, "G": 215, "E": 175 } },
+    { "id": "general",             "name": "Général",             "category": "general", "income": 20, "promotion": { "N": 85, "G": 240, "E": 200 }, "verify": true },
+    { "id": "marechal",            "name": "Maréchal",            "category": "general", "income": 22, "promotion": null, "note": "Titre-grade. Requiert grade de général + carte Combat (Title?) après la Création du Maréchalat. Pas de minimums N/G/E. Revenu M22 remplace celui de général." }
+  ],
+  "promotionRules": {
+    "nNotRequiredBeforeSeason": 6,
+    "substitution": "N peut compter comme G (1:1, non cumulable avec l'exigence N). G peut compter comme E (2 G pour 1 E, non cumulable avec l'exigence G).",
+    "noDemotion": true,
+    "noPromotionIfKilledByCard": true,
+    "noPromotionWhilePrisoner": true,
+    "rollNewStandingOnPromotion": true
+  },
+  "titles": [
+    { "id": "comte",  "name": "Comte",  "income": 15, "prerequisiteRank": "general-de-brigade+", "combatCards": ["carry-the-day", "lead-counterattack", "telling-maneuver"] },
+    { "id": "duc",    "name": "Duc",    "income": 25, "prerequisiteRank": "marechal|general",    "combatCards": ["carry-the-day", "lead-counterattack", "telling-maneuver"], "verify": true },
+    { "id": "prince", "name": "Prince", "income": 35, "prerequisiteRank": "marechal+duc",        "combatCards": ["carry-the-day"] }
+  ],
+  "titleRules": {
+    "startSeason": 7,
+    "requirements": "Acte de gloire + carte Combat marquée (Title?) dans la même bataille + grade/titre prérequis. Un seul titre non-militaire par bataille. Revenu du seul titre le plus élevé (exception : maréchal cumule avec comte/duc/prince). Pas de titre si mort ou prisonnier dans la bataille (sauf protégé/sauvé/secouru)."
+  },
+  "office": { "income": 10, "seekRequirement": "Général de brigade ou plus. Idle Time ou permission. Réussi si 1D10 <= N/10 arrondi bas. Un seul office à la fois." },
+  "legionOfHonor": {
+    "levels": [
+      { "id": "cavalier",       "level": 1, "glory": 2,  "income": 1 },
+      { "id": "officer",        "level": 2, "glory": 4,  "income": 2 },
+      { "id": "commandeur",     "level": 3, "glory": 6,  "income": 3 },
+      { "id": "grande-officer", "level": 4, "glory": 8,  "income": 4 },
+      { "id": "grande-croix",   "level": 5, "glory": 10, "income": 5 }
+    ],
+    "award": "Après une bataille (à partir du Round VI-4 ; avant : Arms of Honor, inversé, sans revenus ni gloire). Somme des G gagnés dans la bataille / 4 arrondi bas ; attribué si 1D10 <= ce nombre. Pas si mort ou prisonnier. Seul le niveau courant rapporte G et M.",
+    "armsOfHonor": "Convertis en Légion d'Honneur au niveau atteint lors de la carte Grand Review at Boulogne (VI-4)."
+  },
+  "standingTable": {
+    "comment": "1D10 -> nouveau standing (promotion, réaffectation). Le (n) entre parenthèses sur la piste sert aussi de seuil de réaffectation/transfert.",
+    "map": { "1": -4, "2": -3, "3": -2, "4": -1, "5": 0, "6": 1, "7": 2, "8": 3, "9": 4, "10": 5 },
+    "limits": { "min": -4, "max": 5 },
+    "reassignmentThreshold": "Réaffecté si 1D10 >= (n) de la case de standing courante ; colonel→maréchal : réaffecté sur 1-3.",
+    "generalsNoStanding": "Général et maréchal : plus de standing (compteur chapeau de Napoléon, +0), ignorer les changements."
+  }
+}

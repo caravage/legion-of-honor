@@ -1,0 +1,45 @@
+{
+  "comment": "Cartes 1-18. Épées 1-16 : 7 Lunge, 2 Riposte, 7 Parry (Lunge/Riposte sont à double sens : pointer 'to Kill' ou 'to Wound'). Pistolets 17-18 : Fire (to Kill / to Wound).",
+  "swordDeck": [
+    { "count": 7, "type": "lunge",   "dualEnd": true },
+    { "count": 2, "type": "riposte", "dualEnd": true },
+    { "count": 7, "type": "parry",   "dualEnd": false }
+  ],
+  "pistolCards": [ { "count": 2, "type": "fire", "dualEnd": true } ],
+  "swordInteraction": {
+    "comment": "Réponse du joueur B à la carte jouée par A. wounded = duel terminé.",
+    "vs-lunge":   { "lunge": "B-wounded", "parry": "safe-A-plays-next", "riposte": "safe-and-counts-as-lunge-at-A", "no-card": "B-wounded" },
+    "vs-parry":   { "lunge": "safe", "parry": "safe", "riposte": "safe-counts-as-parry", "no-card": "safe" },
+    "vs-riposte": { "lunge": "B-wounded", "parry": "safe", "riposte": "safe-and-counts-as-lunge-at-A", "no-card": "B-wounded" }
+  },
+  "swordProcedure": [
+    "Le défié mélange les 16 cartes, distribue 5 à chacun",
+    "+1 carte par avantage : escrime supérieure (quel que soit l'écart) ; santé supérieure de 10+",
+    "Le défié choisit qui commence ; cartes jouées face visible en alternance",
+    "Si les deux épuisent leurs cartes sans blessé : nouveau duel (le duel continue)"
+  ],
+  "pistolProcedure": [
+    "Chacun prend une carte Fire, compte jusqu'à 3, révèle en pointant to Kill ou to Wound",
+    "Misfire : chacun 2D10 ; 1-5 = raté, l'autre tire en premier (le raté ne tire pas). Double misfire : fin par accord mutuel ou on recommence",
+    "Sinon 1D10 chacun, le plus haut tire en premier (relancer les égalités)",
+    "Tireur : 1D10 1-5 (1-4 contre le Burger) = adversaire touché",
+    "Le second tire ensuite sauf s'il est tué/gravement blessé ou si son pistolet a raté"
+  ],
+  "results": {
+    "wounded": "Le vainqueur lance 2D10 sur la Wound Table (+10 si 'to Wound' pointé)",
+    "bothDuelists": { "S": -3, "G": 3, "E": 1 },
+    "winnerUnwounded": { "G": 3 },
+    "kill": { "G": 3, "N": -3 },
+    "swordDuel": { "F": 1 },
+    "cuckoldDuel": { "C": 1 },
+    "woundedIgnoresWoundTableSGE": true,
+    "magnanimity": "Le vainqueur peut ne pas lancer sur la Wound Table : G+5. Impossible contre un personnage de carte.",
+    "fanaticism": "Le perdant gracié peut exiger de rejouer le duel (une fois par duel). Les résultats ci-dessus ne s'appliquent qu'une fois."
+  },
+  "challenges": {
+    "injuredPartyReasons": ["disgrace du commandement", "insulte", "carte Burger", "termes de prêt violés", "cocuage"],
+    "restrictions": ["les deux non absents", "même commandement", "même grade (sauf cocuage)", "In Garrison Round + Idle Time en choisissant Challenge (ou permission)", "pas colonel+ (sauf cocuage)"],
+    "decline": { "G": -5 },
+    "duelingStanding": "S-3 automatique pour qui défie ou accepte"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "woundTable": {
+    "comment": "2D10 (+10 si duel avec 'to Wound' pointé vers le blessé). Pas de G/E/S si blessure en duel.",
+    "rows": [
+      { "range": [1, 11],  "type": "killed",   "effects": null, "note": "Mort. Voir règles de mort/retour." },
+      { "range": [12, 23], "type": "gravely",  "effects": { "G": 5, "E": 1, "H": -20, "S": 4 }, "overrunPrisoner": [1, 30], "convalescenceMultiplier": 3 },
+      { "range": [24, 35], "type": "severely", "effects": { "G": 4, "E": 1, "H": -15, "S": 3 }, "overrunPrisoner": [1, 25], "convalescenceMultiplier": 5 },
+      { "range": [36, 48], "type": "badly",    "effects": { "G": 3, "E": 1, "H": -10, "S": 2 }, "overrunPrisoner": [1, 20], "convalescenceMultiplier": 8 },
+      { "range": [49, 77], "type": "flesh",    "effects": { "G": 2, "E": 1, "H": "-1D10/3down" } },
+      { "range": [78, 100], "type": "scratch", "effects": { "G": 1, "E": 1 } }
+    ],
+    "recovery": "Convalescence si gravely/severely/badly. À chaque Recovery Phase : 1D10 + (rounds complets de convalescence x multiplicateur) ; récupère sur 10+."
+  },
+  "bourbonPersecutionChart": {
+    "comment": "1D10 après défaite de Waterloo, pour chaque Bonapartiste (carte 39). Modificateurs cumulables : -1 régicide (sauf mort après), -1 royaliste devenu bonapartiste (turncoat), -1 a marché sur Paris.",
+    "rows": [
+      { "roll": 1, "result": "executed",  "note": "Exécuté (retour en jeu selon règles de mort, pour le décompte final)." },
+      { "roll": 2, "result": "cashiered", "note": "Cassé : perd tout grade + effets 3 et 4." },
+      { "roll": 3, "result": "deprived",  "note": "Perd la moitié de son argent (Paris+bourse /2 arrondi bas) + effet 4." },
+      { "roll": 4, "result": "honors-forfeit", "note": "Perd titres et offices (garde le grade de maréchal)." },
+      { "roll": [5, 10], "result": "none" }
+    ]
+  },
+  "comradesInArms": {
+    "comment": "2 Grognards, même commandement, même bataille, même carte Combat. Multijoueur — adaptation solo à définir.",
+    "acts": [
+      { "id": "rescue-comrade",  "roll": "1D10 1-5 : le camarade n'est plus prisonnier", "hero": { "N": 3, "G": 12, "S": 3 }, "heroRerollsWoundPrisoner": true },
+      { "id": "protect-comrade", "roll": "1D10 1-5 : le camarade n'est plus blessé",     "hero": { "N": 2, "G": 9,  "S": 2 }, "heroRerollsWoundPrisoner": true },
+      { "id": "save-comrade",    "roll": "1D10 1-8 : blessure réduite d'un niveau",      "hero": { "N": 1, "G": 6,  "S": 1 }, "heroRerollsWoundPrisoner": true },
+      { "id": "reckless-daring", "roll": "accord des deux ; les deux gagnent",           "hero": { "N": 4, "G": 10, "S": 4 }, "bothRerollWoundPrisoner": true, "verify": true }
+    ],
+    "notes": "N et G non modifiés par le standing. Ensuite jet LoH avec la gloire totale. Pas de comrades si Held in Reserve, acte de discrétion, ou les deux tués/gravement blessés/prisonniers."
+  },
+  "spainBattleChart": {
+    "comment": "Batailles en Espagne par saison (X-XV). An=Andalusia, Cs=Castille, Pt=Portugal, Ct=Catalonia. Lettres minuscules = cartes Combat exclues : a=Carry the Day, b=Lead Counterattack, c=Telling Maneuver, d=Unit Flanked, e=Unit Surprised, f=Unit Overrun, g=Unit Decimated.",
+    "rows": {
+      "X":    "An X-# abc; Cs X-# fg; Ct X-# fg; Pt X-# fg (2 batailles)",
+      "XI":   "Cs XI-A fg; Ct XI-B f; Ct XI-C cdf; An XI-C efg",
+      "XII":  "An XII-# a; Ct XII-# f; Pt XII-# a (2 batailles)",
+      "XIII": "Pt XIII-A a",
+      "XIV":  "An/Cs/Pt XIV-B a (les 3 commandements, même bataille)",
+      "XV":   "An/Cs/Pt XV-B a (les 3 commandements, même bataille)"
+    },
+    "verify": true
+  },
+  "spainSubstituteCardValues": {
+    "comment": "Si en Espagne, remplace W/P/E des cartes Dispatches (ligne) et Partisan Ambush (tous grades). Si prisonnier en Espagne : tué.",
+    "dispatches": {
+      "line": { "andalusia": { "W": 12, "P": 4, "E": 1 }, "castille": { "W": 12, "P": 4, "E": 1 }, "portugal": { "W": 20, "P": 7, "E": 2 }, "catalonia": { "W": 22, "P": 8, "E": 2 } }
+    },
+    "partisanAmbush": {
+      "line":    { "andalusia": { "W": 17, "P": 6, "E": 1 }, "castille": { "W": 17, "P": 6, "E": 1 }, "portugal": { "W": 24, "P": 9, "E": 3 }, "catalonia": { "W": 27, "P": 10, "E": 3 } },
+      "field":   { "andalusia": { "W": 15, "P": 5, "E": 1 }, "castille": { "W": 15, "P": 5, "E": 1 }, "portugal": { "W": 22, "P": 8, "E": 2 }, "catalonia": { "W": 25, "P": 9, "E": 2 } },
+      "general": { "andalusia": { "W": 12, "P": 4, "E": 1 }, "castille": { "W": 12, "P": 4, "E": 1 }, "portugal": { "W": 20, "P": 7, "E": 2 }, "catalonia": { "W": 22, "P": 8, "E": 2 } }
+    },
+    "verify": true
+  },
+  "ladyQualityTable": {
+    "comment": "1D10 par dame en Fair Sex Phase : variation de Charm / Influence / Money.",
+    "rows": [
+      { "roll": 1,       "C": -2, "I": -1, "M": -2 },
+      { "roll": [2, 3],  "C": -1, "I": 0,  "M": -1 },
+      { "roll": [4, 7],  "C": 0,  "I": 1,  "M": 0 },
+      { "roll": [8, 9],  "C": 0,  "I": 2,  "M": 1 },
+      { "roll": 10,      "C": 1,  "I": 3,  "M": 2 }
+    ]
+  },
+  "organizationOfPlay": {
+    "campaignSeasonSegment": ["fair-sex", "money-transfer-tax", "aging", "assignment", "glory"],
+    "inGarrisonRound": ["recovery", "income", "support", "deck", "in-garrison"],
+    "onCampaignRound": ["recovery-health", "income", "support", "deck", "on-campaign"]
+  },
+  "phases": {
+    "aging": "H - 1D10/3down",
+    "tax": "Paris -10% arrondi bas après transfert libre Paris<->bourse",
+    "glory": "G + niveau LoH ; G + C de l'épouse/maîtresses (Fair Sex) ; indiscretion check",
+    "onCampaignHealth": "H-1 par On Campaign Round (y compris prisonniers)"
+  }
+}
