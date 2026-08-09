@@ -33,6 +33,11 @@ export interface CharacterFlags {
   /** le Maréchalat existe (Création à la carte 31) */
   marshalate?: boolean;
   onStaff?: boolean;
+  /**
+   * Index du Grognard envers qui celui-ci est partie lésée : calomnie, dette
+   * violée, disgrâce infligée. Seule une partie lésée peut porter un défi.
+   */
+  grievanceAgainst?: number;
   skipNextCard?: boolean;
   /** Raison pour laquelle la prochaine carte non-event est sans effet (vérole, prison…) */
   skipReason?: string;

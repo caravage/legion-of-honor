@@ -13,8 +13,10 @@ import inGarrisonEventsJson from '../../data/cards/in-garrison-events.json';
 import onCampaignJson from '../../data/cards/on-campaign.json';
 import onCampaignEventsJson from '../../data/cards/on-campaign-events.json';
 import combatJson from '../../data/cards/combat.json';
+import duelJson from '../../data/cards/duel.json';
 import imagesJson from '../../data/cards/images.json';
 import type { CampaignCard, CombatCard, GarrisonCard } from './cards';
+import type { DuelData } from './duel';
 import type { AssignmentRow, LohLevel, Rank, Season, WoundRow } from './tables';
 
 /** Le seul endroit du projet où l'on affirme la forme du JSON. */
@@ -42,6 +44,7 @@ export const SEASONS = asShape<{ seasons: Season[] }>(seasonsJson).seasons;
 export const ROUND_ENDS_ROUNDS = asShape<{ roundEndsCardRounds: string[] }>(seasonsJson).roundEndsCardRounds;
 export const ASSIGNMENTS = asShape<{ bySeason: Record<string, AssignmentRow[]> }>(assignmentsJson).bySeason;
 export const COMBAT_CARDS = asShape<{ cards: CombatCard[] }>(combatJson).cards;
+export const DUEL = asShape<DuelData>(duelJson);
 
 export const GARRISON_CARDS = asShape<{ cards: GarrisonCard[] }>(inGarrisonJson).cards;
 export const IDLE_TIME_CARDS = asShape<{ idleTime: GarrisonCard[] }>(inGarrisonJson).idleTime;

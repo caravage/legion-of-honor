@@ -3,12 +3,16 @@ import {
   RANKS, LOH_LEVELS, SEASONS, ROUND_ENDS_ROUNDS, GARRISON_CARDS, IDLE_TIME_CARDS,
   GARRISON_EVENTS, CAMPAIGN_CARDS, CAMPAIGN_EVENTS, ASSIGNMENTS, assignmentFor, assignmentKey,
   cardById, combatBaseId, commandName, commandsForSeason, expandedCombatCards,
-  findWoundRow,
+  findWoundRow, DUEL,
 } from './data';
 import { generateName, heirOf } from './names';
 import type { CampaignCard, CampaignSubEvent, CombatCard, CombatSide, Effects, GarrisonCard, RankCat, RollTable } from './cards';
 import type { Rank, Season, WoundRow } from './tables';
-import { botChoice, botMoneyTransfer, PERSONAS } from './policy';
+import {
+  SwordDuel, pistolHits, pistolOrder, other, SWORD_LABEL,
+  type Aim, type Duelist, type Side, type SwordOutcome, type SwordSetup,
+} from './duel';
+import { acceptsDuel, botChoice, botMoneyTransfer, botTarget, duelChoice, PERSONAS } from './policy';
 import { Chronicle, writeChronicle } from './chronicle';
 import { clearSave, hasSave, readSave, writeSave } from './storage';
 import { Character, LogEntry, LogClass, Pending, PendingOption, PhaseStep, Progress, StepState } from './types';
@@ -23,6 +27,38 @@ export type DeckEntry =
   | { kind: 'garrison' | 'garrison-event'; card: GarrisonCard }
   | { kind: 'campaign' | 'campaign-event'; card: CampaignCard }
   | { kind: 'combat'; card: CombatCard };
+
+/**
+ * Ce qu'un duel doit savoir en plus de ses cartes : comment le journal
+ * l'appelle, quels résultats s'appliquent, et ce qu'il faut faire ensuite.
+ */
+export interface DuelTerms {
+  /** Intitulé au journal — « Duel au sabre », « Le Burger sur le pré ». */
+  label: string;
+  /** Le F+1 des résultats ne récompense que le fer. */
+  weapon: 'sword' | 'pistol';
+  /**
+   * Résultats communs de la planche : S−3, G+3, E+1 aux deux duellistes,
+   * G+3 au vainqueur indemne, G+3 N−3 au tueur, F+1 pour un duel à l'épée.
+   * Une carte qui dicte ses propres gains les remplace tous.
+   */
+  standard: boolean;
+  /** Gains propres à la carte, pour celui qui l'a tirée. */
+  drawerEffects?: Effects;
+  /** Le vainqueur peut renoncer à frapper : G+5. Jamais contre une carte. */
+  magnanimity?: boolean;
+  /** Suite à donner une fois le pré quitté. */
+  then?: (o: SwordOutcome | null) => void;
+}
+
+type DuelRun = {
+  sword: SwordDuel | null;
+  terms: DuelTerms;
+  a: Duelist;
+  b: Duelist;
+  /** Grognard actif avant le duel : on lui rend la main à la fin. */
+  returnTo: number;
+};
 
 type Stage =
   | 'setup' | 'segment' | 'round-start' | 'draw' | 'round-over' | 'season-end' | 'game-over';
@@ -85,6 +121,8 @@ export class Game {
   pending: Pending | null = null;
   log: LogEntry[] = [];
   removed = new Set<string>(); // cartes hors jeu (id)
+  /** Cartes retirées jusqu'à la saison suivante seulement (la beuverie). */
+  pausedCards = new Set<string>();
   playedEGOnce = new Set<string>();
   over = false;
   cardsPerRound = 3;
@@ -98,6 +136,8 @@ export class Game {
   wwtQueue: number[] = [];
   wwtCard: DeckEntry | null = null;
   wwtDrawer = 0;
+  /** Duel en cours : tant qu'il dure, la partie ne tient pas en place. */
+  duelRun: DuelRun | null = null;
   /** Batailles restant à résoudre pour la carte en cours */
   battleQueue: { ev: CampaignSubEvent; name: string; who: number }[] = [];
   /** À exécuter quand la file de batailles est vide */
@@ -148,19 +188,26 @@ export class Game {
   fairSex = false;
   spain = false;
 
-  /** Cartes écartées définitivement du jeu solo, avec la raison. */
+  /** Vrai dès qu'un concurrent est en jeu : les cartes qui visent un rival vivent. */
+  get multi(): boolean { return this.chars.length > 1; }
+
+  /** Cartes écartées de cette partie, avec la raison. */
   excludedCards(): { name: string; why: string }[] {
     const out: { name: string; why: string }[] = [];
     for (const c of [...GARRISON_CARDS, ...CAMPAIGN_CARDS]) {
-      if (c.soloPlayable === false) out.push({ name: c.name, why: c.soloNote ?? 'Injouable en solo' });
+      if (c.soloPlayable === false && !this.multi) out.push({ name: c.name, why: c.soloNote ?? 'Injouable en solo' });
       else if (c.requiresFairSex && !this.fairSex) out.push({ name: c.name, why: c.soloNote ?? 'Nécessite The Fair Sex' });
     }
     return out;
   }
 
-  /** Une carte peut-elle figurer dans un deck de cette partie ? */
+  /**
+   * Une carte peut-elle figurer dans un deck de cette partie ? Celles qui
+   * exigent un rival — courir contre lui, le calomnier, croiser le fer — ne
+   * sont écartées qu'en solo : dès qu'un concurrent est en jeu, elles rentrent.
+   */
   private cardAllowed(c: AnyCard): boolean {
-    if (c.soloPlayable === false) return false;
+    if (c.soloPlayable === false && !this.multi) return false;
     if (c.requiresFairSex && !this.fairSex) return false;
     if (c.optionalRule === 'spain' && !this.spain) return false;
     return true;
@@ -545,10 +592,18 @@ export class Game {
     return n[type] ?? type;
   }
 
-  private applyWoundRow(row: WoundRow) {
+  /**
+   * Applique une ligne de la table des blessures. Sur le pré, la gloire, le
+   * standing et l'expérience qu'elle porte ne comptent pas : le duel a ses
+   * propres résultats, et un homme embroché n'a pas gagné d'expérience.
+   */
+  private applyWoundRow(row: WoundRow, onDuelField = false) {
     if (row.type === 'killed') { this.die(); return; }
     if (row.effects) {
-      for (const [k, v] of Object.entries(row.effects)) this.applyStat(k, v as any);
+      for (const [k, v] of Object.entries(row.effects)) {
+        if (onDuelField && (k === 'S' || k === 'G' || k === 'E')) continue;
+        this.applyStat(k, v as any);
+      }
     }
     if (row.convalescenceMultiplier) {
       // santé tombée à 0 : la retraite involontaire prime sur la convalescence
@@ -591,6 +646,305 @@ export class Game {
     if (this.ch.office) { this.ch.office = false; this.info('Office perdu (retraite).'); }
   }
 
+  // ---------- désigner un rival ----------
+
+  /**
+   * Fait porter à un autre Grognard ce qu'on écrit là. `applyStat` et tout ce
+   * qui en découle travaillent sur le Grognard actif : pour toucher un rival —
+   * le calomnier, l'embrocher, lui verser une part de butin — il faut lui
+   * passer la main le temps de l'écrire, puis la reprendre.
+   */
+  private asActor<T>(idx: number, fn: () => T): T {
+    const back = this.active;
+    if (idx === back) return fn();
+    // Les gains d'un concurrent attendent en mémoire d'être rendus en une
+    // ligne : il faut les écouler avant de changer de main, sinon la ligne
+    // porterait le nom du mauvais Grognard.
+    this.handOver(idx);
+    try { return fn(); } finally { this.flushBrief(); this.active = back; }
+  }
+
+  /**
+   * Passe la main à un autre Grognard pour de bon — le temps qu'il réponde à
+   * une question, ou qu'on écrive en son nom. Ce qu'un concurrent avait mis de
+   * côté part d'abord, faute de quoi sa ligne changerait de propriétaire.
+   */
+  private handOver(idx: number) {
+    if (idx === this.active) return;
+    this.flushBrief();
+    this.active = idx;
+  }
+
+  /** Les rivaux que l'on peut prendre pour cible, selon ce que la carte exige. */
+  rivals(opts: { sameCommand?: boolean; sameRank?: boolean; from?: number } = {}): number[] {
+    const selfIdx = opts.from ?? this.active;
+    const self = this.chars[selfIdx];
+    const out: number[] = [];
+    this.chars.forEach((c, i) => {
+      if (i === selfIdx) return;
+      if (c.absent) return;
+      if (opts.sameCommand && c.assignment !== self.assignment) return;
+      if (opts.sameRank && (c.rankIdx !== self.rankIdx || c.marechal !== self.marechal)) return;
+      out.push(i);
+    });
+    return out;
+  }
+
+  /** Comment un rival se présente au joueur qui doit le désigner. */
+  private rivalLabel(i: number): string {
+    const c = this.chars[i];
+    const rank = c.marechal ? 'Maréchal' : RANKS[c.rankIdx].name;
+    return `${c.name} — ${rank}, gloire ${c.G}, escrime ${c.F}, santé ${c.H}`;
+  }
+
+  /**
+   * Désigne un rival, puis reprend le fil. Un concurrent tranche seul ; le
+   * joueur choisit dans la liste — sauf quand la carte tire au sort, auquel cas
+   * personne ne choisit.
+   */
+  private askTarget(
+    title: string,
+    candidates: number[],
+    then: (idx: number) => void,
+    opts: { random?: boolean; kind?: 'harm' | 'help' } = {},
+  ) {
+    if (!candidates.length) return;
+    if (opts.random) {
+      const pick = candidates[Math.floor(this.rng() * candidates.length)];
+      this.info(`Le sort désigne ${this.chars[pick].name}.`);
+      then(pick);
+      return;
+    }
+    if (this.ch.bot) {
+      then(botTarget(candidates.map((i) => ({ idx: i, ch: this.chars[i] })), opts.kind ?? 'harm'));
+      return;
+    }
+    this.ask(title, candidates.map((i) => ({ label: this.rivalLabel(i), run: () => then(i) })));
+  }
+
+  // ---------- le duel ----------
+
+  /** Un Grognard sur le pré, vu par le moteur de duel. */
+  private asDuelist(idx: number): Duelist {
+    const c = this.chars[idx];
+    return { idx, name: c.name, F: c.F, H: c.H, auto: !!c.bot, persona: c.persona };
+  }
+
+  /** Un adversaire qui n'a pas de feuille : le Burger, le champion ennemi. */
+  private cardDuelist(name: string, F: number): Duelist {
+    return { idx: null, name, F, H: 0, auto: true };
+  }
+
+  /**
+   * Ouvre un assaut à l'épée et le mène jusqu'au sang — ou jusqu'à ce qu'il
+   * faille demander une carte au joueur, auquel cas la main lui passe et le
+   * duel reprendra à sa réponse.
+   */
+  private startSwordDuel(setup: SwordSetup, terms: DuelTerms) {
+    this.duelRun = {
+      sword: new SwordDuel(DUEL, this.rng, setup),
+      terms,
+      a: setup.a,
+      b: setup.b,
+      returnTo: this.active,
+    };
+    this.phase(terms.label);
+    const adv = (d: Duelist, s: Side) => {
+      const n = this.duelRun!.sword!.hands[s].length;
+      return `${d.name} ${n} cartes`;
+    };
+    this.info(`Sur le pré : ${adv(setup.a, 'a')} · ${adv(setup.b, 'b')}.`);
+    this.stepDuel();
+  }
+
+  /**
+   * Déroule le duel tant que la machine peut jouer seule. Dès qu'une carte est
+   * attendue du joueur, on la lui demande sous son propre nom : le Grognard
+   * actif devient le duelliste, faute de quoi la politique des concurrents
+   * répondrait à sa place.
+   */
+  private stepDuel() {
+    const run = this.duelRun;
+    const duel = run?.sword;
+    if (!run || !duel) return;
+    let guard = 0;
+    while (!duel.done && guard++ < 200) {
+      const side = duel.turn!;
+      const who = side === 'a' ? run.a : run.b;
+      const choices = duel.choices();
+      const defending = duel.onTable !== null;
+      if (!choices.length) { this.playDuelCard(-1); continue; }
+      if (!who.auto) {
+        // le joueur tient les cartes : on lui rend la main et l'on attend
+        this.handOver(who.idx ?? 0);
+        this.ask(
+          `${run.terms.label} — ${defending ? 'répondre' : 'attaquer'} (${choices.length ? duel.hands[side].length : 0} cartes en main)`,
+          choices.map((c, i) => ({ label: c.label, run: () => this.playDuelCard(i) })),
+        );
+        return;
+      }
+      this.playDuelCard(duelChoice(choices, who.idx === null ? null : this.chars[who.idx], defending));
+    }
+    this.endSwordDuel();
+  }
+
+  /** Pose une carte et raconte ce qu'elle produit. */
+  private playDuelCard(i: number) {
+    const run = this.duelRun;
+    const duel = run?.sword;
+    if (!run || !duel) return;
+    const side = duel.turn!;
+    const who = side === 'a' ? run.a : run.b;
+    const before = duel.deals;
+    const responding = duel.onTable !== null;
+    const played = duel.play(i);
+    if (played) {
+      const what = played.card === 'no-card'
+        ? 'n’a plus de carte'
+        : `${SWORD_LABEL[played.card]}${played.card !== 'parry' ? (played.aim === 'kill' ? ' pour tuer' : ' pour blesser') : ''}`;
+      const line = `${who.name} ${responding ? 'répond' : 'attaque'} : ${what}.`;
+      // la ligne appartient au bretteur, non au Grognard qui tenait la main
+      if (who.idx === null) this.add(line, 'card');
+      else this.asActor(who.idx, () => this.add(line, 'card'));
+    }
+    if (duel.deals > before && !duel.done) this.info('Les deux mains sont vides : on redistribue, le duel continue.');
+    // relancé par le joueur : c'est ici que la boucle reprend
+    if (i >= 0 && !who.auto && !duel.done) { this.stepDuel(); return; }
+    if (duel.done) this.endSwordDuel();
+  }
+
+  /** Le sang versé, on compte les points. */
+  private endSwordDuel() {
+    const run = this.duelRun;
+    const o = run?.sword?.outcome ?? null;
+    if (!run) return;
+    this.duelRun = null;
+    this.handOver(run.returnTo);
+    if (!o || !o.woundedSide) {
+      this.info('Les témoins séparent les bretteurs : l’honneur est satisfait.');
+      this.applyDuelResults(run, null);
+      run.terms.then?.(o);
+      return;
+    }
+    const winner = o.winnerSide === 'a' ? run.a : run.b;
+    const loser = o.woundedSide === 'a' ? run.a : run.b;
+    this.title(`⚔ ${winner.name} touche ${loser.name} (${o.aim === 'kill' ? 'pour tuer' : 'pour blesser'}).`);
+    // la magnanimité : renoncer à frapper vaut plus que le sang, mais on ne
+    // l'accorde pas à un personnage de carte, qui n'a rien à en faire
+    const spare = run.terms.magnanimity && loser.idx !== null && winner.idx !== null;
+    const strike = () => {
+      this.duelWound(loser, o.aim);
+      this.applyDuelResults(run, o);
+      run.terms.then?.(o);
+    };
+    if (!spare) { strike(); return; }
+    const askSpare = () => {
+      this.handOver(winner.idx!);
+      this.ask('Le fer est sur sa gorge', [
+        { label: 'Frapper', run: () => { this.handOver(run.returnTo); strike(); } },
+        {
+          label: 'Faire grâce (G+5)',
+          run: () => {
+            this.handOver(winner.idx!);
+            this.applyStat('G', 5, 'magnanimité');
+            this.handOver(run.returnTo);
+            this.applyDuelResults(run, o);
+            run.terms.then?.(o);
+          },
+        },
+      ]);
+    };
+    if (this.chars[winner.idx!].bot) {
+      // un concurrent ne fait pas de quartier : la gloire du sang vaut la sienne
+      strike();
+      return;
+    }
+    askSpare();
+  }
+
+  /** La table des blessures, pointée par l'intention du coup. */
+  private duelWound(loser: Duelist, aim: Aim) {
+    const bonus = aim === 'wound' ? 10 : 0;
+    const r = Math.min(100, d100(this.rng) + bonus);
+    const row = findWoundRow(r);
+    this.roll(`Blessure : 2D10${bonus ? `+${bonus}` : ''}=${r} → ${this.woundName(row.type)}`);
+    if (loser.idx === null) {
+      this.info(`${loser.name} : ${this.woundName(row.type).toLowerCase()}`);
+      return;
+    }
+    this.asActor(loser.idx, () => this.applyWoundRow(row, true));
+  }
+
+  /** Les résultats de la planche, ou ceux que la carte impose à leur place. */
+  private applyDuelResults(run: DuelRun, o: SwordOutcome | null) {
+    const t = run.terms;
+    const sides: [Duelist, Side][] = [[run.a, 'a'], [run.b, 'b']];
+    if (t.standard) {
+      for (const [d] of sides) {
+        if (d.idx === null) continue;
+        this.asActor(d.idx, () => {
+          this.applyEffects(DUEL.results.bothDuelists as Effects, 'duel');
+          if (t.weapon === 'sword') this.applyEffects(DUEL.results.swordDuel as Effects, 'duel à l’épée');
+        });
+      }
+      if (o?.winnerSide) {
+        const w = o.winnerSide === 'a' ? run.a : run.b;
+        const l = o.woundedSide === 'a' ? run.a : run.b;
+        if (w.idx !== null) {
+          this.asActor(w.idx, () => {
+            this.applyEffects(DUEL.results.winnerUnwounded as Effects, 'vainqueur indemne');
+            if (l.idx !== null && this.chars[l.idx].absent?.type === 'death') {
+              this.applyEffects(DUEL.results.kill as Effects, 'il a tué son homme');
+            }
+          });
+        }
+      }
+    }
+    if (t.drawerEffects && run.a.idx !== null) {
+      this.asActor(run.a.idx, () => this.applyEffects(t.drawerEffects!, run.terms.label));
+    }
+  }
+
+  /**
+   * Le duel au pistolet. Chacun pointe son arme, les amorces décident de
+   * l'ordre, et le second ne tire que s'il tient encore debout.
+   */
+  private pistolDuel(a: Duelist, b: Duelist, terms: DuelTerms, aims: Record<Side, Aim>, hitCap = 5) {
+    this.phase(terms.label);
+    const ord = pistolOrder(this.rng);
+    this.roll(`Amorces : ${a.name} 2D10=${ord.rolls.a}${ord.misfire.a ? ' — raté !' : ''} · ${b.name} 2D10=${ord.rolls.b}${ord.misfire.b ? ' — raté !' : ''}`);
+    const run: DuelRun = { sword: null, terms, a, b, returnTo: this.active };
+    if (ord.bothMisfired) {
+      this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');
+      this.applyDuelResults(run, null);
+      terms.then?.(null);
+      return;
+    }
+    const order: Side[] = ord.first === 'a' ? ['a', 'b'] : ['b', 'a'];
+    let outcome: SwordOutcome | null = null;
+    for (const side of order) {
+      if (ord.misfire[side]) continue;
+      const shooter = side === 'a' ? a : b;
+      const target = side === 'a' ? b : a;
+      // le Burger n'est pas un tireur : il ne touche que sur 1-4
+      const cap = shooter.idx === null ? hitCap : 5;
+      const shot = pistolHits(this.rng, cap);
+      this.roll(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
+      if (!shot.hit) continue;
+      outcome = { woundedSide: other(side), winnerSide: side, aim: aims[side], deals: 0 };
+      this.duelWound(target, aims[side]);
+      // un homme tué ou gravement atteint ne rend pas son coup
+      if (target.idx !== null) {
+        const st = this.chars[target.idx].absent;
+        if (st?.type === 'death' || st?.type === 'convalescence') break;
+      }
+      break;
+    }
+    if (!outcome) this.info('Les deux balles se perdent : l’honneur est satisfait.');
+    this.applyDuelResults(run, outcome);
+    terms.then?.(outcome);
+  }
+
   // ---------- avancement ----------
   advance() {
     if (this.pending || this.over) return;
@@ -630,7 +984,7 @@ export class Game {
   /** Sauvegarde automatique — seulement à un point stable (aucune décision ni bataille en cours). */
   save() {
     try {
-      if (this.pending || this.battleQueue.length || this.afterBattles || this.over) return;
+      if (this.pending || this.battleQueue.length || this.afterBattles || this.duelRun || this.over) return;
       const s = {
         v: 1,
         chars: this.chars,
@@ -642,7 +996,7 @@ export class Game {
         eventsRemaining: this.eventsRemaining, cardNumInRound: this.cardNumInRound,
         cardsByPlayer: this.cardsByPlayer,
         roundEnded: this.roundEnded,
-        removed: [...this.removed], playedEG: [...this.playedEGOnce],
+        removed: [...this.removed], paused: [...this.pausedCards], playedEG: [...this.playedEGOnce],
         currentCard: this.currentCard ? { kind: this.currentCard.kind, id: this.currentCard.card.id } : null,
         combatCard: this.combatCard ? { kind: this.combatCard.kind, id: this.combatCard.card.id } : null,
         log: this.log, cardsPerRound: this.cardsPerRound,
@@ -664,6 +1018,7 @@ export class Game {
       g.pending = null;
       g.battleQueue = [];
       g.afterBattles = null;
+      g.duelRun = null;
       g.fairSex = false;
       g.spain = false;
       g.over = false;
@@ -677,6 +1032,7 @@ export class Game {
       g.cardsByPlayer = s.cardsByPlayer ?? [];
       g.roundEnded = s.roundEnded;
       g.removed = new Set(s.removed ?? []);
+      g.pausedCards = new Set(s.paused ?? []);
       g.playedEGOnce = new Set(s.playedEG ?? []);
       g.log = s.log ?? [];
       g.cardsPerRound = s.cardsPerRound ?? 3;
@@ -1367,7 +1723,7 @@ export class Game {
       for (const c of GARRISON_CARDS) {
         if (c.id === 'round-ends-card') continue;
         if (!this.cardAllowed(c)) continue;
-        if (this.removed.has(c.id)) continue;
+        if (this.removed.has(c.id) || this.pausedCards.has(c.id)) continue;
         if (c.etienneGerard && (this.season < 7 || this.playedEGOnce.has(c.id))) continue;
         if (c.id === 'you-are-accused' && (this.season > 6 || (this.season === 6 && this.roundIdx >= 3))) continue;
         pushCopies({ kind: 'garrison', card: c });
@@ -1448,18 +1804,25 @@ export class Game {
 
   private endSeason() {
     this.title(`Fin de la saison ${this.seasonDef().roman}`);
-    // échange de prisonniers
-    if (this.ch.absent?.type === 'prisoner') {
-      if (this.season === 14) this.warn('Pas d’échange de prisonniers entre les saisons XIV et XV.');
-      else {
-        this.info('Échange de prisonniers : retour au commandement.');
-        if (this.ch.absent.alsoConvalescing) this.ch.absent = { type: 'convalescence', convMult: this.ch.absent.convMult, convRounds: this.ch.absent.convRounds };
-        else this.ch.absent = null;
-        if (this.ch.H <= 0) this.healthZero();
+    // Échange de prisonniers — pour tous : un concurrent oublié en captivité
+    // n'en sortait jamais, et la carrière se terminait derrière les barreaux.
+    this.chars.forEach((c, i) => {
+      if (c.absent?.type !== 'prisoner') return;
+      if (this.season === 14) {
+        if (i === 0) this.warn('Pas d’échange de prisonniers entre les saisons XIV et XV.');
+        return;
       }
-    }
+      this.asActor(i, () => {
+        this.info('Échange de prisonniers : retour au commandement.');
+        if (c.absent!.alsoConvalescing) c.absent = { type: 'convalescence', convMult: c.absent!.convMult, convRounds: c.absent!.convRounds };
+        else c.absent = null;
+        if (c.H <= 0) this.healthZero();
+      });
+    });
     if (this.season >= 16) { this.finishGame(); this.closeSeasonChronicle(); return; }
     this.closeSeasonChronicle();
+    // la beuverie ne se tient qu'une fois par saison : la carte revient
+    this.pausedCards.clear();
     this.season++;
     this.openSeasonChronicle();
     this.roundIdx = 0;
@@ -1751,9 +2114,34 @@ export class Game {
         return;
       }
       case 'burger-insults-napoleon':
+        this.cardBurger();
+        return;
       case 'eg-foxhunt':
+        this.cardFoxhunt();
+        return;
       case 'challenged-by-enemy-champion':
-        this.warn(`${c.name} : duel — moteur de duel à l’étape 4. Tour passé sans effet.`);
+        this.cardEnemyChampion();
+        return;
+      case 'challenge-to-horse-race':
+        this.cardHorseRace();
+        return;
+      case 'spread-rumors':
+        this.cardSpreadRumors();
+        return;
+      case 'spread-rumors-of-cowardice':
+        this.cardRumorsOfCowardice();
+        return;
+      case 'celebratory-drinking-bout':
+        this.cardDrinkingBout();
+        return;
+      case 'second-to-dhubert':
+        this.cardSecondToDHubert();
+        return;
+      case 'sack-the-town':
+        this.cardSackTheTown();
+        return;
+      case 'dangerous-mission':
+        this.cardDangerousMission();
         return;
       case 'eg-corsican-brothers': {
         this.applyEffects(c.effects);
@@ -1866,6 +2254,311 @@ export class Game {
     }
   }
 
+  // ---------- cartes qui prennent un rival pour cible ----------
+  //
+  // Ces cartes dormaient : sans second Grognard, courir, calomnier ou croiser
+  // le fer n'avait pas d'objet. Elles rentrent dès qu'un concurrent est en jeu.
+
+  /** Course de chevaux : le sort désigne l'adversaire, qui y laisse son tour. */
+  private cardHorseRace() {
+    const cands = this.rivals();
+    if (!cands.length) { this.info('Personne contre qui courir : tour perdu.'); return; }
+    this.askTarget('Course — contre qui ?', cands, (idx) => {
+      const rival = this.chars[idx];
+      rival.flags.skipNextCard = true;
+      rival.flags.skipReason = 'Retenu par la course';
+      const mine = d10(this.rng);
+      const his = d10(this.rng);
+      this.roll(`Course : ${this.ch.name} 1D10=${mine} · ${rival.name} 1D10=${his}`);
+      const win = (who: number, other: number) => {
+        this.asActor(who, () => { this.applyStat('G', 3, 'course gagnée'); this.applyStat('E', 1); });
+        this.asActor(other, () => { this.applyStat('G', -1, 'course perdue'); this.applyStat('E', 1); });
+      };
+      if (mine === his) {
+        for (const i of [this.active, idx]) {
+          this.asActor(i, () => { this.applyStat('G', 1, 'course indécise'); this.applyStat('E', 1); });
+        }
+      } else if (mine > his) win(this.active, idx);
+      else win(idx, this.active);
+    }, { random: true });
+  }
+
+  /** Calomnie : une enquête s'ouvre, et il arrive qu'elle innocente. */
+  private cardSpreadRumors() {
+    const cands = this.rivals();
+    if (!cands.length) { this.info('Personne à calomnier : tour perdu.'); return; }
+    this.askTarget('Calomnier lequel ?', cands, (idx) => {
+      this.asActor(idx, () => {
+        const r = d10(this.rng);
+        if (r <= 5) {
+          this.roll(`Enquête : 1D10=${r} ≤ 5 — la rumeur prend.`);
+          this.applyStat('G', -2, 'rumeur');
+          this.applyStat('S', -2, 'rumeur');
+        } else {
+          this.roll(`Enquête : 1D10=${r} > 5 — il en sort blanchi.`);
+          this.applyStat('S', 1, 'exonéré');
+        }
+      });
+    });
+  }
+
+  /** Accusation de lâcheté : elle porte à coup sûr, et fait un ennemi. */
+  private cardRumorsOfCowardice() {
+    const cands = this.rivals();
+    if (!cands.length) { this.info('Personne à accuser : tour perdu.'); return; }
+    const accuser = this.active;
+    this.askTarget('Accuser lequel de lâcheté ?', cands, (idx) => {
+      this.asActor(idx, () => {
+        this.applyStat('G', -3, 'accusé de lâcheté');
+        this.applyStat('S', -1);
+      });
+      this.chars[idx].flags.grievanceAgainst = accuser;
+      this.warn(`${this.chars[idx].name} est désormais partie lésée envers ${this.chars[accuser].name}.`);
+    });
+  }
+
+  /**
+   * La beuverie. Tournée après tournée, un franc et un jet contre sa propre
+   * santé : le dernier debout emporte autant de gloire qu'il y a eu de tournées.
+   * Une seule par saison — la carte dort jusqu'à la suivante.
+   */
+  private cardDrinkingBout() {
+    this.pausedCards.add('celebratory-drinking-bout');
+    const table = [this.active, ...this.rivals()];
+    if (table.length < 2) { this.info('Seul au comptoir : vainqueur sans avoir bu, pour zéro gloire.'); return; }
+    const start = (drinkers: number[]) => {
+      const rounds: Record<number, number> = {};
+      let standing = [...drinkers];
+      let turn = 0;
+      while (standing.length > 1 && turn++ < 40) {
+        const next: number[] = [];
+        for (const i of standing) {
+          const c = this.chars[i];
+          if (c.mPurse < 1) { this.brief(`${c.name} n’a plus un sou : il glisse sous la table.`); continue; }
+          this.asActor(i, () => this.applyStat('M', -1, 'tournée', true));
+          rounds[i] = (rounds[i] ?? 0) + 1;
+          const r = d100(this.rng);
+          if (r > c.H) this.info(`${c.name} : 2D10=${r} > santé ${c.H} — sous la table.`);
+          else next.push(i);
+        }
+        // tous tombés dans la même tournée : personne ne reste debout
+        if (!next.length) { standing = []; break; }
+        standing = next;
+      }
+      this.roll(`Beuverie : ${turn} tournée${turn > 1 ? 's' : ''}.`);
+      if (standing.length === 1) {
+        const w = standing[0];
+        this.asActor(w, () => this.applyStat('G', turn, 'dernier debout'));
+        this.title(`🍷 ${this.chars[w].name} tient encore debout.`);
+      } else this.info('Toute la compagnie est sous la table : personne n’en tire gloire.');
+    };
+    // le joueur peut refuser de trinquer ; les concurrents boivent
+    const others = table.filter((i) => i !== this.active);
+    if (this.ch.bot) { start(table); return; }
+    this.ask('Beuverie de célébration', [
+      { label: 'Trinquer (1 F par tournée, 2D10 > santé = sous la table)', run: () => start(table) },
+      {
+        label: 'Décliner la tournée (G−3)',
+        run: () => { this.applyStat('G', -3, 'refus de trinquer'); start(others); },
+      },
+    ]);
+  }
+
+  /**
+   * Le second de D'Hubert. Le tireur se bat pour un autre ; celui qui tient le
+   * fer d'en face n'y gagne ni ne perd rien que ses blessures.
+   */
+  private cardSecondToDHubert() {
+    const cands = this.rivals();
+    if (!cands.length) { this.info('Aucun Grognard pour servir Feraud : tour perdu.'); return; }
+    this.askTarget('Qui sert de second à Feraud ?', cands, (idx) => {
+      this.removed.add('second-to-dhubert');
+      this.startSwordDuel(
+        { a: this.asDuelist(this.active), b: this.asDuelist(idx), first: 'b' },
+        {
+          label: `Duel — second de D’Hubert contre second de Feraud (${this.chars[idx].name})`,
+          weapon: 'sword',
+          standard: false,
+          drawerEffects: { N: -2, G: 5, E: 3, S: -2, F: 1 },
+        },
+      );
+    });
+  }
+
+  /** Le sac de la ville : le tireur taxe les réactionnaires, et partage ou non. */
+  private cardSackTheTown() {
+    const r = d10(this.rng);
+    const loot = r * 3;
+    this.roll(`Contribution de guerre : 1D10=${r}×3 = ${loot} F`);
+    const present = this.rivals({ sameCommand: true });
+    if (!present.length || this.ch.bot) {
+      // un concurrent ne partage pas : la fortune compte au décompte final
+      this.applyStat('M', loot, 'sac de la ville');
+      return;
+    }
+    const share = Math.floor(loot / (present.length + 1));
+    this.ask(`${loot} F à répartir`, [
+      { label: `Tout garder (M+${loot})`, run: () => this.applyStat('M', loot, 'sac de la ville') },
+      {
+        label: `Partager en parts égales (M+${share} chacun)`,
+        run: () => {
+          this.applyStat('M', loot - share * present.length, 'sac de la ville');
+          for (const i of present) this.asActor(i, () => this.applyStat('M', share, 'part du butin'));
+        },
+      },
+    ]);
+  }
+
+  /** La mission dangereuse : la faire, ou s'arranger pour qu'un autre la fasse. */
+  private cardDangerousMission() {
+    const mission = () => {
+      this.applyStat('G', 3, 'mission dangereuse');
+      this.applyStat('E', 3);
+      this.checkWound(20);
+      if (this.ch.absent?.type !== 'death') this.checkPrisoner(7);
+    };
+    if (this.isGeneralOfficer()) { this.info('Officier général : on ne l’envoie pas ramper dans les lignes — tour perdu.'); return; }
+    const cands = this.rivals({ sameCommand: true }).filter((i) => !this.chars[i].marechal && this.chars[i].rankIdx < RANKS.findIndex((x) => x.id === 'general'));
+    if (!cands.length) { this.info('Personne d’autre sous la main : il doit y aller.'); mission(); return; }
+    this.ask('Mission dangereuse (W20, P7 — G+3, E+3)', [
+      { label: 'Accepter (G+3, E+3)', run: mission },
+      {
+        label: 'Arranger pour qu’un autre s’en charge',
+        run: () => this.askTarget('Qui envoyer ?', cands, (idx) => {
+          this.info(`${this.chars[idx].name} est porté volontaire malgré lui.`);
+          this.asActor(idx, mission);
+        }, { kind: 'harm' }),
+      },
+    ]);
+  }
+
+  // ---------- duels contre un personnage de carte ----------
+
+  /**
+   * Le Burger. Un bourgeois insulte l'Empereur : le Grognard est partie lésée.
+   * Il n'a pas de feuille — sa carte d'avantage lui est acquise d'office, et
+   * aucune carte de santé n'entre en compte.
+   *
+   * `verify` : la carte dit « perte de N et S selon la blessure du Burger ».
+   * On la lit comme le prix d'avoir embroché un civil, d'autant plus lourd que
+   * la blessure est grave.
+   */
+  private cardBurger() {
+    if (this.season < 3 || (this.season === 3 && this.roundIdx < 1)) {
+      this.info('Avant III-2, l’affaire n’a pas de suite : tour perdu.');
+      return;
+    }
+    const colonelIdx = RANKS.findIndex((r) => r.id === 'colonel');
+    if (this.ch.marechal || this.ch.rankIdx >= colonelIdx) {
+      this.info('À ce grade on n’a pas de duel avec un bourgeois : on lui envoie des gros bras. Tour perdu.');
+      return;
+    }
+    const burger = this.cardDuelist('Le Burger', this.ch.F);
+    const terms = (weapon: 'sword' | 'pistol'): DuelTerms => ({
+      label: `${weapon === 'sword' ? 'Duel à l’épée' : 'Duel au pistolet'} — le Burger`,
+      weapon,
+      standard: false,
+      drawerEffects: weapon === 'sword' ? { E: 1, G: 3, F: 1 } : { E: 1, G: 3 },
+      then: (o) => {
+        if (o?.winnerSide !== 'a') return;
+        // il a battu un civil : la notice et le standing s'en ressentent
+        this.applyStat('N', -2, 'il s’est battu contre un bourgeois');
+        this.applyStat('S', -1);
+      },
+    });
+    this.ask('Le Burger insulte l’Empereur', [
+      {
+        label: 'Le défier à l’épée',
+        run: () => this.startSwordDuel(
+          { a: this.asDuelist(this.active), b: burger, first: 'b', autoCard: 'b', healthCard: 'none' },
+          terms('sword'),
+        ),
+      },
+      {
+        label: 'Le défier au pistolet',
+        run: () => this.askAim('Pointer l’arme', (aim) =>
+          this.pistolDuel(this.asDuelist(this.active), burger, terms('pistol'), { a: aim, b: 'wound' }, 4)),
+      },
+      { label: 'Passer l’éponge (G−5)', run: () => this.applyStat('G', -5, 'affront ravalé') },
+    ]);
+  }
+
+  /** Le huntmaster de Gérard : on l'a tué de trop près, il faut en répondre. */
+  private cardFoxhunt() {
+    this.ask('La chasse au renard, avec Étienne Gérard', [
+      { label: 'Épargner le renard (tour perdu)', run: () => this.info('Le renard s’en tire ; Gérard hausse les épaules.') },
+      {
+        label: 'Tuer le renard (E+1, G+1 — duel obligatoire)',
+        run: () => {
+          this.applyStat('E', 1, 'la chasse');
+          this.applyStat('G', 1);
+          this.startSwordDuel(
+            {
+              a: this.asDuelist(this.active),
+              b: this.cardDuelist('Le maître d’équipage', this.ch.F),
+              first: 'b',
+              autoCard: 'b',
+              healthCard: 'none',
+            },
+            {
+              label: 'Duel à l’épée — le maître d’équipage',
+              weapon: 'sword',
+              standard: false,
+              drawerEffects: { F: 1 },
+            },
+          );
+        },
+      },
+    ]);
+  }
+
+  /** Le champion ennemi : son escrime ne se connaît qu'une fois le défi relevé. */
+  private cardEnemyChampion() {
+    this.ask('Un champion ennemi vous défie', [
+      { label: 'Décliner (G−5)', run: () => this.applyStat('G', -5, 'défi décliné') },
+      {
+        label: 'Relever le défi (N+1, E+3, S+1, G+escrime du champion)',
+        run: () => {
+          const f = d10(this.rng);
+          this.roll(`Escrime du champion : 1D10=${f}`);
+          this.applyStat('N', 1, 'défi relevé');
+          this.applyStat('G', f, 'la réputation du champion');
+          this.applyStat('E', 3);
+          this.applyStat('S', 1);
+          this.startSwordDuel(
+            {
+              a: this.asDuelist(this.active),
+              b: this.cardDuelist('Le champion ennemi', f),
+              first: 'b',
+              healthCard: 'random',
+            },
+            {
+              label: 'Duel à l’épée — le champion ennemi',
+              weapon: 'sword',
+              standard: false,
+              drawerEffects: { F: 1 },
+              then: (o) => {
+                if (o?.winnerSide !== 'a') return;
+                const g = d100(this.rng);
+                this.roll(`Dépouille du champion : 2D10=${g}`);
+                this.applyStat('M', g, 'dépouille du champion');
+              },
+            },
+          );
+        },
+      },
+    ]);
+  }
+
+  /** Pointer l'arme : tuer, ou seulement blesser. */
+  private askAim(title: string, then: (aim: Aim) => void) {
+    if (this.ch.bot) { then(this.ch.persona === 'sabreur' ? 'kill' : 'wound'); return; }
+    this.ask(title, [
+      { label: 'Pour blesser (blessure adoucie)', run: () => then('wound') },
+      { label: 'Pour tuer (G+3, N−3 si mort)', run: () => then('kill') },
+    ]);
+  }
+
   private resolveIdleTime(c: GarrisonCard) {
     const opts = (c.actions ?? []).map((a) => ({
       label: this.idleLabel(a),
@@ -1920,6 +2613,15 @@ export class Game {
       });
     }
 
+    // — Défier —
+    const offender = this.challengeable();
+    if (offender >= 0) {
+      out.push({
+        label: `Demander réparation à ${this.chars[offender].name} (S−3)`,
+        run: () => this.issueChallenge(offender),
+      });
+    }
+
     // — Corruption —
     if (ch.office) {
       out.push({ label: 'Pratiquer la corruption…', run: () => this.askCorruption() });
@@ -1931,6 +2633,56 @@ export class Game {
     }
 
     return out;
+  }
+
+  /**
+   * Qui l'on peut appeler sur le pré. Il faut être partie lésée — on ne se bat
+   * pas sans motif — et les conditions de la planche : tous deux présents, même
+   * commandement, même grade, et pas au-delà du colonel, où l'on règle ses
+   * comptes autrement. Renvoie l'index de l'offenseur, ou −1.
+   */
+  private challengeable(): number {
+    const ch = this.ch;
+    const target = ch.flags.grievanceAgainst;
+    if (target === undefined || !this.chars[target]) return -1;
+    const colonelIdx = RANKS.findIndex((r) => r.id === 'colonel');
+    if (ch.marechal || ch.rankIdx >= colonelIdx) return -1;
+    return this.rivals({ sameCommand: true, sameRank: true }).includes(target) ? target : -1;
+  }
+
+  /**
+   * Le défi. Il coûte trois points de standing à qui le porte comme à qui
+   * l'accepte ; le décliner coûte cinq points de gloire. Le grief s'éteint dans
+   * tous les cas — on ne demande pas deux fois réparation du même affront.
+   */
+  private issueChallenge(idx: number) {
+    const challenger = this.active;
+    const foe = this.chars[idx];
+    this.chars[challenger].flags.grievanceAgainst = undefined;
+    const accepted = foe.bot
+      ? acceptsDuel(foe, { F: this.chars[challenger].F, H: this.chars[challenger].H })
+      : null;
+    const fight = () => this.startSwordDuel(
+      { a: this.asDuelist(challenger), b: this.asDuelist(idx), first: 'b' },
+      { label: `Duel — ${this.chars[challenger].name} contre ${foe.name}`, weapon: 'sword', standard: true, magnanimity: true },
+    );
+    const refuse = () => {
+      this.asActor(idx, () => this.applyStat('G', -5, 'défi décliné'));
+      this.info(`${foe.name} refuse le fer.`);
+    };
+    if (accepted === null) {
+      // Le défié est le joueur : la main lui passe pour de bon le temps qu'il
+      // réponde. La rendre tout de suite laisserait la politique des
+      // concurrents décider à sa place.
+      this.handOver(idx);
+      this.ask(`${this.chars[challenger].name} demande réparation`, [
+        { label: 'Accepter le duel (S−3)', run: () => { this.handOver(challenger); fight(); } },
+        { label: 'Décliner (G−5)', run: () => { this.handOver(challenger); refuse(); } },
+      ]);
+      return;
+    }
+    if (accepted) fight();
+    else refuse();
   }
 
   private doRequestTransfer(divisor?: number) {

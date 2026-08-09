@@ -6,6 +6,7 @@
  * joueur, qui infléchit ses arbitrages sans jamais le conduire à saborder sa
  * carrière.
  */
+import type { SwordChoice } from './duel';
 import { Character, Pending } from './types';
 
 export type Persona = 'sabreur' | 'courtisan' | 'prudent' | 'affairiste';
@@ -169,6 +170,61 @@ export function botChoice(p: Pending, ch: Character, ctx: BotContext = {}): numb
     if (s > bestScore) { bestScore = s; best = idx; }
   });
   return best;
+}
+
+// ---------- choisir un rival ----------
+
+/**
+ * Contre qui l'on se retourne. La course se gagne aux points de victoire, donc
+ * nuire au mieux placé rapporte plus que nuire au premier venu : on classe les
+ * rivaux comme le décompte final, grade puis gloire, et l'on frappe en tête.
+ * Un service à rendre — porter une mission dangereuse à sa place — se lit à
+ * l'envers : c'est le plus menaçant qu'on y envoie.
+ */
+export function botTarget(
+  cands: { idx: number; ch: Character }[],
+  kind: 'harm' | 'help' = 'harm',
+): number {
+  if (!cands.length) return -1;
+  const worth = (c: Character) => (c.marechal ? 100 : c.rankIdx) * 1000 + c.G + c.loh * 50;
+  const sorted = [...cands].sort((x, y) => worth(y.ch) - worth(x.ch));
+  return (kind === 'help' ? sorted[sorted.length - 1] : sorted[0]).idx;
+}
+
+// ---------- le duel ----------
+
+/**
+ * Quelle carte poser. En défense, la parade sauve et la riposte renvoie le
+ * coup ; poser une botte pour répondre à une botte, c'est se faire embrocher.
+ * En attaque, on porte l'estoc — et l'on ne pointe « pour tuer » que si l'on a
+ * l'estomac de perdre la notice que coûte un mort sur le pré.
+ */
+export function duelChoice(choices: SwordChoice[], self: Character | null, defending: boolean): number {
+  if (!choices.length) return -1;
+  const order: SwordChoice['card'][] = defending
+    ? ['parry', 'riposte', 'lunge']
+    : ['lunge', 'riposte', 'parry'];
+  // le sabreur cherche le mort ; les autres se contentent du sang
+  const wants: 'kill' | 'wound' = self?.persona === 'sabreur' ? 'kill' : 'wound';
+  for (const card of order) {
+    const exact = choices.findIndex((c) => c.card === card && (!c.aim || c.aim === wants));
+    if (exact >= 0) return exact;
+    const any = choices.findIndex((c) => c.card === card);
+    if (any >= 0) return any;
+  }
+  return 0;
+}
+
+/**
+ * Accepter le fer, ou l'affront. Décliner coûte cinq points de gloire ; se
+ * battre en coûte trois de standing et peut coûter la vie. On accepte donc
+ * tant qu'on n'est pas nettement le moins bon des deux — et le sabreur
+ * accepte toujours.
+ */
+export function acceptsDuel(self: Character, opponent: { F: number; H: number }): boolean {
+  if (self.persona === 'sabreur') return true;
+  if (self.H <= traitsOf(self).restAt) return false;
+  return self.F + 2 >= opponent.F;
 }
 
 /** Part de la bourse qu'il souhaite mettre à l'abri de l'impôt et du pillage. */

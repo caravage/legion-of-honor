@@ -31,6 +31,9 @@ un message ne le fait pas broncher ; changer une règle, si. Après un changemen
 Signature utile : un correctif qui ne touche que le multijoueur laisse passer les
 trois parties solo et fait diverger les sept autres.
 
+`tsx` est une dépendance de développement : sans lui, aucune de ces commandes ne
+tourne sur un dépôt fraîchement cloné.
+
 ## Pièges déjà rencontrés
 
 - **Ne jamais redéduire l'ordre de pioche dans l'interface.** La pioche part à
@@ -45,6 +48,16 @@ trois parties solo et fait diverger les sept autres.
   commandements engagés en campagne. L'oublier effaçait ~1,4 bataille par partie.
 - Les cartes 20, 75, 38 et 39 s'appliquent même à un absent ; la 40 est traitée
   avant le test d'absence.
+- **Une question posée au joueur pendant qu'un concurrent a la main, c'est la
+  machine qui y répond.** `resolveBotPending()` ne regarde que `this.ch` : si un
+  concurrent tire une carte qui entraîne le joueur en duel, il faut lui passer
+  `active` *et l'y laisser* jusqu'à sa réponse. Passer par `handOver()`, jamais
+  par une affectation qu'on rendrait aussitôt — un `try/finally` autour d'un
+  `ask()` rend la main avant que le joueur ait cliqué.
+- **Les gains d'un concurrent attendent en mémoire** (`briefBuf`) d'être rendus
+  en une ligne, et la ligne prend le nom du Grognard actif *au moment du
+  vidage*. Écrire dans la feuille d'un rival sans vider d'abord attribue ses
+  pertes à celui qui les inflige. `asActor()` et `handOver()` s'en chargent.
 
 ## Ce que les mesures ont établi
 
@@ -89,13 +102,58 @@ donc ce tempérament-là, et ses résultats ne se transposent pas aux concurrent
 qui en ont un vrai. Deux mesures de cette sorte se sont contredites pour cette
 seule raison.
 
+## Les cartes qui visent un rival
+
+Sept cartes exigent un autre Grognard : courir contre lui, le calomnier,
+l'accuser de lâcheté, boire avec lui, l'envoyer en mission, partager un butin,
+croiser le fer. Elles ne sont écartées **qu'en solo** — `cardAllowed()` interroge
+`multi`, et non plus `soloPlayable` seul. Deux d'entre elles étaient déjà dans le
+deck sans effet faute de cible (*Sack the Town*, *Dangerous Mission*).
+
+Pour toucher la feuille d'un rival, passer par `asActor()` : `applyStat()` et
+tout ce qui en découle travaillent sur le Grognard actif, jamais sur un index.
+
+`flags.grievanceAgainst` est la seule porte vers un défi : sans partie lésée,
+pas de duel — c'est la règle de la planche, pas une prudence de notre part.
+
+## Le duel
+
+`src/engine/duel.ts` applique `data/cards/duel.json` et ne connaît rien d'autre :
+il dit qui touche et avec quelle intention, jamais ce qu'il en coûte. C'est
+`game.ts` qui lance la table des blessures, et `policy.ts` qui choisit les cartes.
+
+Trois choses à savoir avant d'y toucher :
+
+- **Un duel n'est pas une pioche : c'est une suite de questions.** Le moteur
+  annonce de qui il attend une carte ; `stepDuel()` joue pour la machine et
+  s'arrête dès qu'un humain doit trancher. Un duel entre deux concurrents se
+  déroule donc d'un trait, sans passer par l'interface.
+- **La riposte inverse les rôles séance tenante** (`safe-and-counts-as-lunge`) :
+  c'est pourquoi la table d'interaction a une entrée `vs-riposte`. Deux mains
+  épuisées sans blessure ne closent rien — on redistribue, jusqu'à six fois.
+- **Pointer « pour blesser » ajoute 10 au jet de blessure**, donc adoucit :
+  1 % de morts contre 11 %. Les concurrents pointent pour blesser, sauf le
+  sabreur. C'est ce qui fait que réintroduire les duels n'a pas augmenté la
+  mortalité des parties témoins.
+
+Non traités, faute de règles fournies ou d'occasion : la magnanimité n'est
+offerte qu'au joueur (un concurrent frappe toujours), le fanatisme — rejouer un
+duel après avoir été gracié — n'est pas implémenté, et le cocuage attend
+*The Fair Sex*.
+
 ## Chantiers ouverts
 
-- Duels non implémentés — délibéré, la planche de cartes n'a pas été fournie.
+- *Comrades in Arms* reste à faire : c'est le dernier bloc multijoueur.
+- **Le défi d'Idle Time n'est presque jamais proposé** — 0,13 fois par partie à
+  six Grognards. Deux causes : les restrictions de la planche (même commandement
+  *et* même grade) et le fait qu'un concurrent n'atteint jamais la branche
+  aléatoire d'Idle Time, `Demander un transfert` passant toujours avant quand
+  l'armée est au repos. Le levier est câblé mais dort.
 - *The Terror* porte `commands: ["all"]` mais ne frappe que son piocheur.
-- *Comrades in Arms* et les 4 cartes multijoueur restent à faire.
 - Le maréchalat n'est couvert par aucune partie témoin.
 - 4 `any` subsistent dans `src/ui/Reference.tsx`.
+- L'interface ne montre pas les cartes d'un duel autrement que par des boutons :
+  ni main, ni carte adverse sur la table.
 - Le README interdit encore de publier le contenu ; l'auteur a indiqué que cette
   restriction ne s'applique plus.
 
@@ -103,5 +161,7 @@ seule raison.
 
 Que les concurrents jouent le mieux possible. Leviers non encore mesurés : leur
 règle de transfert (ils ne demandent qu'au repos ou si standing ≤ −2), leur
-arbitrage entre acte de gloire et acte de discrétion, et les poids de tempérament
-dans `TRAITS`.
+arbitrage entre acte de gloire et acte de discrétion, les poids de tempérament
+dans `TRAITS`, et maintenant leur conduite sur le pré — `duelChoice` pare puis
+riposte sans jamais compter ses cartes, et `acceptsDuel` ne pèse pas les cinq
+points de gloire d'un refus contre le risque encouru.
