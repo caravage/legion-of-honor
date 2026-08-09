@@ -242,7 +242,11 @@ export class Game {
         // les gains déjà mis de côté passent devant : l'ordre de lecture tient
         this.flushBrief();
       } else if (cls === 'gain' || cls === 'loss' || cls === 'info') {
-        this.briefBuf.push(t.replace(/ \([^)]*\)/, ''));
+        // On coupe le détail du calcul — « (1D10=4/2↓=2) » —, jamais la raison
+        // d'une ligne : « Instructions ignorées (zèle de la carte précédente) »
+        // amputée de sa parenthèse ne dit plus rien à personne. Le détail se
+        // reconnaît à ce qu'il compte : une parenthèse sans chiffre est du sens.
+        this.briefBuf.push(t.replace(/ \([^)]*\d[^)]*\)/, ''));
         return;
       }
     }
