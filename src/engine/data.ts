@@ -25,9 +25,22 @@ const asShape = <T>(json: unknown) => json as T;
 const { images: CARD_IMAGES, numbers: CARD_NUMBERS } =
   asShape<{ images: Record<string, string>; numbers: Record<string, number> }>(imagesJson);
 
+/**
+ * Racine des fichiers publics. Un chemin absolu casserait dès que le jeu est
+ * servi ailleurs qu'à la racine d'un domaine — ce qui est le cas de la plupart
+ * des hébergements de pages. Vite tient cette valeur pour nous ; hors navigateur
+ * (simulations sous Node) elle n'existe pas, d'où le repli.
+ */
+const BASE = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
+
 /** Chemin de l'image d'une carte, ou null si elle n'en a pas. */
 export function cardImage(id: string): string | null {
-  return CARD_IMAGES[id] ? '/' + CARD_IMAGES[id] : null;
+  return CARD_IMAGES[id] ? BASE + CARD_IMAGES[id] : null;
+}
+
+/** Chemin d'un fichier de `public/`, valable quelle que soit la racine du site. */
+export function publicPath(rel: string): string {
+  return BASE + rel;
 }
 
 /** Numéro imprimé sur l'écusson de la carte. */
