@@ -87,7 +87,8 @@
       "wwt": {
         "restrictedTo": "army-reserve"
       },
-      "note": "Pas une bataille : sans carte Combat, sans Arms of Honor. We Were There pour les autres de l’Armée de Réserve."
+      "note": "Le piocheur y prend part par son commandement ; les autres passent par le jet de We Were There.",
+      "drawingGrognardOnly": true
     },
     {
       "id": "siege-of-toulon",
@@ -233,7 +234,9 @@
               "G": 4,
               "E": 3
             }
-          }
+          },
+          "drawingGrognardOnly": true,
+          "note": "Le piocheur y prend part par son commandement ; les autres passent par le jet de We Were There."
         },
         {
           "name": "Battle of Rivoli",
@@ -368,7 +371,9 @@
               "E": 2
             }
           },
-          "verify": true
+          "verify": true,
+          "drawingGrognardOnly": true,
+          "note": "Le piocheur y prend part par son commandement ; les autres passent par le jet de We Were There."
         },
         {
           "name": "Battle of Marengo",

@@ -86,7 +86,7 @@ export function Rivals({
         return (
           <button
             key={i}
-            className={`rival${i === 0 ? ' is-player' : ''}${i === game.active ? ' acting' : ''}`}
+            className={`rival${i === 0 ? ' is-player' : ''}${i === game.turnHolder ? ' acting' : ''}`}
             onClick={() => onOpen(i)}
             title="Voir la feuille"
           >

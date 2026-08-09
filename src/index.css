@@ -506,6 +506,12 @@ button.link:hover { background: none; color: #fff; }
 .line-fold > summary:hover { text-decoration: underline dotted; }
 .line-fold > .line-detail { display: block; padding-left: 10px; margin-top: 1px; }
 
+/* Un Grognard, un fait, un rang : ni filet ni retrait supplémentaires. */
+.line-solo { gap: 0 7px; padding-left: 0; }
+.line-solo.line-choice { border-left: none; padding-left: 0; font-weight: 500; }
+.line-solo > .who { flex: none; }
+.line-fold.line-solo > summary > .who { margin-right: 6px; }
+
 /* une décision logée dans le corps de sa carte */
 .line-choice {
   font-weight: 600;

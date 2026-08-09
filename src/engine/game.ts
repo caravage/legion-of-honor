@@ -58,6 +58,8 @@ export class Game {
   chars: Character[] = [];
   /** Index du Grognard dont c'est le tour. */
   active = 0;
+  /** Celui dont c'est le tour : il ne bouge pas quand un autre résout un effet. */
+  turnHolder = 0;
   get ch(): Character { return this.chars[this.active]; }
   /** Le joueur humain. */
   get me(): Character { return this.chars[0]; }
@@ -524,7 +526,7 @@ export class Game {
   // ---------- blessures / mort / prison ----------
   checkWound(w: number): boolean {
     if (w <= 0) return false;
-    this.announce(`Blessure ? — touché sur 2D10 ≤ ${w} (soit ${w} chances sur 100)`);
+    this.announce(`Blessure ? — touché sur 2D10 ≤ ${w}`);
     const r = d100(this.rng);
     if (r > w) { this.roll(`2D10=${r} > ${w} — indemne.`); return false; }
     this.roll(`2D10=${r} ≤ ${w} — touché !`);
@@ -577,7 +579,7 @@ export class Game {
   checkPrisoner(p: number) {
     if (p <= 0) return;
     if (this.ch.absent?.type === 'death') return;
-    this.announce(`Prisonnier ? — capturé sur 2D10 ≤ ${p} (soit ${p} chances sur 100)`);
+    this.announce(`Prisonnier ? — capturé sur 2D10 ≤ ${p}`);
     const r = d100(this.rng);
     if (r <= p) { this.roll(`2D10=${r} ≤ ${p} — capturé !`); this.becomePrisoner(); }
     else this.roll(`2D10=${r} > ${p} — échappe à la capture.`);
@@ -1429,6 +1431,7 @@ export class Game {
     // à qui le tour ? la rotation repart quand elle est épuisée
     if (!this.turnQueue.length) this.turnQueue = this.buildTurnQueue();
     this.active = this.turnQueue.shift()!;
+    this.turnHolder = this.active;
     if (this.chars.length > 1) this.who();
     const entry = this.deck.shift()!;
     this.currentCard = entry;
@@ -2554,7 +2557,7 @@ export class Game {
   /** Jet de Légion d'Honneur : 1D10 ≤ gloire de la bataille ÷ 4. */
   private legionCheck(gained: number) {
     const target = Math.floor(Math.max(0, gained) / 4);
-    if (target <= 0) { this.info(`Gloire de la bataille : ${Math.max(0, gained)} — pas de quoi prétendre à une croix.`); return; }
+    if (target <= 0) return;   // aucune gloire gagnée : rien à annoncer
     this.announce(`Légion d’Honneur ? — décoré si 1D10 ≤ ${target} (gloire de la bataille ${Math.max(0, gained)} ÷ 4)`);
     const r = d10(this.rng);
     if (r <= target) {

@@ -124,7 +124,7 @@ export function botChoice(p: Pending, ch: Character, ctx: BotContext = {}): numb
 
   // Sur une carte Idle Time, faute de charge à briguer ou de mutation à demander,
   // il occupe son temps au hasard plutôt que de toujours courir à la même chose.
-  if (/Idle Time/.test(p.title)) {
+  if (/Idle Time|occupation/.test(p.title)) {
     const rand = ctx.rng ?? Math.random;
     const usable = p.options
       .map((o, k) => ({ o, k }))

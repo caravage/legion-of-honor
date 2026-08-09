@@ -35,21 +35,25 @@ function titleKind(t: string): 'season' | 'round' | 'event' {
   return 'event';
 }
 
-function LogLine({ e, fresh }: { e: LogEntry; fresh: boolean }) {
+function LogLine({
+  e, fresh, who, moi,
+}: { e: LogEntry; fresh: boolean; who?: string | null; moi?: boolean }) {
   // une décision garde son allure, même logée dans le corps de sa carte
   const kind = e.cls === 'card' ? 'choice' : e.cls;
-  const cls = `line line-${kind}${fresh ? ' fresh' : ''}`;
+  const cls = `line line-${kind}${who ? ' line-solo' : ''}${fresh ? ' fresh' : ''}`;
+  const badge = who ? <span className={`who${moi ? ' who-me' : ''}`}>{who}</span> : null;
   // un calcul se replie derrière son résultat : on le déroule si on le veut
   if (e.detail) {
     return (
       <details className={`${cls} line-fold`}>
-        <summary className="line-text">{e.t}</summary>
+        <summary className="line-text">{badge}{e.t}</summary>
         <span className="line-detail">{e.detail}</span>
       </details>
     );
   }
   return (
     <div className={cls}>
+      {badge}
       <span className="line-text">{e.t}</span>
     </div>
   );
@@ -147,6 +151,21 @@ export function LogView({
                       && (runs.length > 1 || run.actor !== h.actor)
                       ? names[run.actor]
                       : null;
+                  // Un Grognard, une ligne : nom et fait sur le même rang, sans
+                  // filet ni retrait. C'est le cas de toutes les phases où
+                  // chacun ne dit qu'une chose — permission, revenus, gloire.
+                  if (run.lines.length === 1) {
+                    const { e, i } = run.lines[0];
+                    return (
+                      <LogLine
+                        key={k}
+                        e={e}
+                        fresh={i === revealed - 1}
+                        who={label}
+                        moi={run.actor === 0}
+                      />
+                    );
+                  }
                   return (
                     <div key={k} className={`run${label ? ' run-named' : ''}`}>
                       {label && (
