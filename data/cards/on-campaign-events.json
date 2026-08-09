@@ -212,15 +212,28 @@
             "restrictedTo": "army-italy"
           },
           "values": {
-            "any": {
-              "W": 10,
-              "P": 3,
+            "line": {
+              "W": 15,
+              "P": 4,
               "N": 5,
               "G": 8,
               "E": 3
+            },
+            "field": {
+              "W": 10,
+              "P": 3,
+              "N": 5,
+              "G": 6,
+              "E": 3
+            },
+            "general": {
+              "W": 5,
+              "P": 2,
+              "N": 6,
+              "G": 4,
+              "E": 3
             }
-          },
-          "verify": true
+          }
         },
         {
           "name": "Battle of Rivoli",
@@ -229,7 +242,12 @@
           ],
           "excluded": [
             "held-in-reserve"
-          ]
+          ],
+          "values": {
+            "any": {
+              "N": 2
+            }
+          }
         }
       ]
     },
@@ -372,7 +390,6 @@
     {
       "id": "battle-of-hohenlinden",
       "num": 106,
-      "numVerify": true,
       "round": "V-B",
       "name": "Battle of Hohenlinden",
       "commands": [
@@ -380,7 +397,13 @@
       ],
       "excluded": [
         "unit-overrun"
-      ]
+      ],
+      "values": {
+        "any": {
+          "N": 2,
+          "M": "+1D10x2"
+        }
+      }
     },
     {
       "id": "elchingen-danube",
@@ -486,14 +509,25 @@
           "noCombatCard": true,
           "legionOfHonor": true,
           "values": {
-            "any": {
+            "line": {
               "N": "+1D10/2down",
-              "M": "+2D10",
               "G": 4,
-              "E": 5
+              "E": 5,
+              "M": "+2D10"
+            },
+            "field": {
+              "N": "+1D10/2down",
+              "G": 2,
+              "E": 10,
+              "M": "+2D10"
+            },
+            "general": {
+              "N": 1,
+              "G": 1,
+              "E": 12,
+              "M": "+2D10"
             }
-          },
-          "verify": true
+          }
         },
         {
           "name": "Battle of Friedland",
@@ -502,34 +536,28 @@
             "corps-6",
             "corps-reserve"
           ],
-          "values": {
-            "any": {
-              "N": 2
-            }
-          },
           "excluded": [
             "unit-overrun"
-          ],
-          "verify": true
+          ]
         }
       ]
     },
     {
       "id": "battle-of-eckmuhl",
       "num": 112,
-      "numVerify": true,
       "round": "XI-A",
       "name": "Battle of Eckmühl",
       "commands": [
-        "corps-2",
+        "corps-1",
         "corps-3",
         "corps-4"
       ],
-      "excluded": [
-        "held-in-reserve"
-      ],
-      "note": "III Corps : commandement indépendant (Battle Command). Exclusions à vérifier.",
-      "verify": true
+      "excluded": [],
+      "values": {
+        "any": {
+          "N": 2
+        }
+      }
     },
     {
       "id": "vienna-aspern-essling",
@@ -547,10 +575,9 @@
           "noCombatCard": true,
           "values": {
             "any": {
-              "N": 2
+              "M": "+2D10"
             }
-          },
-          "verify": true
+          }
         },
         {
           "name": "Battle of Aspern-Essling",
@@ -561,8 +588,7 @@
           "excluded": [
             "carry-the-day",
             "telling-maneuver"
-          ],
-          "verify": true
+          ]
         }
       ]
     },
@@ -624,7 +650,6 @@
     {
       "id": "battle-of-borodino",
       "num": 116,
-      "numVerify": true,
       "round": "XIII-B",
       "name": "Battle of Borodino",
       "commands": [
@@ -638,8 +663,7 @@
           "N": 2
         }
       },
-      "excluded": [],
-      "verify": true
+      "excluded": []
     },
     {
       "id": "moscow-berezina",
@@ -672,8 +696,7 @@
               "E": 4,
               "M": "+1D10x3"
             }
-          },
-          "verify": true
+          }
         },
         {
           "name": "Cross the Berezina",
@@ -698,8 +721,7 @@
               "E": 6
             }
           },
-          "special": "Chaque Grognard 2D10 : une fois pour la bourse, une fois pour la santé ; bourse réduite de (jet x10)%, santé réduite de l'autre jet (à préciser)",
-          "verify": true
+          "special": "Chaque Grognard 2D10 : une fois pour la bourse, une fois pour la santé ; bourse réduite de (jet x10)%, santé réduite de l'autre jet (à préciser)"
         }
       ]
     },
