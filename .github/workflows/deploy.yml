@@ -1,0 +1,58 @@
+# Construit le jeu et publie `dist/` sur GitHub Pages.
+#
+# Le dépôt ne versionne pas `dist/` : sans cette action, Pages servirait
+# l'`index.html` source, qui appelle `/src/main.tsx` — du TypeScript que le
+# navigateur ne sait pas exécuter. C'était la page blanche.
+#
+# À faire une fois dans les réglages du dépôt :
+# Settings → Pages → Source : « GitHub Actions » (et non « Deploy from a branch »).
+
+name: Déploiement
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# une seule publication à la fois ; la plus récente prime
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # les contrôles du projet : données, types, et le filet de non-régression
+      - name: Contrôles
+        run: npm run check
+
+      - run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
