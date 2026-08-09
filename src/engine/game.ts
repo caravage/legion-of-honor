@@ -187,6 +187,12 @@ export class Game {
 
   /** Gains d'un concurrent en attente d'être résumés en une ligne. */
   private briefBuf: string[] = [];
+  /**
+   * À qui appartient ce qui attend. Le tampon ne doit jamais enjamber deux
+   * Grognards : sans cela, les gains d'une bataille s'écrivaient sous la carte
+   * du suivant, et l'on croyait Reconnaissance responsable d'un butin.
+   */
+  private briefActor: number | null = null;
 
   private add(t: string, cls: LogClass, cardId?: string, detail?: string) {
     // Un concurrent ne commente pas ses dés : on retient l'essentiel et on le
@@ -199,6 +205,9 @@ export class Game {
         // les gains déjà mis de côté passent devant : l'ordre de lecture tient
         this.flushBrief();
       } else if (cls === 'gain' || cls === 'loss' || cls === 'info') {
+        // le tampon change de main : on solde le précédent avant d'ouvrir le sien
+        if (this.briefActor !== null && this.briefActor !== this.active) this.flushBrief();
+        this.briefActor = this.active;
         this.briefBuf.push(t.replace(/ \([^)]*\)/, ''));
         return;
       }
@@ -877,8 +886,8 @@ export class Game {
    * Ligne condensée d'un concurrent : elle contourne la mise en attente. Le nom
    * n'y figure pas — le journal le porte en pastille, en tête du groupe.
    */
-  private brief(text: string) {
-    this.log.push({ t: text, cls: 'info', actor: this.active });
+  private brief(text: string, actor = this.active) {
+    this.log.push({ t: text, cls: 'info', actor });
     this.snaps.push(
       this.chars.map((c) => ({ ...c, flags: { ...c.flags }, absent: c.absent ? { ...c.absent } : null })),
     );
@@ -886,9 +895,11 @@ export class Game {
 
   /** Rend en une ligne ce qu'un concurrent vient de faire. */
   private flushBrief() {
-    if (!this.briefBuf.length) return;
+    if (!this.briefBuf.length) { this.briefActor = null; return; }
     const parts = this.briefBuf.splice(0);
-    this.brief(parts.join(' · '));
+    const qui = this.briefActor ?? this.active;
+    this.briefActor = null;
+    this.brief(parts.join(' · '), qui);
   }
 
   /** Vrai si l'on doit détailler : le joueur seul a droit aux jets commentés. */
@@ -2387,6 +2398,9 @@ export class Game {
   }
 
   private nextBattle() {
+    // ce que le précédent a gagné se dit avant qu’un autre entre en lice,
+    // sans quoi ses lignes s’écrivent sous la carte du suivant
+    this.flushBrief();
     const t = this.battleQueue.shift();
     if (!t) {
       const f = this.afterBattles;
