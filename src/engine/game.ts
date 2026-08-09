@@ -94,6 +94,8 @@ export class Game {
   currentCard: DeckEntry | null = null;
   /** Carte Combat de la bataille en cours, affichée à côté de la carte d'événement */
   combatCard: DeckEntry | null = null;
+  /** Les cartes Combat tirées pour l’évènement en cours, avec leur porteur. */
+  battleCards: { card: DeckEntry; who: number }[] = [];
   /** Cartes tirées depuis le début du round, pour consultation */
   drawnThisRound: { id: string; name: string }[] = [];
   /** « We Were There! » : Grognards restant à interroger pour la carte en cours */
@@ -1424,6 +1426,7 @@ export class Game {
       // qui restait sinon affichée jusqu'au prochain tirage
       this.currentCard = null;
       this.combatCard = null;
+      this.battleCards = [];
       this.stage = 'round-over';
       this.sub = 0;
       return;
@@ -2378,6 +2381,7 @@ export class Game {
   // ---------- batailles ----------
 
   private queueBattles(list: { ev: CampaignSubEvent; name: string; who: number }[]) {
+    if (!this.battleQueue.length) this.battleCards = [];
     this.battleQueue.push(...list);
     this.nextBattle();
   }
@@ -2427,6 +2431,7 @@ export class Game {
     });
     const card = pool[Math.floor(this.rng() * pool.length)];
     this.combatCard = { kind: 'combat', card };
+    this.battleCards.push({ card: this.combatCard, who: this.active });
     this.drawnThisRound.push({ id: card.id, name: card.name });
     this.cardLog(`Carte Combat : ${card.name}`, card.id);
     if (combatBaseId(card.id) === 'victory-mont-st-jean') { this.resolveVictoryMSJ(); return; }

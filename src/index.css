@@ -796,6 +796,17 @@ body { transition: background-color 0.8s ease; }
 
 /* ---------- carte Combat à côté de l'événement ---------- */
 .combat-slot { margin-top: 12px; }
+/* qui a tiré cette carte Combat */
+.combat-porteur {
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  text-align: center;
+  background: var(--navy);
+  color: var(--parchment);
+  border-radius: 0 0 4px 4px;
+}
 .combat-slot::before {
   content: 'Carte Combat';
   display: block;
