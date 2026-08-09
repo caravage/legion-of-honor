@@ -242,12 +242,7 @@
           ],
           "excluded": [
             "held-in-reserve"
-          ],
-          "values": {
-            "any": {
-              "N": 2
-            }
-          }
+          ]
         }
       ]
     },
@@ -267,7 +262,7 @@
       "values": {
         "any": {
           "N": 2,
-          "M": "+1D10"
+          "M": "+1D10x2"
         }
       },
       "verify": true
@@ -383,7 +378,12 @@
           "excluded": [
             "held-in-reserve"
           ],
-          "verify": true
+          "verify": true,
+          "values": {
+            "any": {
+              "N": 4
+            }
+          }
         }
       ]
     },
@@ -421,7 +421,10 @@
           ],
           "noPrisonerOnCombatCard": true,
           "note": "Tous les Grognards des II, IV, V, VI Corps ; VI Corps : carte Combat exclue = ?",
-          "verify": true
+          "verify": true,
+          "excluded": [
+            "carry-the-day"
+          ]
         },
         {
           "name": "Capture of the Danube Bridge",
@@ -478,7 +481,10 @@
       ],
       "oneCombatCard": true,
       "note": "Un seul event, deux batailles ; aucun corps dans les deux. Cartes Combat varient selon corps (exclusions par corps).",
-      "verify": true
+      "verify": true,
+      "excluded": [
+        "unit-overrun"
+      ]
     },
     {
       "id": "battle-of-eylau",
@@ -492,8 +498,11 @@
         "corps-6",
         "corps-7"
       ],
-      "note": "Exclusions de cartes Combat selon corps (III, IV, VII : Held in Reserve ; Lead Counterattack, Defend the Position pour VI ?)",
-      "verify": true
+      "note": "Exclusions par corps : Held in Reserve (III, IV, VII) ; Lead Counterattack et Defend the Position (VI).",
+      "verify": true,
+      "excluded": [
+        "carry-the-day"
+      ]
     },
     {
       "id": "danzig-friedland",
@@ -767,7 +776,11 @@
       ],
       "oneCombatCard": true,
       "special": "IV et VII Corps à Dresde : toutes cartes Combat. Sur la Katzbach : Carry the Day exclue.",
-      "verify": true
+      "verify": true,
+      "excluded": [
+        "carry-the-day"
+      ],
+      "note": "IV et VI Corps à Dresde : toutes les cartes Combat en jeu."
     },
     {
       "id": "battle-of-leipzig",
@@ -799,10 +812,7 @@
         "corps-reserve"
       ],
       "excluded": [
-        "unit-flanked",
-        "unit-overrun",
-        "unit-decimated",
-        "held-in-reserve"
+        "carry-the-day"
       ],
       "verify": true
     },
@@ -818,6 +828,7 @@
       "oneEvent": true,
       "excluded": [
         "unit-flanked",
+        "unit-surprised",
         "unit-overrun",
         "unit-decimated",
         "held-in-reserve"
@@ -849,7 +860,9 @@
         "corps-2"
       ],
       "note": "I Corps : Held in Reserve d'office",
-      "excluded": [],
+      "excluded": [
+        "held-in-reserve"
+      ],
       "carryTheDayBonus": "Idem Ligny"
     },
     {
@@ -876,7 +889,10 @@
         "corps-6"
       ],
       "special": "Insérer Victory at Mont St. Jean!, retirer les 2 Carry the Day. Excluded: Carry the Day + Held in Reserve ( ?). Si 180 non tirée : défaite, pas de titres, persécution des Bourbons pour les Bonapartistes.",
-      "verify": true
+      "verify": true,
+      "excluded": [
+        "held-in-reserve"
+      ]
     },
     {
       "id": "battle-in-spain",
