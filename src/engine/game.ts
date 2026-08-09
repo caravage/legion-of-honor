@@ -218,6 +218,42 @@ export class Game {
     );
   }
 
+  /**
+   * Tout ce qu'il faut pour reproduire une situation signalée : l'état des
+   * Grognards, la carte en cours, et la fin du journal. Le tirage n'est pas
+   * rejouable — la partie tourne sur Math.random — mais le journal dit ce qui
+   * s'est passé, et c'est ce qui manque le plus quand on cherche une faute.
+   */
+  bugReport(message: string) {
+    const carte = (e: DeckEntry | null) => (e ? { kind: e.kind, id: e.card.id, name: e.card.name } : null);
+    return {
+      message,
+      date: new Date().toISOString(),
+      ou: {
+        saison: this.season,
+        round: this.roundCode(),
+        etape: this.stage,
+        sousEtape: this.sub,
+        actif: this.active,
+        aQuiLeTour: this.turnHolder,
+        senior: this.senior,
+        fileDuTour: this.turnQueue,
+      },
+      grognards: this.chars.map((c, i) => ({ i, ...c })),
+      table: {
+        carteEnCours: carte(this.currentCard),
+        carteCombat: carte(this.combatCard),
+        cartesCombat: this.battleCards.map((b) => ({ ...carte(b.card), qui: b.who })),
+        enAttente: this.pending?.title ?? null,
+        options: this.pending?.options.map((o) => o.label) ?? [],
+        filesDeBataille: this.battleQueue.map((b) => ({ nom: b.name, qui: b.who })),
+      },
+      deck: this.deck.map((d) => ({ kind: d.kind, id: d.card.id })),
+      tireesCeRound: this.drawnThisRound,
+      journal: this.log.slice(-150),
+    };
+  }
+
   /** Cartes tirées dans le round en cours. */
   roundCards(): { id: string; name: string }[] { return this.drawnThisRound; }
 

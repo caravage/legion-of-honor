@@ -1,13 +1,14 @@
 import { Game } from '../engine/game';
 import { RANKS, SEASONS, CAMPAIGN_EVENTS, cardImage, commandName } from '../engine/data';
 
-export type RefKind = 'chronicles' | 'ranks' | 'opportunity' | 'cards';
+export type RefKind = 'chronicles' | 'ranks' | 'opportunity' | 'cards' | 'bug';
 
 const TITLES: Record<RefKind, string> = {
   chronicles: 'Chroniques du Grognard',
   ranks: 'Grades, seuils et soldes',
   opportunity: 'Fiche d’opportunité — qui se bat, et quand',
   cards: 'Cartes tirées dans ce round',
+  bug: 'Signaler un bug',
 };
 
 export function Reference({

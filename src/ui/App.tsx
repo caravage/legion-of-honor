@@ -4,6 +4,7 @@ import type { SetupMode } from '../engine/game';
 import { generateName } from '../engine/names';
 import { pushHall } from '../engine/storage';
 import { Reference, RefKind } from './Reference';
+import { BugReport } from './BugReport';
 import { Header, ProgressBar } from './bits';
 import { CardBack, CardPeek, CardView } from './Cards';
 import { DiceTray } from './Dice';
@@ -302,7 +303,8 @@ export default function App() {
         />
       )}
       {peek && <CardPeek src={peek} onClose={() => setPeek(null)} />}
-      {modal && <Reference which={modal} game={game} onClose={() => setModal(null)} />}
+      {modal === 'bug' && <BugReport game={game} onClose={() => setModal(null)} />}
+      {modal && modal !== 'bug' && <Reference which={modal} game={game} onClose={() => setModal(null)} />}
     </div>
   );
 }
