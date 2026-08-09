@@ -2,81 +2,456 @@
   "comment": "Cartes Combat 180-200. Valeurs par catégorie de grade : W/P en %, N/G/E/M en gains. glory = option acte héroïque (nom d'action condensé) ; discretionDisgrace = numéro Disgrace? si acte de discrétion choisi. plundered = jet de pillage (Overrun/Decimated). title = éligible (Title?).",
   "cards": [
     {
-      "id": "victory-mont-st-jean", "num": 180, "name": "Victory at Mont St. Jean!",
+      "id": "victory-mont-st-jean",
+      "num": 180,
+      "name": "Victory at Mont St. Jean!",
       "special": "Uniquement dans le deck Combat de Waterloo (à la place des 2 Carry the Day). Le tireur gagne la partie : utiliser toutes les valeurs de Carry the Day, promotion au grade supérieur (général->maréchal), LoH automatique, titre si éligible, jet de blessure (pas de prisonnier), pas de persécution des Bourbons pour personne."
     },
     {
-      "id": "carry-the-day-1", "num": 181, "name": "Carry the Day", "title": true,
-      "line":    { "glory": "Carry the Eagle Forward!", "W": 18, "P": 6,  "N": 5,  "G": 10, "E": 4, "M": 7,  "discretion": "Ask for Artillery Support",       "disgrace": 2 },
-      "field":   { "glory": "Overrun the Enemy!",       "W": 15, "P": 5,  "N": 10, "G": 10, "E": 6, "M": 14, "discretion": "Consult Further with Superiors",  "disgrace": 6 },
-      "general": { "glory": "Roll Up the Enemy Line!",  "W": 15, "P": 10, "N": 15, "G": 10, "E": 8, "M": 21, "discretion": "Await Reinforcements",            "disgrace": 6 }
+      "id": "carry-the-day-1",
+      "num": 181,
+      "name": "Carry the Day",
+      "title": true,
+      "line": {
+        "glory": "Carry the Eagle Forward!",
+        "W": 18,
+        "P": 6,
+        "N": 5,
+        "G": 10,
+        "E": 4,
+        "M": 7,
+        "discretion": "Ask for Artillery Support",
+        "disgrace": 2
+      },
+      "field": {
+        "glory": "Overrun the Enemy!",
+        "W": 15,
+        "P": 5,
+        "N": 10,
+        "G": 10,
+        "E": 6,
+        "M": 14,
+        "discretion": "Consult Further with Superiors",
+        "disgrace": 4
+      },
+      "general": {
+        "glory": "Roll Up the Enemy Line!",
+        "W": 12,
+        "P": 4,
+        "N": 15,
+        "G": 10,
+        "E": 8,
+        "M": 21,
+        "discretion": "Await Reinforcements",
+        "disgrace": 6
+      }
     },
-    { "id": "carry-the-day-2", "num": 182, "name": "Carry the Day", "sameAs": "carry-the-day-1" },
     {
-      "id": "lead-counterattack-1", "num": 183, "name": "Lead Counterattack", "title": true,
-      "line":    { "glory": "Recapture the Guns!", "W": 15, "P": 5, "N": 1, "G": 9, "E": 7, "M": 5,  "discretion": "Hang Back",                    "disgrace": 4 },
-      "field":   { "glory": "Shore Up the Line!",  "W": 12, "P": 4, "N": 3, "G": 6, "E": 8, "M": 10, "discretion": "Hesitate",                     "disgrace": 6, "verify": true },
-      "general": { "glory": "Turn the Tide!",      "W": 9,  "P": 3, "N": 5, "G": 3, "E": 9, "M": 15, "discretion": "Counterattack Halfheartedly",  "disgrace": 8 }
+      "id": "carry-the-day-2",
+      "num": 182,
+      "name": "Carry the Day",
+      "sameAs": "carry-the-day-1"
     },
-    { "id": "lead-counterattack-2", "num": 184, "name": "Lead Counterattack", "sameAs": "lead-counterattack-1" },
     {
-      "id": "telling-maneuver-1", "num": 185, "name": "Telling Maneuver", "title": true,
-      "line":    { "glory": "Capture Enemy Guns!",          "W": 8, "P": 2, "N": 1, "G": 7, "E": 6, "M": 8,  "discretion": "Lead from Behind",      "disgrace": 9 },
-      "field":   { "glory": "Crush the Enemy Flank!",       "W": 6, "P": 1, "N": 2, "G": 5, "E": 7, "M": 16, "discretion": "Advance with the Line", "disgrace": 11 },
-      "general": { "glory": "Force the Enemy to Withdraw!", "W": 3, "P": 0, "N": 4, "G": 2, "E": 8, "M": 24, "discretion": "Distract the Enemy",    "disgrace": 13 }
+      "id": "lead-counterattack-1",
+      "num": 183,
+      "name": "Lead Counterattack",
+      "title": true,
+      "line": {
+        "glory": "Recapture the Guns!",
+        "W": 15,
+        "P": 5,
+        "N": 1,
+        "G": 9,
+        "E": 7,
+        "M": 5,
+        "discretion": "Hang Back",
+        "disgrace": 2
+      },
+      "field": {
+        "glory": "Shore Up the Line!",
+        "W": 12,
+        "P": 4,
+        "N": 3,
+        "G": 6,
+        "E": 8,
+        "M": 10,
+        "discretion": "Hesitate",
+        "disgrace": 6
+      },
+      "general": {
+        "glory": "Turn the Tide!",
+        "W": 9,
+        "P": 3,
+        "N": 5,
+        "G": 3,
+        "E": 9,
+        "M": 15,
+        "discretion": "Counterattack Halfheartedly",
+        "disgrace": 8
+      }
     },
-    { "id": "telling-maneuver-2", "num": 186, "name": "Telling Maneuver", "sameAs": "telling-maneuver-1" },
     {
-      "id": "lead-attack-1", "num": 187, "name": "Lead Attack",
-      "line":    { "glory": "Into the Breach!", "W": 12, "P": 4, "N": 1, "G": 6, "E": 5, "M": 5,  "discretion": "Send the Men Forward",          "disgrace": 10 },
-      "field":   { "glory": "En Avant!",        "W": 9,  "P": 3, "N": 2, "G": 4, "E": 6, "M": 10, "discretion": "Fulfill Your Orders to the Letter", "disgrace": 12 },
-      "general": { "glory": "Break the Enemy!", "W": 6,  "P": 2, "N": 3, "G": 2, "E": 7, "M": 15, "discretion": "Push Enemy Back",               "disgrace": 14 }
+      "id": "lead-counterattack-2",
+      "num": 184,
+      "name": "Lead Counterattack",
+      "sameAs": "lead-counterattack-1"
     },
-    { "id": "lead-attack-2", "num": 188, "name": "Lead Attack", "sameAs": "lead-attack-1" },
     {
-      "id": "defend-the-position-1", "num": 189, "name": "Defend the Position",
-      "line":    { "glory": "Inspire the Men!",    "W": 12, "P": 4, "N": 1, "G": 4, "E": 4, "M": 4,  "discretion": "Keep Head Down", "disgrace": 13 },
-      "field":   { "glory": "Stand Firm!",         "W": 9,  "P": 3, "N": 2, "G": 2, "E": 5, "M": 8,  "discretion": "Fall Back",      "disgrace": 15 },
-      "general": { "glory": "They Shall Not Pass!","W": 6,  "P": 2, "N": 3, "G": 1, "E": 6, "M": 12, "discretion": "Withdraw",       "disgrace": 17 }
+      "id": "telling-maneuver-1",
+      "num": 185,
+      "name": "Telling Maneuver",
+      "title": true,
+      "line": {
+        "glory": "Capture Enemy Guns!",
+        "W": 8,
+        "P": 2,
+        "N": 1,
+        "G": 7,
+        "E": 6,
+        "M": 8,
+        "discretion": "Lead from Behind",
+        "disgrace": 9
+      },
+      "field": {
+        "glory": "Crush the Enemy Flank!",
+        "W": 6,
+        "P": 1,
+        "N": 2,
+        "G": 5,
+        "E": 7,
+        "M": 16,
+        "discretion": "Advance with the Line",
+        "disgrace": 11
+      },
+      "general": {
+        "glory": "Force the Enemy to Withdraw!",
+        "W": 3,
+        "P": 0,
+        "N": 4,
+        "G": 2,
+        "E": 8,
+        "M": 24,
+        "discretion": "Distract the Enemy",
+        "disgrace": 13
+      }
     },
-    { "id": "defend-the-position-2", "num": 190, "name": "Defend the Position", "sameAs": "defend-the-position-1" },
     {
-      "id": "unit-flanked-1", "num": 191, "name": "Unit Flanked",
-      "line":    { "glory": "Turn and Face the Enemy!", "W": 12, "P": 4, "N": 0, "G": 5, "E": 3, "M": 0, "discretion": "Find Better Position", "disgrace": 16 },
-      "field":   { "glory": "Reposition the Guns!",     "W": 9,  "P": 3, "N": 1, "G": 3, "E": 4, "M": 0, "discretion": "Limber the Guns",      "disgrace": 18 },
-      "general": { "glory": "Commit the Reserve!",      "W": 6,  "P": 2, "N": 2, "G": 1, "E": 5, "M": 0, "discretion": "Withdraw",             "disgrace": 20 }
+      "id": "telling-maneuver-2",
+      "num": 186,
+      "name": "Telling Maneuver",
+      "sameAs": "telling-maneuver-1"
     },
-    { "id": "unit-flanked-2", "num": 192, "name": "Unit Flanked", "sameAs": "unit-flanked-1" },
     {
-      "id": "unit-surprised-1", "num": 193, "name": "Unit Surprised",
-      "line":    { "glory": "Steady the Men!", "W": 15, "P": 5, "N": 1, "G": 7, "E": 3, "M": 0, "discretion": "Cower",            "disgrace": 19 },
-      "field":   { "glory": "Form the Line!",  "W": 12, "P": 4, "N": 2, "G": 4, "E": 4, "M": 0, "discretion": "Move to the Rear", "disgrace": 21 },
-      "general": { "glory": "Make a Stand!",   "W": 7,  "P": 3, "N": 4, "G": 2, "E": 5, "M": 0, "discretion": "Retreat",          "disgrace": 23 }
+      "id": "lead-attack-1",
+      "num": 187,
+      "name": "Lead Attack",
+      "line": {
+        "glory": "Into the Breach!",
+        "W": 12,
+        "P": 4,
+        "N": 1,
+        "G": 6,
+        "E": 5,
+        "M": 5,
+        "discretion": "Send the Men Forward",
+        "disgrace": 10
+      },
+      "field": {
+        "glory": "En Avant!",
+        "W": 9,
+        "P": 3,
+        "N": 2,
+        "G": 4,
+        "E": 6,
+        "M": 10,
+        "discretion": "Fulfill Your Orders to the Letter",
+        "disgrace": 12
+      },
+      "general": {
+        "glory": "Break the Enemy!",
+        "W": 6,
+        "P": 2,
+        "N": 3,
+        "G": 2,
+        "E": 7,
+        "M": 15,
+        "discretion": "Push Enemy Back",
+        "disgrace": 14
+      }
     },
-    { "id": "unit-surprised-2", "num": 194, "name": "Unit Surprised", "sameAs": "unit-surprised-1" },
     {
-      "id": "unit-overrun-1", "num": 195, "name": "Unit Overrun", "plundered": true,
-      "line":    { "glory": "Protect the Eagle!",  "W": 21, "P": 19, "N": 1, "G": 8, "E": 3, "M": 0, "discretion": "Flee",              "disgrace": 22 },
-      "field":   { "glory": "Form Square!",        "W": 13, "P": 15, "N": 2, "G": 5, "E": 4, "M": 0, "discretion": "Assign a Rearguard","disgrace": 24 },
-      "general": { "glory": "Organize a Defense!", "W": 6,  "P": 10, "N": 3, "G": 2, "E": 5, "M": 0, "discretion": "Retreat",           "disgrace": 26 }
+      "id": "lead-attack-2",
+      "num": 188,
+      "name": "Lead Attack",
+      "sameAs": "lead-attack-1"
     },
-    { "id": "unit-overrun-2", "num": 196, "name": "Unit Overrun", "sameAs": "unit-overrun-1" },
     {
-      "id": "unit-decimated-1", "num": 197, "name": "Unit Decimated", "plundered": true,
-      "line":    { "glory": "Save the Eagle!",    "W": 38, "P": 10, "N": 2, "G": 9, "E": 2, "M": 0, "discretion": "Sauve qui peut", "disgrace": 25 },
-      "field":   { "glory": "Make a Last Stand!", "W": 21, "P": 7,  "N": 4, "G": 6, "E": 3, "M": 0, "discretion": "Sauve qui peut", "disgrace": 27 },
-      "general": { "glory": "Hold the Field!",    "W": 16, "P": 4,  "N": 6, "G": 3, "E": 4, "M": 0, "discretion": "Sauve qui peut", "disgrace": 29 }
+      "id": "defend-the-position-1",
+      "num": 189,
+      "name": "Defend the Position",
+      "line": {
+        "glory": "Inspire the Men!",
+        "W": 12,
+        "P": 4,
+        "N": 1,
+        "G": 4,
+        "E": 4,
+        "M": 4,
+        "discretion": "Keep Head Down",
+        "disgrace": 13
+      },
+      "field": {
+        "glory": "Stand Firm!",
+        "W": 9,
+        "P": 3,
+        "N": 2,
+        "G": 2,
+        "E": 5,
+        "M": 8,
+        "discretion": "Fall Back",
+        "disgrace": 15
+      },
+      "general": {
+        "glory": "They Shall Not Pass!",
+        "W": 6,
+        "P": 2,
+        "N": 3,
+        "G": 1,
+        "E": 6,
+        "M": 12,
+        "discretion": "Withdraw",
+        "disgrace": 17
+      }
     },
-    { "id": "unit-decimated-2", "num": 198, "name": "Unit Decimated", "sameAs": "unit-decimated-1" },
     {
-      "id": "held-in-reserve-1", "num": 199, "name": "Held in Reserve", "noChoice": true, "noDisgrace": true, "noComrades": true,
-      "line":    { "W": 3, "P": 0, "N": 0, "G": 1, "E": 1, "M": 5 },
-      "field":   { "W": 2, "P": 0, "N": 0, "G": 1, "E": 2, "M": 10 },
-      "general": { "W": 1, "P": 0, "N": 0, "G": 1, "E": 2, "M": 15 }
+      "id": "defend-the-position-2",
+      "num": 190,
+      "name": "Defend the Position",
+      "sameAs": "defend-the-position-1"
     },
-    { "id": "held-in-reserve-2", "num": 200, "name": "Held in Reserve", "sameAs": "held-in-reserve-1" }
+    {
+      "id": "unit-flanked-1",
+      "num": 191,
+      "name": "Unit Flanked",
+      "line": {
+        "glory": "Turn and Face the Enemy!",
+        "W": 12,
+        "P": 4,
+        "N": 0,
+        "G": 5,
+        "E": 3,
+        "M": 0,
+        "discretion": "Find Better Position",
+        "disgrace": 16
+      },
+      "field": {
+        "glory": "Reposition the Guns!",
+        "W": 9,
+        "P": 3,
+        "N": 1,
+        "G": 3,
+        "E": 4,
+        "M": 0,
+        "discretion": "Limber the Guns",
+        "disgrace": 18
+      },
+      "general": {
+        "glory": "Commit the Reserve!",
+        "W": 6,
+        "P": 2,
+        "N": 2,
+        "G": 1,
+        "E": 5,
+        "M": 0,
+        "discretion": "Withdraw",
+        "disgrace": 20
+      }
+    },
+    {
+      "id": "unit-flanked-2",
+      "num": 192,
+      "name": "Unit Flanked",
+      "sameAs": "unit-flanked-1"
+    },
+    {
+      "id": "unit-surprised-1",
+      "num": 193,
+      "name": "Unit Surprised",
+      "line": {
+        "glory": "Steady the Men!",
+        "W": 15,
+        "P": 5,
+        "N": 1,
+        "G": 7,
+        "E": 3,
+        "M": 0,
+        "discretion": "Cower",
+        "disgrace": 19
+      },
+      "field": {
+        "glory": "Form the Line!",
+        "W": 12,
+        "P": 4,
+        "N": 2,
+        "G": 4,
+        "E": 4,
+        "M": 0,
+        "discretion": "Move to the Rear",
+        "disgrace": 21
+      },
+      "general": {
+        "glory": "Make a Stand!",
+        "W": 7,
+        "P": 3,
+        "N": 4,
+        "G": 2,
+        "E": 5,
+        "M": 0,
+        "discretion": "Retreat",
+        "disgrace": 23
+      }
+    },
+    {
+      "id": "unit-surprised-2",
+      "num": 194,
+      "name": "Unit Surprised",
+      "sameAs": "unit-surprised-1"
+    },
+    {
+      "id": "unit-overrun-1",
+      "num": 195,
+      "name": "Unit Overrun",
+      "plundered": true,
+      "line": {
+        "glory": "Protect the Eagle!",
+        "W": 21,
+        "P": 19,
+        "N": 1,
+        "G": 8,
+        "E": 3,
+        "M": 0,
+        "discretion": "Flee",
+        "disgrace": 22
+      },
+      "field": {
+        "glory": "Form Square!",
+        "W": 13,
+        "P": 15,
+        "N": 2,
+        "G": 5,
+        "E": 4,
+        "M": 0,
+        "discretion": "Assign a Rearguard",
+        "disgrace": 24
+      },
+      "general": {
+        "glory": "Organize a Defense!",
+        "W": 6,
+        "P": 10,
+        "N": 3,
+        "G": 2,
+        "E": 5,
+        "M": 0,
+        "discretion": "Retreat",
+        "disgrace": 26
+      }
+    },
+    {
+      "id": "unit-overrun-2",
+      "num": 196,
+      "name": "Unit Overrun",
+      "sameAs": "unit-overrun-1"
+    },
+    {
+      "id": "unit-decimated-1",
+      "num": 197,
+      "name": "Unit Decimated",
+      "plundered": true,
+      "line": {
+        "glory": "Save the Eagle!",
+        "W": 38,
+        "P": 10,
+        "N": 2,
+        "G": 9,
+        "E": 2,
+        "M": 0,
+        "discretion": "Sauve qui peut",
+        "disgrace": 25
+      },
+      "field": {
+        "glory": "Make a Last Stand!",
+        "W": 21,
+        "P": 7,
+        "N": 4,
+        "G": 6,
+        "E": 3,
+        "M": 0,
+        "discretion": "Sauve qui peut",
+        "disgrace": 27
+      },
+      "general": {
+        "glory": "Hold the Field!",
+        "W": 16,
+        "P": 4,
+        "N": 6,
+        "G": 3,
+        "E": 4,
+        "M": 0,
+        "discretion": "Sauve qui peut",
+        "disgrace": 29
+      }
+    },
+    {
+      "id": "unit-decimated-2",
+      "num": 198,
+      "name": "Unit Decimated",
+      "sameAs": "unit-decimated-1"
+    },
+    {
+      "id": "held-in-reserve-1",
+      "num": 199,
+      "name": "Held in Reserve",
+      "noChoice": true,
+      "noDisgrace": true,
+      "noComrades": true,
+      "line": {
+        "W": 3,
+        "P": 0,
+        "N": 0,
+        "G": 1,
+        "E": 1,
+        "M": 5
+      },
+      "field": {
+        "W": 2,
+        "P": 0,
+        "N": 0,
+        "G": 1,
+        "E": 2,
+        "M": 10
+      },
+      "general": {
+        "W": 1,
+        "P": 0,
+        "N": 0,
+        "G": 1,
+        "E": 2,
+        "M": 15
+      }
+    },
+    {
+      "id": "held-in-reserve-2",
+      "num": 200,
+      "name": "Held in Reserve",
+      "sameAs": "held-in-reserve-1"
+    }
   ],
-  "plunderRule": { "actOfGlory": "(1D10-1)x10 % de la bourse perdus (arrondi bas)", "actOfDiscretion": "(1D10-5)x10 % de la bourse perdus", "note": "Pas de pillage si résultat <= 0" },
+  "plunderRule": {
+    "actOfGlory": "(1D10-1)x10 % de la bourse perdus (arrondi bas)",
+    "actOfDiscretion": "(1D10-5)x10 % de la bourse perdus",
+    "note": "Pas de pillage si résultat <= 0"
+  },
   "disgraceRule": "Si acte de discrétion : 2D10 <= Disgrace? (catégorie de grade) -> disgracié : aucun N/G de la carte Combat ni de l'event ; les autres Grognards du commandement perdent G-1 et deviennent parties lésées.",
   "actOfDiscretion": "N, G, E divisés par 2 arrondi bas (par carte) ; pas de jet W ni P ; jet de disgrâce ; pillage réduit.",
   "standingModifier": "N et G de la carte Combat modifiés par le standing (positif : ajouté, max x2 ; négatif : soustrait, min 0). Ne s'applique qu'aux cartes Combat."
