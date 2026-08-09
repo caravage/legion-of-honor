@@ -604,7 +604,6 @@
     {
       "id": "battle-of-wagram",
       "num": 114,
-      "numVerify": true,
       "round": "XI-C",
       "name": "Battle of Wagram",
       "commands": [
@@ -615,8 +614,7 @@
         "corps-11",
         "army-italy"
       ],
-      "special": "Grognards du IX Corps piochent en premier, puis les autres dans l'ordre. Carry the Day exclue pour IX Corps (Bernadotte) ; s'il tire une carte avec Telling Maneuver W/P/N/G/E : valeurs ignorées, N-10, G-7.",
-      "verify": true
+      "special": "IX Corps pioche en premier, puis l’Armée d’Italie. Carry the Day exclue pour le IX Corps et l’Armée d’Italie. Un officier supérieur ou général du IX Corps qui tire Telling Maneuver ignore W/P/N/G/E et subit N-10, G-7 (merci au maréchal Bernadotte)."
     },
     {
       "id": "march-into-russia",
@@ -743,6 +741,7 @@
         {
           "name": "Battles of Lützen & Bautzen",
           "commands": [
+            "corps-1",
             "corps-3",
             "corps-4",
             "corps-5",
@@ -757,8 +756,7 @@
           "commands": [
             "all-not-spain"
           ],
-          "special": "Génère un round In Garrison d'une carte : chaque Grognard (sauf Espagne) en rotation horaire tire une carte et agit ; ignorer End of Round?. Pas de permission ni duel.",
-          "verify": true
+          "special": "Génère un round In Garrison d'une carte : chaque Grognard (sauf Espagne) en rotation horaire tire une carte et agit ; ignorer End of Round?. Pas de permission ni duel."
         }
       ]
     },
@@ -772,7 +770,8 @@
         "corps-4",
         "corps-5",
         "corps-6",
-        "corps-7"
+        "corps-7",
+        "corps-11"
       ],
       "oneCombatCard": true,
       "special": "IV et VII Corps à Dresde : toutes cartes Combat. Sur la Katzbach : Carry the Day exclue.",
