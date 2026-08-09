@@ -1,83 +1,722 @@
 {
   "comment": "On Campaign Cards 128-179. Numéros sûrs : 140 (Dispatches), 154 (Partisan Ambush), 166, 167-172 (Etienne Gerard), 173-179 (End of Round? x7 déduits). Les autres : num=null. Effets condensés par catégorie de grade.",
   "cards": [
-    { "id": "guard-depot", "num": null, "name": "Guard Depot", "perRank": { "line": { "label": "Command a Relief", "E": 1 }, "field": { "label": "Organize the Guard", "E": 1 }, "general": { "label": "Organize the Defense", "E": 1 } } },
-    { "id": "find-a-wine-cellar", "num": null, "name": "Find a Wine Cellar", "perRank": { "line": { "label": "Carouse", "G": 1, "H": -1 }, "field": { "label": "Entertain the Officer's Mess", "G": 1, "H": -1 }, "general": { "label": "Add to Your Wine Collection", "M": "+1D10" } } },
-    { "id": "convoy-duty", "num": null, "name": "Convoy Duty", "perRank": { "line": { "label": "Guard Convoy", "E": 1 }, "field": { "label": "Manage Supply Trains", "E": 2 }, "general": { "label": "Organize Line of Communication", "E": 3 } } },
-    { "id": "success-against-enemy", "num": null, "name": "Success Against Enemy", "perRank": { "line": { "label": "Take Prisoner", "W": 4, "G": 1, "E": 1 }, "field": { "label": "Seize Defile", "W": 2, "G": 2, "E": 2 }, "general": { "label": "Steal a March", "E": 3 } } },
-    { "id": "reconnaissance", "num": null, "name": "Reconnaissance", "perRank": { "line": { "label": "Lead Scouts", "E": 2 }, "field": { "label": "Survey Route", "E": 3 }, "general": { "label": "Reconnoiter", "E": 4 } } },
-    { "id": "surprise-enemy-convoy", "num": null, "name": "Surprise Enemy Convoy", "perRank": { "line": { "label": "Loot Baggage", "M": "+1D10", "E": 2 }, "field": { "label": "Loot Wagons", "M": "+1D10x2" }, "general": { "label": "Loot Supply Train", "M": "+1D10x3" } } },
-    { "id": "conduct-river-crossing", "num": null, "name": "Conduct River Crossing", "perRank": { "line": { "label": "Provide Security to Engineers", "E": 1 }, "field": { "label": "Execute Crossing", "N": 1, "E": 2 }, "general": { "label": "Plan Crossing", "N": 3, "E": 3 } } },
-    { "id": "parley-with-enemy", "num": null, "name": "Parley with Enemy", "perRank": { "line": { "E": 1 }, "field": { "E": 2 }, "general": { "N": 1, "E": 3 } } },
-    { "id": "partisan-ambush", "num": 154, "name": "Partisan Ambush", "spainSubstitute": true, "perRank": { "line": { "W": 9, "P": 6, "E": 3 }, "field": { "W": 6, "P": 4, "E": 2 }, "general": { "W": 3, "P": 2, "E": 1 } } },
-    { "id": "repulsed-by-the-enemy", "num": null, "name": "Repulsed by the Enemy", "perRank": { "line": { "W": 8, "P": 4, "E": 1 }, "field": { "W": 6, "P": 2, "E": 1 }, "general": { "W": 4, "P": 1, "E": 2 } }, "verify": true },
-    { "id": "minor-action", "num": null, "name": "Minor Action", "perRank": { "line": { "W": 7, "P": 3, "E": 2, "M": "+1D10/3down" }, "field": { "W": 5, "P": 1, "E": 2, "M": "+1D10/2down" }, "general": { "W": 3, "E": 1, "M": "+1D10" } } },
-    { "id": "affaire-de-postes", "num": null, "name": "Affaire de Postes", "perRank": { "line": { "W": 6, "P": 2, "E": 2 }, "field": { "W": 4, "P": 1, "E": 2 }, "general": { "W": 2, "E": 2 } } },
-    { "id": "skirmish", "num": null, "name": "Skirmish", "perRank": { "line": { "W": 5, "P": 1, "E": 3 }, "field": { "W": 3, "P": 1, "E": 2 }, "general": { "W": 1, "E": 1 } } },
-    { "id": "probe-enemy", "num": null, "name": "Probe Enemy", "perRank": { "line": { "W": 4, "P": 1, "E": 1 }, "field": { "W": 2, "P": 1, "G": 2, "E": 2 }, "general": { "W": 1, "E": 1 } }, "verify": true },
-    { "id": "repulse-enemy-probe", "num": null, "name": "Repulse Enemy Probe", "perRank": { "line": { "W": 3, "P": 1, "G": 2, "E": 2 }, "field": { "W": 2, "P": 1, "G": 2, "E": 3 }, "general": { "W": 1, "N": 1, "G": 1, "E": 1 } }, "verify": true },
-    { "id": "fight-off-marauders", "num": null, "name": "Fight Off Marauders", "perRank": { "line": { "W": 4, "P": 2, "G": 1, "E": 1 }, "field": { "W": 2, "P": 1, "G": 1, "E": 1 }, "general": { "W": 1, "P": 1, "G": 1, "E": 1 } }, "verify": true },
-    { "id": "coup-de-main", "num": null, "name": "Coup de Main", "perRank": { "line": { "W": 2, "G": 2, "E": 1 }, "field": { "W": 1, "N": 1, "G": 3, "E": 2 }, "general": { "W": 1, "N": 2, "G": 2, "E": 3 } }, "verify": true },
     {
-      "id": "sack-the-town", "num": null, "name": "Sack the Town", "multiplayer": true,
-      "effect": "Taxer les partisans de la Réaction. WWT : M+1D10x3 ; le tireur répartit M entre lui et les Grognards présents comme il veut.", "verify": true
+      "id": "guard-depot",
+      "num": null,
+      "name": "Guard Depot",
+      "perRank": {
+        "line": {
+          "label": "Command a Relief",
+          "E": 1
+        },
+        "field": {
+          "label": "Organize the Guard",
+          "E": 1
+        },
+        "general": {
+          "label": "Organize the Defense",
+          "E": 1
+        }
+      }
     },
     {
-      "id": "dangerous-mission", "num": null, "name": "Dangerous Mission", "multiplayer": true,
-      "effect": "Accepter : W20, P7, G+3, E+3. Ou 'arranger' pour qu'un autre Grognard non absent du commandement la fasse (mêmes valeurs). Si aucun autre Grognard : doit accepter. Si officier général : tour perdu à la place.", "verify": true
+      "id": "find-a-wine-cellar",
+      "num": null,
+      "name": "Find a Wine Cellar",
+      "perRank": {
+        "line": {
+          "label": "Carouse",
+          "G": 2,
+          "H": -1
+        },
+        "field": {
+          "label": "Entertain the Officer's Mess",
+          "G": 1,
+          "H": -1
+        },
+        "general": {
+          "label": "Add to Your Wine Collection",
+          "M": "+1D10"
+        }
+      }
     },
     {
-      "id": "spread-rumors-of-cowardice", "num": null, "name": "Spread Rumors of Cowardice", "multiplayer": true,
+      "id": "convoy-duty",
+      "num": null,
+      "name": "Convoy Duty",
+      "perRank": {
+        "line": {
+          "label": "Guard Convoy",
+          "E": 1
+        },
+        "field": {
+          "label": "Manage Supply Trains",
+          "E": 2
+        },
+        "general": {
+          "label": "Organize Line of Communication",
+          "E": 3
+        }
+      }
+    },
+    {
+      "id": "success-against-enemy",
+      "num": null,
+      "name": "Success Against Enemy",
+      "perRank": {
+        "line": {
+          "label": "Take Prisoner",
+          "W": 4,
+          "G": 1,
+          "E": 1
+        },
+        "field": {
+          "label": "Seize Defile",
+          "W": 2,
+          "G": 2,
+          "E": 2
+        },
+        "general": {
+          "label": "Steal a March",
+          "E": 2,
+          "G": 3
+        }
+      }
+    },
+    {
+      "id": "reconnaissance",
+      "num": null,
+      "name": "Reconnaissance",
+      "perRank": {
+        "line": {
+          "label": "Lead Scouts",
+          "E": 2
+        },
+        "field": {
+          "label": "Survey Route",
+          "E": 3
+        },
+        "general": {
+          "label": "Reconnoiter",
+          "E": 4
+        }
+      }
+    },
+    {
+      "id": "surprise-enemy-convoy",
+      "num": null,
+      "name": "Surprise Enemy Convoy",
+      "perRank": {
+        "line": {
+          "label": "Loot Baggage",
+          "M": "+1D10",
+          "E": 2
+        },
+        "field": {
+          "label": "Loot Wagons",
+          "M": "+1D10x2"
+        },
+        "general": {
+          "label": "Loot Supply Train",
+          "M": "+1D10x3"
+        }
+      }
+    },
+    {
+      "id": "conduct-river-crossing",
+      "num": null,
+      "name": "Conduct River Crossing",
+      "perRank": {
+        "line": {
+          "label": "Provide Security to Engineers",
+          "E": 1
+        },
+        "field": {
+          "label": "Execute Crossing",
+          "N": 1,
+          "E": 2
+        },
+        "general": {
+          "label": "Plan Crossing",
+          "N": 3,
+          "E": 3
+        }
+      }
+    },
+    {
+      "id": "parley-with-enemy",
+      "num": null,
+      "name": "Parley with Enemy",
+      "perRank": {
+        "line": {
+          "E": 1
+        },
+        "field": {
+          "E": 2
+        },
+        "general": {
+          "N": 1,
+          "E": 3
+        }
+      }
+    },
+    {
+      "id": "partisan-ambush",
+      "num": 154,
+      "name": "Partisan Ambush",
+      "spainSubstitute": true,
+      "perRank": {
+        "line": {
+          "W": 9,
+          "P": 6,
+          "E": 3
+        },
+        "field": {
+          "W": 6,
+          "P": 4,
+          "E": 2
+        },
+        "general": {
+          "W": 3,
+          "P": 2,
+          "E": 1
+        }
+      }
+    },
+    {
+      "id": "repulsed-by-the-enemy",
+      "num": null,
+      "name": "Repulsed by the Enemy",
+      "perRank": {
+        "line": {
+          "W": 8,
+          "P": 4,
+          "E": 1
+        },
+        "field": {
+          "W": 6,
+          "P": 2,
+          "E": 1
+        },
+        "general": {
+          "W": 4,
+          "P": 1,
+          "E": 2
+        }
+      },
+      "verify": true
+    },
+    {
+      "id": "minor-action",
+      "num": null,
+      "name": "Minor Action",
+      "perRank": {
+        "line": {
+          "W": 7,
+          "P": 3,
+          "E": 2,
+          "M": "+1D10/3down"
+        },
+        "field": {
+          "W": 5,
+          "P": 1,
+          "E": 2,
+          "M": "+1D10/2down"
+        },
+        "general": {
+          "W": 3,
+          "E": 1,
+          "M": "+1D10"
+        }
+      }
+    },
+    {
+      "id": "affaire-de-postes",
+      "num": null,
+      "name": "Affaire de Postes",
+      "perRank": {
+        "line": {
+          "W": 6,
+          "P": 2,
+          "E": 2
+        },
+        "field": {
+          "W": 4,
+          "P": 1,
+          "E": 2
+        },
+        "general": {
+          "W": 2,
+          "E": 2
+        }
+      }
+    },
+    {
+      "id": "skirmish",
+      "num": null,
+      "name": "Skirmish",
+      "perRank": {
+        "line": {
+          "W": 5,
+          "P": 1,
+          "E": 3
+        },
+        "field": {
+          "W": 2,
+          "P": 1,
+          "E": 2
+        },
+        "general": {
+          "W": 1,
+          "E": 1
+        }
+      }
+    },
+    {
+      "id": "probe-enemy",
+      "num": null,
+      "name": "Probe Enemy",
+      "perRank": {
+        "line": {
+          "W": 4,
+          "P": 1,
+          "E": 1
+        },
+        "field": {
+          "W": 2,
+          "P": 1,
+          "E": 2
+        },
+        "general": {
+          "W": 1,
+          "E": 1
+        }
+      },
+      "verify": true
+    },
+    {
+      "id": "repulse-enemy-probe",
+      "num": null,
+      "name": "Repulse Enemy Probe",
+      "perRank": {
+        "line": {
+          "W": 4,
+          "P": 1,
+          "G": 2,
+          "E": 2
+        },
+        "field": {
+          "W": 2,
+          "P": 1,
+          "G": 2,
+          "E": 3
+        },
+        "general": {
+          "W": 1,
+          "N": 1,
+          "G": 1,
+          "E": 1
+        }
+      },
+      "verify": true
+    },
+    {
+      "id": "fight-off-marauders",
+      "num": null,
+      "name": "Fight Off Marauders",
+      "perRank": {
+        "line": {
+          "W": 4,
+          "P": 2,
+          "G": 1,
+          "E": 1
+        },
+        "field": {
+          "W": 2,
+          "P": 1,
+          "G": 1,
+          "E": 1
+        },
+        "general": {
+          "W": 1,
+          "P": 1,
+          "G": 1,
+          "E": 1
+        }
+      },
+      "verify": true
+    },
+    {
+      "id": "coup-de-main",
+      "num": null,
+      "name": "Coup de Main",
+      "perRank": {
+        "line": {
+          "W": 2,
+          "G": 2,
+          "E": 1
+        },
+        "field": {
+          "W": 1,
+          "N": 1,
+          "G": 3,
+          "E": 2
+        },
+        "general": {
+          "W": 1,
+          "N": 2,
+          "G": 2,
+          "E": 3
+        }
+      },
+      "verify": true
+    },
+    {
+      "id": "sack-the-town",
+      "num": null,
+      "name": "Sack the Town",
+      "multiplayer": true,
+      "effect": "Taxer les partisans de la Réaction. WWT : M+1D10x3 ; le tireur répartit M entre lui et les Grognards présents comme il veut.",
+      "verify": true
+    },
+    {
+      "id": "dangerous-mission",
+      "num": null,
+      "name": "Dangerous Mission",
+      "multiplayer": true,
+      "effect": "Accepter : W20, P7, G+3, E+3. Ou 'arranger' pour qu'un autre Grognard non absent du commandement la fasse (mêmes valeurs). Si aucun autre Grognard : doit accepter. Si officier général : tour perdu à la place.",
+      "verify": true
+    },
+    {
+      "id": "spread-rumors-of-cowardice",
+      "num": null,
+      "name": "Spread Rumors of Cowardice",
+      "multiplayer": true,
       "soloPlayable": false,
       "soloNote": "Exige un autre Grognard non absent à accuser de lâcheté : aucune cible en solo.",
       "effect": "Choisir un Grognard non absent : il perd G-3, S-1 et devient partie lésée contre le tireur."
     },
     {
-      "id": "challenged-by-enemy-champion", "num": 166, "name": "Challenged by Enemy Champion",
+      "id": "challenged-by-enemy-champion",
+      "num": 166,
+      "name": "Challenged by Enemy Champion",
       "effect": "Décliner (G-5) ou accepter : N+1, G+F du champion, E+3, S+1, duel à l'épée. Le champion (PNJ) : F=1D10 (après acceptation) ; carte bonus d'escrime normale ; carte santé : 1D10 impair -> tireur, pair -> champion ; le champion joue en premier. Victoire (blesser/tuer le champion) : bourse +2x1D10. F+1 seul autre effet. Duel quel que soit le grade.",
       "verify": true
     },
     {
-      "id": "eg-carry-dispatches", "num": 167, "numVerify": true, "name": "An Etienne Gerard Encounter! (Emperor's Dispatches)", "etienneGerard": true,
-      "effects": { "W": 15, "P": 5, "N": -3, "G": 5, "E": 4 },
-      "decline": { "N": "-1D10/2down", "loseTurn": true },
-      "note": "N-3 : la ruse de l'Empereur est finalement déjouée. Tour perdu si le tireur est officier général.", "verify": true
+      "id": "eg-carry-dispatches",
+      "num": 167,
+      "numVerify": true,
+      "name": "An Etienne Gerard Encounter! (Emperor's Dispatches)",
+      "etienneGerard": true,
+      "effects": {
+        "W": 15,
+        "N": -3,
+        "G": 5,
+        "E": 4
+      },
+      "decline": {
+        "N": "-1D10/2down",
+        "loseTurn": true
+      },
+      "note": "N-3 : la ruse de l'Empereur est finalement déjouée. Tour perdu si le tireur est officier général.",
+      "verify": true
     },
     {
-      "id": "eg-brigand-deserters", "num": 168, "numVerify": true, "name": "An Etienne Gerard Encounter! (Brigand Deserters)", "etienneGerard": true,
-      "effects": { "W": 20, "P": 5, "G": 5, "E": 5, "M": "+1D10x3" },
-      "special": "Meurt s'il devient prisonnier", "decline": { "loseTurn": true }
+      "id": "eg-brigand-deserters",
+      "num": 168,
+      "numVerify": true,
+      "name": "An Etienne Gerard Encounter! (Brigand Deserters)",
+      "etienneGerard": true,
+      "effects": {
+        "W": 20,
+        "P": 5,
+        "G": 5,
+        "E": 5,
+        "M": "+1D10x3"
+      },
+      "special": "Meurt s'il devient prisonnier",
+      "decline": {
+        "loseTurn": true
+      }
     },
     {
-      "id": "eg-diplomatic-communique", "num": 169, "numVerify": true, "name": "An Etienne Gerard Encounter! (Diplomatic Communique)", "etienneGerard": true, "requiresFairSex": true,
+      "id": "eg-diplomatic-communique",
+      "num": 169,
+      "numVerify": true,
+      "name": "An Etienne Gerard Encounter! (Diplomatic Communique)",
+      "etienneGerard": true,
+      "requiresFairSex": true,
       "effect": "Choisir une dame en jeu (en amener une sinon). 1D10 > C de la dame : mission réussie N+4, G+5, E+3, C+1 ; <= C : communiqué volé N-2, E+4. Sans Fair Sex : tour perdu.",
       "verify": true
     },
     {
-      "id": "eg-rough-justice", "num": 170, "numVerify": true, "name": "An Etienne Gerard Encounter! (Rough Justice)", "etienneGerard": true,
-      "effects": { "W": 10, "G": 2, "E": 4 }, "decline": { "loseTurn": true }
+      "id": "eg-rough-justice",
+      "num": 170,
+      "numVerify": true,
+      "name": "An Etienne Gerard Encounter! (Rough Justice)",
+      "etienneGerard": true,
+      "effects": {
+        "W": 10,
+        "G": 2,
+        "E": 4
+      },
+      "decline": {
+        "loseTurn": true
+      }
     },
-    { "id": "eg-hussars-honor", "num": 171, "numVerify": true, "name": "An Etienne Gerard Encounter! (Honored by the Hussars of Conflans)", "etienneGerard": true, "effects": { "G": 4 } },
     {
-      "id": "eg-remounts", "num": 172, "numVerify": true, "name": "An Etienne Gerard Encounter! (Precious Remounts)", "etienneGerard": true,
-      "perRank": { "line": { "N": 2, "G": 2, "E": 2 }, "field": { "N": 4, "G": 4, "E": 4 }, "general": { "N": 6, "G": 6, "E": 4 } }, "verify": true
+      "id": "eg-hussars-honor",
+      "num": 171,
+      "numVerify": true,
+      "name": "An Etienne Gerard Encounter! (Honored by the Hussars of Conflans)",
+      "etienneGerard": true,
+      "effects": {
+        "G": 4
+      }
     },
-    { "id": "end-of-round-oc", "num": "173-179", "name": "End of Round?", "copies": 7, "effect": "Fin immédiate du round si toutes les event cards du round ont été tirées ; sinon le round continue (tour perdu)." },
-    { "id": "bivouac-1", "num": null, "name": "Bivouac", "effect": "Tour perdu", "copies": 2 },
-    { "id": "halt-march", "num": null, "name": "Halt March", "perRank": { "line": { "label": "Forage", "M": "+1D10x2" }, "field": { "label": "Loot", "M": "+1D10x4" }, "general": { "label": "Demand Requisitions", "M": "+1D10x6" } }, "copies": 2 },
-    { "id": "on-the-march-easy", "num": null, "name": "On the March (Easy)", "perRank": { "line": { "E": 1 }, "field": { "E": 1 }, "general": { "E": 1 } }, "copies": 2, "verify": true },
-    { "id": "on-the-march-normal", "num": null, "name": "On the March (Normal)", "perRank": { "line": { "E": 2 }, "field": { "E": 2 }, "general": { "E": 2 } }, "copies": 2 },
-    { "id": "on-the-march-hard", "num": null, "name": "On the March (Hard)", "perRank": { "line": { "E": 3, "H": -1 }, "field": { "E": 3 }, "general": { "E": 3 } }, "copies": 2 },
-    { "id": "forced-march", "num": null, "name": "Forced March", "perRank": { "line": { "E": 4, "H": -2 }, "field": { "E": 4 }, "general": { "E": 4 } }, "copies": 2 },
     {
-      "id": "dispatches-campaign", "num": 140, "name": "Dispatches", "spainSubstitute": true,
-      "perRank": { "line": { "label": "Carry Dispatches", "W": 3, "G": 2, "E": 3 }, "field": { "label": "Prepare Dispatches", "E": 2 }, "general": { "label": "Dictate Dispatches", "E": 1 } }
+      "id": "eg-remounts",
+      "num": 172,
+      "numVerify": true,
+      "name": "An Etienne Gerard Encounter! (Precious Remounts)",
+      "etienneGerard": true,
+      "perRank": {
+        "line": {
+          "N": 2,
+          "G": 2,
+          "E": 2
+        },
+        "field": {
+          "N": 4,
+          "G": 4,
+          "E": 4
+        },
+        "general": {
+          "N": 6,
+          "G": 6,
+          "E": 4
+        }
+      },
+      "verify": true
     },
-    { "id": "batmen-pilfer-your-baggage", "num": null, "name": "Batmen Pilfer Your Baggage", "perRank": { "line": { "M": "-1D10" }, "field": { "M": "-1D10x2" }, "general": { "M": "-1D10x3" } } },
-    { "id": "fall-from-your-horse", "num": null, "name": "Fall From Your Horse", "perRank": { "line": { "G": -1, "H": -3, "C": -1 }, "field": { "G": -2, "H": -3, "C": -1 }, "general": { "G": -3, "H": -3, "C": -2 } }, "verify": true },
-    { "id": "civilian-requisitions", "num": null, "name": "Civilian Requisitions", "perRank": { "line": { "label": "Demand Food for Your Next Meal", "M": "+1D10" }, "field": { "label": "Demand Food for the Command", "M": "+1D10x2" }, "general": { "label": "Demand Fodder for Supply Trains and Cavalry", "M": "+1D10x3" } } },
-    { "id": "contract-lung-fever", "num": null, "name": "Contract Lung Fever", "effects": { "H": -5 } },
-    { "id": "seize-horses-for-the-army", "num": null, "name": "Seize Horses for the Army", "perRank": { "line": { "N": 1, "G": 2, "E": 1 }, "field": { "N": 2, "G": 2, "E": 1 }, "general": { "N": 3, "G": 3, "E": 1 } }, "verify": true }
+    {
+      "id": "end-of-round-oc",
+      "num": "173-179",
+      "name": "End of Round?",
+      "copies": 7,
+      "effect": "Fin immédiate du round si toutes les event cards du round ont été tirées ; sinon le round continue (tour perdu)."
+    },
+    {
+      "id": "bivouac-1",
+      "num": null,
+      "name": "Bivouac",
+      "effect": "Tour perdu",
+      "copies": 2
+    },
+    {
+      "id": "halt-march",
+      "num": null,
+      "name": "Halt March",
+      "perRank": {
+        "line": {
+          "label": "Forage",
+          "M": "+1D10x2"
+        },
+        "field": {
+          "label": "Loot",
+          "M": "+1D10x4"
+        },
+        "general": {
+          "label": "Demand Requisitions",
+          "M": "+1D10x6"
+        }
+      },
+      "copies": 2
+    },
+    {
+      "id": "on-the-march-easy",
+      "num": null,
+      "name": "On the March (Easy)",
+      "perRank": {
+        "line": {
+          "E": 1
+        },
+        "field": {
+          "E": 1
+        },
+        "general": {
+          "E": 1
+        }
+      },
+      "copies": 2,
+      "verify": true
+    },
+    {
+      "id": "on-the-march-normal",
+      "num": null,
+      "name": "On the March (Normal)",
+      "perRank": {
+        "line": {
+          "E": 2
+        },
+        "field": {
+          "E": 2
+        },
+        "general": {
+          "E": 2
+        }
+      },
+      "copies": 2
+    },
+    {
+      "id": "on-the-march-hard",
+      "num": null,
+      "name": "On the March (Hard)",
+      "perRank": {
+        "line": {
+          "E": 3,
+          "H": -1
+        },
+        "field": {
+          "E": 3
+        },
+        "general": {
+          "E": 3
+        }
+      },
+      "copies": 2
+    },
+    {
+      "id": "forced-march",
+      "num": null,
+      "name": "Forced March",
+      "perRank": {
+        "line": {
+          "E": 4,
+          "H": -2
+        },
+        "field": {
+          "E": 4
+        },
+        "general": {
+          "E": 4
+        }
+      },
+      "copies": 2
+    },
+    {
+      "id": "dispatches-campaign",
+      "num": 140,
+      "name": "Dispatches",
+      "spainSubstitute": true,
+      "perRank": {
+        "line": {
+          "label": "Carry Dispatches",
+          "W": 3,
+          "G": 2,
+          "E": 3
+        },
+        "field": {
+          "label": "Prepare Dispatches",
+          "E": 2
+        },
+        "general": {
+          "label": "Dictate Dispatches",
+          "E": 1
+        }
+      }
+    },
+    {
+      "id": "batmen-pilfer-your-baggage",
+      "num": null,
+      "name": "Batmen Pilfer Your Baggage",
+      "perRank": {
+        "line": {
+          "M": "-1D10"
+        },
+        "field": {
+          "M": "-1D10x2"
+        },
+        "general": {
+          "M": "-1D10x3"
+        }
+      }
+    },
+    {
+      "id": "fall-from-your-horse",
+      "num": null,
+      "name": "Fall From Your Horse",
+      "perRank": {
+        "line": {
+          "G": -1,
+          "H": -3,
+          "C": -1
+        },
+        "field": {
+          "G": -2,
+          "H": -3,
+          "C": -2
+        },
+        "general": {
+          "G": -3,
+          "H": -3,
+          "C": -3
+        }
+      },
+      "verify": true
+    },
+    {
+      "id": "civilian-requisitions",
+      "num": null,
+      "name": "Civilian Requisitions",
+      "perRank": {
+        "line": {
+          "label": "Demand Food for Your Next Meal",
+          "M": "+1D10"
+        },
+        "field": {
+          "label": "Demand Food for the Command",
+          "M": "+1D10x2"
+        },
+        "general": {
+          "label": "Demand Fodder for Supply Trains and Cavalry",
+          "M": "+1D10x3"
+        }
+      }
+    },
+    {
+      "id": "contract-lung-fever",
+      "num": null,
+      "name": "Contract Lung Fever",
+      "effects": {
+        "H": -5
+      }
+    },
+    {
+      "id": "seize-horses-for-the-army",
+      "num": null,
+      "name": "Seize Horses for the Army",
+      "perRank": {
+        "line": {
+          "N": 1,
+          "G": 2,
+          "E": 1
+        },
+        "field": {
+          "N": 2,
+          "G": 2,
+          "E": 1
+        },
+        "general": {
+          "N": 3,
+          "G": 3,
+          "E": 1
+        }
+      },
+      "verify": true
+    }
   ],
   "escapeRule": "Prisonnier recevant une carte On Campaign : 2D10 <= 15 -> évadé à partir de sa prochaine carte, retour au commandement précédent. Pas d'évasion en convalescence."
 }

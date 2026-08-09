@@ -1,147 +1,673 @@
 {
   "comment": "In Garrison Cards 41-92. Numéros sûrs : 41, 52, 56, 61-70, 74, 75, 78, 79, 80-85, et 86-92 (End of Round? x7 déduits). Les autres : num=null (à confirmer sur les cartes physiques). Effets condensés.",
-  "idleTimeCommonActions": ["meet-a-lady+court/propose", "request-transfer", "seek-office", "challenge", "corruption", "gamble"],
+  "idleTimeCommonActions": [
+    "meet-a-lady+court/propose",
+    "request-transfer",
+    "seek-office",
+    "challenge",
+    "corruption",
+    "gamble"
+  ],
   "cards": [
     {
-      "id": "assigned-to-spain", "num": 41, "name": "Assigned to Spain", "optionalRule": "spain",
+      "id": "assigned-to-spain",
+      "num": 41,
+      "name": "Assigned to Spain",
+      "optionalRule": "spain",
       "effect": "Saisons XI-XV : affecté en Espagne (immédiat, 2D10 sur commandements d'Espagne). Autres saisons ou déjà en Espagne : agir comme une carte Idle Time (Meet a Lady/Court/Propose, Request Transfer, Challenge, Corruption, Gamble).",
       "inPlay": "Saisons XI à XV uniquement"
     },
-    { "id": "you-please-your-commander", "num": null, "name": "You Please Your Commander", "effects": { "S": 1 } },
-    { "id": "you-displease-your-commander", "num": null, "name": "You Displease Your Commander", "effects": { "S": -1 } },
     {
-      "id": "you-contract-the-pox", "num": null, "name": "You Contract the Pox",
-      "effects": { "G": 1, "H": -1 }, "verify": true,
+      "id": "you-please-your-commander",
+      "num": null,
+      "name": "You Please Your Commander",
+      "effects": {
+        "S": 1
+      }
+    },
+    {
+      "id": "you-displease-your-commander",
+      "num": null,
+      "name": "You Displease Your Commander",
+      "effects": {
+        "S": -1
+      }
+    },
+    {
+      "id": "you-contract-the-pox",
+      "num": null,
+      "name": "You Contract the Pox",
+      "effects": {
+        "G": 1,
+        "H": -1
+      },
       "special": "N'agit pas sur sa prochaine carte du round (sauf Event Card)"
     },
-    { "id": "meet-a-lady", "num": null, "name": "Meet a Lady", "effect": "(Meet a Lady) et peut courtiser/proposer ; sinon lire un livre : C+1" },
-    { "id": "administrative-work", "num": null, "name": "Administrative Work", "effects": { "E": 2 }, "zeal": 5 },
     {
-      "id": "assigned-to-staff", "num": null, "name": "Assigned to Staff",
-      "effects": { "E": 2 },
+      "id": "meet-a-lady",
+      "num": null,
+      "name": "Meet a Lady",
+      "effect": "(Meet a Lady) et peut courtiser/proposer ; sinon lire un livre : C+1"
+    },
+    {
+      "id": "administrative-work",
+      "num": null,
+      "name": "Administrative Work",
+      "effects": {
+        "E": 2
+      },
+      "zeal": 5
+    },
+    {
+      "id": "assigned-to-staff",
+      "num": null,
+      "name": "Assigned to Staff",
+      "effects": {
+        "E": 2
+      },
       "special": "Garder la carte ; 1D10 avant chaque pioche In Garrison : 1-3 quitte l'état-major (rendre la carte) ; sinon E+2 et continue. Fin automatique au début d'un On Campaign Round ou si absent."
     },
     {
-      "id": "training", "num": null, "name": "Training",
-      "perRank": { "line": { "label": "Drill the Troops", "E": 2, "zeal": 7 }, "field": { "label": "Conduct Unit Exercises", "E": 4, "zeal": 10 }, "general": { "label": "Direct Formation Maneuvers", "E": 5, "zeal": 13 } }
+      "id": "training",
+      "num": null,
+      "name": "Training",
+      "perRank": {
+        "line": {
+          "label": "Drill the Troops",
+          "E": 2,
+          "zeal": 7
+        },
+        "field": {
+          "label": "Conduct Unit Exercises",
+          "E": 4,
+          "zeal": 10
+        },
+        "general": {
+          "label": "Direct Formation Maneuvers",
+          "E": 5,
+          "zeal": 13
+        }
+      }
     },
-    { "id": "inspect", "num": null, "name": "Inspect", "effects": { "E": 1 }, "zeal": 3 },
     {
-      "id": "undergo-inspection", "num": null, "name": "Undergo Inspection",
-      "effects": { "E": 1 }, "roll": { "die": "1D10", "results": { "1-5": { "S": 1 }, "6-10": { "S": -1 } } }
+      "id": "inspect",
+      "num": null,
+      "name": "Inspect",
+      "effects": {
+        "E": 2
+      },
+      "zeal": 3
     },
     {
-      "id": "dispatches-garrison", "num": null, "name": "Dispatches",
-      "perRank": { "line": { "label": "Carry Dispatches", "G": 1, "E": 1, "zeal": 3 }, "field": { "label": "Prepare Dispatches", "E": 1, "zeal": 3 }, "general": { "label": "Send Dispatches", "E": 1 } }
+      "id": "undergo-inspection",
+      "num": null,
+      "name": "Undergo Inspection",
+      "effects": {
+        "E": 1
+      },
+      "roll": {
+        "die": "1D10",
+        "results": {
+          "1-5": {
+            "S": 1
+          },
+          "6-10": {
+            "S": -1
+          }
+        }
+      }
     },
     {
-      "id": "burger-insults-napoleon", "num": 52, "name": "Burger Insults Napoleon",
+      "id": "dispatches-garrison",
+      "num": null,
+      "name": "Dispatches",
+      "perRank": {
+        "line": {
+          "label": "Carry Dispatches",
+          "G": 1,
+          "E": 1,
+          "zeal": 7
+        },
+        "field": {
+          "label": "Prepare Dispatches",
+          "E": 1,
+          "zeal": 3
+        },
+        "general": {
+          "label": "Send Dispatches",
+          "E": 1
+        }
+      }
+    },
+    {
+      "id": "burger-insults-napoleon",
+      "num": 52,
+      "name": "Burger Insults Napoleon",
       "special": "Partie lésée : défier le Burger ou G-5. Le Burger accepte toujours. PNJ joué par un autre joueur (solo : app). Épées : +1 carte auto (pas de carte santé), le Burger joue en premier. E+1 et G+3 pour le duel ; pas de G pour blessure subie. Victoire : perte de N et S selon la blessure du Burger (carte). F+1 si épées. Colonel+ : pas de duel, tour perdu (envoie des gros bras). Avant III-2 : tour perdu. Pistolets : le Burger touche sur 1-4.",
       "verify": true
     },
-    { "id": "dine-with-senior-commander", "num": null, "name": "Dine with Senior Commander", "effects": { "S": 1, "E": 1, "C": 1 } },
-    { "id": "dine-with-magistrate", "num": null, "name": "Dine with Magistrate", "effects": { "E": 1, "C": 1 } },
-    { "id": "civil-occupation-duties", "num": null, "name": "Civil Occupation Duties", "effects": { "E": 1 }, "zeal": 3 },
     {
-      "id": "illegal-activity", "num": 56, "name": "Illegal Activity",
+      "id": "dine-with-senior-commander",
+      "num": null,
+      "name": "Dine with Senior Commander",
+      "effects": {
+        "S": 1,
+        "E": 1,
+        "C": 1
+      }
+    },
+    {
+      "id": "dine-with-magistrate",
+      "num": null,
+      "name": "Dine with Magistrate",
+      "effects": {
+        "E": 1,
+        "C": 1
+      }
+    },
+    {
+      "id": "civil-occupation-duties",
+      "num": null,
+      "name": "Civil Occupation Duties",
+      "effects": {
+        "E": 1
+      },
+      "zeal": 3
+    },
+    {
+      "id": "illegal-activity",
+      "num": 56,
+      "name": "Illegal Activity",
       "effect": "Action ou tour perdu. Line : Borrow from Pay Chest (M+1D10x2) ; Field : Smuggle (M+1D10x4) ; General : Illegal Requisitions (M+1D10x6). Jet Found Out : 2D10 <= gain/2up. Pas d'office requis ; pas de perte d'office."
     },
-    { "id": "contract-dysentery", "num": null, "name": "Contract Dysentery", "effects": { "H": "-1D10/2down" } },
-    { "id": "commit-faux-pas", "num": null, "name": "Commit Faux Pas", "effects": { "C": -2, "G": -1 } },
-    { "id": "contretemps", "num": null, "name": "Contretemps", "effects": { "C": -1, "G": -2 } },
     {
-      "id": "duty-officer", "num": null, "name": "Duty Officer",
-      "perRank": { "line": { "label": "Officer of the Guard", "E": 1, "zeal": 3 }, "field": { "label": "Officer of the Day", "E": 2, "zeal": 6 }, "general": { "label": "General Officer of the Day", "E": 3, "zeal": 9 } }
+      "id": "contract-dysentery",
+      "num": null,
+      "name": "Contract Dysentery",
+      "effects": {
+        "H": "-1D10/2down"
+      }
     },
     {
-      "id": "napoleon-speaks-to-you", "num": null, "name": "Napoleon Speaks to You",
-      "perRank": { "line": { "N": 2 }, "field": { "N": 3 }, "general": { "N": 4 } },
+      "id": "commit-faux-pas",
+      "num": null,
+      "name": "Commit Faux Pas",
+      "effects": {
+        "C": -2,
+        "G": -1
+      }
+    },
+    {
+      "id": "contretemps",
+      "num": null,
+      "name": "Contretemps",
+      "effects": {
+        "C": -1,
+        "G": -2
+      }
+    },
+    {
+      "id": "duty-officer",
+      "num": null,
+      "name": "Duty Officer",
+      "perRank": {
+        "line": {
+          "label": "Officer of the Guard",
+          "E": 1,
+          "zeal": 3
+        },
+        "field": {
+          "label": "Officer of the Day",
+          "E": 2,
+          "zeal": 6
+        },
+        "general": {
+          "label": "General Officer of the Day",
+          "E": 3,
+          "zeal": 9
+        }
+      }
+    },
+    {
+      "id": "napoleon-speaks-to-you",
+      "num": null,
+      "name": "Napoleon Speaks to You",
+      "perRank": {
+        "line": {
+          "N": 2
+        },
+        "field": {
+          "N": 3
+        },
+        "general": {
+          "N": 4
+        }
+      },
       "special": "Tour perdu à la place si affecté en Espagne ou Napoléon en exil (entre XVI-1 et XVI-2)"
     },
     {
-      "id": "army-auditors", "num": null, "name": "Army Auditors",
-      "effects": { "E": 1 }, "roll": { "die": "1D10", "results": { "1-5": { "S": 2 }, "6-10": { "S": -2 } } }
+      "id": "army-auditors",
+      "num": null,
+      "name": "Army Auditors",
+      "effects": {
+        "E": 1
+      },
+      "roll": {
+        "die": "1D10",
+        "results": {
+          "1-5": {
+            "S": 2
+          },
+          "6-10": {
+            "S": -2
+          }
+        }
+      }
     },
     {
-      "id": "emperor-fancies-your-lady", "num": null, "name": "The Emperor Fancies Your Lady",
+      "id": "emperor-fancies-your-lady",
+      "num": null,
+      "name": "The Emperor Fancies Your Lady",
       "requiresFairSex": true,
       "soloNote": "Sans épouse ni maîtresse, la carte impose toujours la perte du tour : retirée tant que The Fair Sex est inactif.",
-      "choice": { "accede": { "G": -3, "N": 1 }, "takeException": { "G": 3, "N": -1 } },
+      "choice": {
+        "accede": {
+          "G": -3,
+          "N": 1
+        },
+        "takeException": {
+          "G": 3,
+          "N": -1
+        }
+      },
       "special": "Tour perdu à la place si pas d'épouse/maîtresse, si Napoléon pas Empereur (saisons I-VI), ou en exil"
     },
     {
-      "id": "you-are-a-passing-fancy", "num": 74, "name": "You Are a Passing Fancy",
-      "choice": { "decline": { "label": "Excusez-moi", "G": -1 }, "accept": { "label": "Oui", "G": 3, "roll": { "die": "1D10", "results": { "1-2": { "N": -2 }, "3-4": "réaffecté en Espagne si saison XI-XV et pas déjà en Espagne ; sinon N-2", "5-10": "liaison inaperçue" } } } }
+      "id": "you-are-a-passing-fancy",
+      "num": 74,
+      "name": "You Are a Passing Fancy",
+      "choice": {
+        "decline": {
+          "label": "Excusez-moi",
+          "G": -1
+        },
+        "accept": {
+          "label": "Oui",
+          "G": 3,
+          "roll": {
+            "die": "1D10",
+            "results": {
+              "1-2": {
+                "N": -2
+              },
+              "3-4": "réaffecté en Espagne si saison XI-XV et pas déjà en Espagne ; sinon N-2",
+              "5-10": "liaison inaperçue"
+            }
+          }
+        }
+      }
     },
     {
-      "id": "you-are-accused", "num": 75, "name": "You are Accused",
-      "appliesEvenIfAbsent": true, "removeAfterRound": "VI-3",
-      "perRank": { "line": { "label": "jacobin", "G": -2, "S": -2 }, "field": { "label": "royaliste", "N": -1, "G": -3, "S": -3 }, "general": { "label": "trahison", "N": -2, "G": -4, "S": -4 } }
+      "id": "you-are-accused",
+      "num": 75,
+      "name": "You are Accused",
+      "appliesEvenIfAbsent": true,
+      "removeAfterRound": "VI-3",
+      "perRank": {
+        "line": {
+          "label": "jacobin",
+          "G": -2,
+          "S": -2
+        },
+        "field": {
+          "label": "royaliste",
+          "N": -1,
+          "G": -3,
+          "S": -3
+        },
+        "general": {
+          "label": "trahison",
+          "N": -2,
+          "G": -4,
+          "S": -4
+        }
+      }
     },
     {
-      "id": "challenge-to-horse-race", "num": null, "name": "Challenge to Horse Race", "multiplayer": true,
+      "id": "challenge-to-horse-race",
+      "num": null,
+      "name": "Challenge to Horse Race",
+      "multiplayer": true,
       "soloPlayable": false,
       "soloNote": "Exige un autre Grognard non absent contre qui courir : aucune cible en solo.",
       "effect": "Choisir au hasard un autre Grognard non absent (il perd son tour). Course : 1D10 chacun ; gagnant G+3, E+1 ; perdant G-1, E+1 ; égalité G+1, E+1 pour les deux."
     },
     {
-      "id": "spread-rumors", "num": null, "name": "Spread Rumors", "multiplayer": true,
+      "id": "spread-rumors",
+      "num": null,
+      "name": "Spread Rumors",
+      "multiplayer": true,
       "soloPlayable": false,
       "soloNote": "Exige un autre Grognard non absent à calomnier : aucune cible en solo.",
       "effect": "Choisir un Grognard non absent : il subit une enquête, 1D10 : 1-5 G-2, S-2 ; 6-10 exonéré S+1."
     },
     {
-      "id": "celebratory-drinking-bout", "num": 78, "name": "Celebratory Drinking Bout", "multiplayer": true,
+      "id": "celebratory-drinking-bout",
+      "num": 78,
+      "name": "Celebratory Drinking Bout",
+      "multiplayer": true,
       "soloPlayable": false,
       "soloNote": "La beuverie s'arrête dès qu'il ne reste qu'un buveur debout : seul, le Grognard est vainqueur sans avoir bu, pour zéro gloire.",
       "effect": "Tous les non-absents. Par tournée : 1 franc de la bourse (sinon sous la table), 2D10 > santé = sous la table. Dernier debout : G + nb de tournées ; M-1 par tournée où il a participé. Refus de participer : G-3. Une fois par saison ; retirée du jeu jusqu'à la saison suivante une fois tirée.",
       "verify": true
     },
     {
-      "id": "second-to-dhubert", "num": 79, "name": "You Serve as a Second to D'Hubert", "multiplayer": true,
+      "id": "second-to-dhubert",
+      "num": 79,
+      "name": "You Serve as a Second to D'Hubert",
+      "multiplayer": true,
       "soloPlayable": false,
       "soloNote": "La carte prévoit elle-même la perte du tour si aucun autre Grognard n'est disponible : toujours le cas en solo.",
       "effect": "Duel à l'épée contre un autre Grognard jouant le second de Feraud (cartes/avantages normaux ; le second de Feraud joue en premier ; ses résultats ne s'appliquent pas). Tireur : N-2, G+5, E+3, S-2 ; F+1 ; pas d'autres résultats de duel. Tour perdu si aucun Grognard dispo. Retirer après un duel effectif."
     },
     {
-      "id": "eg-dartmoor", "num": 80, "name": "An Etienne Gerard Encounter! (Dartmoor)", "numVerify": true, "etienneGerard": true,
-      "effects": { "G": 4, "E": 3, "S": 1 }
+      "id": "eg-dartmoor",
+      "num": 80,
+      "name": "An Etienne Gerard Encounter! (Dartmoor)",
+      "numVerify": true,
+      "etienneGerard": true,
+      "effects": {
+        "G": 4,
+        "E": 3,
+        "S": 1
+      }
     },
     {
-      "id": "eg-corsican-brothers", "num": 81, "name": "An Etienne Gerard Encounter! (Corsican Brothers)", "numVerify": true, "etienneGerard": true,
-      "effects": { "N": 4, "E": 3, "W": 10 },
+      "id": "eg-corsican-brothers",
+      "num": 81,
+      "name": "An Etienne Gerard Encounter! (Corsican Brothers)",
+      "numVerify": true,
+      "etienneGerard": true,
+      "effects": {
+        "N": 4,
+        "E": 3,
+        "W": 10
+      },
       "special": "Promu au grade supérieur (sans minimums) sur 1D10 1-5"
     },
     {
-      "id": "eg-study-dueling", "num": 82, "name": "An Etienne Gerard Encounter! (Study Dueling)", "numVerify": true, "etienneGerard": true,
-      "effects": { "F": 3 }
+      "id": "eg-study-dueling",
+      "num": 82,
+      "name": "An Etienne Gerard Encounter! (Study Dueling)",
+      "numVerify": true,
+      "etienneGerard": true,
+      "effects": {
+        "F": 3
+      }
     },
     {
-      "id": "eg-foxhunt", "num": 83, "name": "An Etienne Gerard Encounter! (The Foxhunt)", "etienneGerard": true,
-      "choice": { "spare": "tour perdu", "kill": { "E": 1, "G": 1, "duel": "duel à l'épée obligatoire contre le huntmaster (PNJ) : +1 carte auto, pas de carte santé, huntmaster joue en premier ; seuls effets : F+1" } },
+      "id": "eg-foxhunt",
+      "num": 83,
+      "name": "An Etienne Gerard Encounter! (The Foxhunt)",
+      "etienneGerard": true,
+      "choice": {
+        "spare": "tour perdu",
+        "kill": {
+          "E": 1,
+          "G": 1,
+          "duel": "duel à l'épée obligatoire contre le huntmaster (PNJ) : +1 carte auto, pas de carte santé, huntmaster joue en premier ; seuls effets : F+1"
+        }
+      },
       "verify": true
     },
     {
-      "id": "eg-napoleons-papers", "num": 84, "name": "An Etienne Gerard Encounter! (Napoleon's Papers)", "numVerify": true, "etienneGerard": true,
-      "effects": { "N": 5, "E": 2 }
+      "id": "eg-napoleons-papers",
+      "num": 84,
+      "name": "An Etienne Gerard Encounter! (Napoleon's Papers)",
+      "numVerify": true,
+      "etienneGerard": true,
+      "effects": {
+        "N": 5,
+        "E": 2
+      }
     },
     {
-      "id": "eg-soiree", "num": 85, "name": "An Etienne Gerard Encounter! (Soiree)", "numVerify": true, "etienneGerard": true,
-      "effects": { "C": 3 }
+      "id": "eg-soiree",
+      "num": 85,
+      "name": "An Etienne Gerard Encounter! (Soiree)",
+      "numVerify": true,
+      "etienneGerard": true,
+      "effects": {
+        "C": 3
+      }
     },
-    { "id": "end-of-round-ig", "num": "86-92", "name": "End of Round?", "copies": 7, "effect": "Fin immédiate du round si toutes les event cards du round ont été tirées ; sinon le round continue (tour perdu)." }
+    {
+      "id": "end-of-round-ig",
+      "num": "86-92",
+      "name": "End of Round?",
+      "copies": 7,
+      "effect": "Fin immédiate du round si toutes les event cards du round ont été tirées ; sinon le round continue (tour perdu)."
+    }
   ],
   "idleTime": [
-    { "id": "idle-time-1",  "num": 61, "numVerify": true, "actions": [ { "label": "Practice Swordsmanship", "F": 1 }, { "label": "Read Military Treatise", "E": 2 }, { "label": "Engage in Enterprise", "M": "+1D10x3" }, { "label": "Study Dancing", "C": 2 } ] },
-    { "id": "idle-time-2",  "num": 62, "numVerify": true, "actions": [ { "label": "Take Fencing Lessons", "M": -5, "F": 3 }, { "label": "Study Manuals", "E": 2 }, { "label": "Take Extra Job", "M": "+1D10x2" }, { "label": "Read Etiquette Book", "M": -1, "C": 2 } ] },
-    { "id": "idle-time-3",  "num": 63, "numVerify": true, "actions": [ { "label": "Take Fencing Lessons", "M": -5, "F": 3 }, { "label": "Practice Horsemanship", "E": 1, "C": 1 }, { "label": "Work Part Time", "M": "+1D10" }, { "label": "Take Dancing Lessons", "M": -4, "C": 2 } ] },
-    { "id": "idle-time-4",  "num": 64, "numVerify": true, "actions": [ { "label": "Practice Swordsmanship", "F": 1 }, { "label": "Write Military Treatise", "E": 3, "S": 2 }, { "label": "Work as Fencing Instructor", "M": "+F x2" }, { "label": "Attend Soiree", "C": 2 } ] },
-    { "id": "idle-time-5",  "num": 65, "numVerify": true, "actions": [ { "label": "Practice Swordsmanship", "F": 1 }, { "label": "Devise New Tactics", "E": 2, "S": 1 }, { "label": "Hire Self Out", "M": "+1D10x2" }, { "label": "Study Violin", "M": -5, "C": 3 } ] },
-    { "id": "idle-time-6",  "num": 66, "numVerify": true, "actions": [ { "label": "Practice Swordsmanship", "F": 1 }, { "label": "Read Military History", "E": 2 }, { "label": "Write for Newspaper", "M": "+1D10x2" }, { "label": "Write Poetry", "C": 2 } ] },
-    { "id": "idle-time-7",  "num": 67, "numVerify": true, "actions": [ { "label": "Practice Swordsmanship", "F": 1 }, { "label": "Tour Old Battlefields", "E": 3, "M": -1 }, { "label": "Sell Loot", "M": "+1D10x3" }, { "label": "Singing Lessons", "M": -3, "C": 2 } ] },
-    { "id": "idle-time-8",  "num": 68, "numVerify": true, "actions": [ { "label": "Carouse (jusqu'à 30 francs)", "G": "+1 par 5 francs dépensés" }, { "label": "Visit Haberdashery", "C": 1, "M": "-1D10" } ] },
-    { "id": "idle-time-9",  "num": 69, "numVerify": true, "actions": [ { "label": "Exercise", "H": "+1D10/2up" }, { "label": "Carouse (jusqu'à 40 francs)", "G": "+1 par 5 francs dépensés" } ] },
-    { "id": "idle-time-10", "num": 70, "numVerify": true, "actions": [ { "label": "Explore Countryside", "C": 1, "H": 2 }, { "label": "Carouse (jusqu'à 30 francs)", "G": "+1 par 5 francs dépensés" } ] }
+    {
+      "id": "idle-time-1",
+      "num": 61,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Practice Swordsmanship",
+          "F": 1
+        },
+        {
+          "label": "Read Military Treatise",
+          "E": 2
+        },
+        {
+          "label": "Engage in Enterprise",
+          "M": "+1D10x3"
+        },
+        {
+          "label": "Study Dancing",
+          "C": 2
+        }
+      ]
+    },
+    {
+      "id": "idle-time-2",
+      "num": 62,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Take Fencing Lessons",
+          "M": -5,
+          "F": 3
+        },
+        {
+          "label": "Study Manuals",
+          "E": 2
+        },
+        {
+          "label": "Take Extra Job",
+          "M": "+1D10x2"
+        },
+        {
+          "label": "Read Etiquette Book",
+          "M": -1,
+          "C": 2
+        }
+      ]
+    },
+    {
+      "id": "idle-time-3",
+      "num": 63,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Take Fencing Lessons",
+          "M": -5,
+          "F": 3
+        },
+        {
+          "label": "Practice Horsemanship",
+          "E": 1,
+          "C": 1
+        },
+        {
+          "label": "Work Part Time",
+          "M": "+1D10"
+        },
+        {
+          "label": "Take Dancing Lessons",
+          "M": -4,
+          "C": 2
+        }
+      ]
+    },
+    {
+      "id": "idle-time-4",
+      "num": 64,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Practice Swordsmanship",
+          "F": 1
+        },
+        {
+          "label": "Write Military Treatise",
+          "E": 3,
+          "S": 2
+        },
+        {
+          "label": "Work as Fencing Instructor",
+          "M": "+F x2"
+        },
+        {
+          "label": "Attend Soiree",
+          "C": 2
+        }
+      ]
+    },
+    {
+      "id": "idle-time-5",
+      "num": 65,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Practice Swordsmanship",
+          "F": 1
+        },
+        {
+          "label": "Devise New Tactics",
+          "E": 2,
+          "S": 1
+        },
+        {
+          "label": "Hire Self Out",
+          "M": "+1D10x2"
+        },
+        {
+          "label": "Study Violin",
+          "M": -5,
+          "C": 3
+        }
+      ]
+    },
+    {
+      "id": "idle-time-6",
+      "num": 66,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Practice Swordsmanship",
+          "F": 1
+        },
+        {
+          "label": "Read Military History",
+          "E": 2
+        },
+        {
+          "label": "Write for Newspaper",
+          "M": "+1D10x2"
+        },
+        {
+          "label": "Write Poetry",
+          "C": 2
+        }
+      ]
+    },
+    {
+      "id": "idle-time-7",
+      "num": 67,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Practice Swordsmanship",
+          "F": 1
+        },
+        {
+          "label": "Tour Old Battlefields",
+          "E": 3,
+          "M": -1
+        },
+        {
+          "label": "Sell Loot",
+          "M": "+1D10x3"
+        },
+        {
+          "label": "Singing Lessons",
+          "M": -3,
+          "C": 2
+        }
+      ]
+    },
+    {
+      "id": "idle-time-8",
+      "num": 68,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Carouse (jusqu'à 30 francs)",
+          "G": "+1 par 5 francs dépensés"
+        },
+        {
+          "label": "Visit Haberdashery",
+          "C": 1,
+          "M": "-1D10"
+        }
+      ]
+    },
+    {
+      "id": "idle-time-9",
+      "num": 69,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Exercise",
+          "H": "+1D10/2up"
+        },
+        {
+          "label": "Carouse (jusqu'à 40 francs)",
+          "G": "+1 par 5 francs dépensés"
+        }
+      ]
+    },
+    {
+      "id": "idle-time-10",
+      "num": 70,
+      "numVerify": true,
+      "actions": [
+        {
+          "label": "Explore Countryside",
+          "C": 1,
+          "H": 2
+        },
+        {
+          "label": "Carouse (jusqu'à 30 francs)",
+          "G": "+1 par 5 francs dépensés"
+        }
+      ]
+    }
   ],
   "gambleRules": {
     "againstHouse": "Jusqu'à 3 mises de 100 francs max chacune (bourse). 1D10 vs 1D10 maison ; supérieur strict = gagné, sinon perdu. G+1 par 25 francs de gain net.",
