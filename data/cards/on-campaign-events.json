@@ -312,8 +312,7 @@
           "excluded": [
             "unit-overrun",
             "unit-decimated"
-          ],
-          "verify": true
+          ]
         },
         {
           "name": "Battle of Novi",
@@ -323,8 +322,7 @@
           "excluded": [
             "carry-the-day",
             "telling-maneuver"
-          ],
-          "verify": true
+          ]
         },
         {
           "name": "Battle of Second Zurich",
@@ -334,15 +332,17 @@
           "excluded": [
             "unit-overrun",
             "unit-decimated"
-          ],
-          "verify": true
+          ]
         },
         {
           "name": "Battle of Castricum",
           "commands": [
             "army-north"
           ],
-          "excluded": []
+          "excluded": [
+            "unit-overrun",
+            "unit-decimated"
+          ]
         }
       ]
     },
