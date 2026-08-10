@@ -58,6 +58,13 @@ type DuelRun = {
   b: Duelist;
   /** Grognard actif avant le duel : on lui rend la main à la fin. */
   returnTo: number;
+  /**
+   * Le duel est un bloc : ses échanges vivent dans sa propre fenêtre et non
+   * dans la chronique, qui n'en recevra qu'une ligne à la fermeture.
+   */
+  journal: string[];
+  /** Feuilles au moment de dégainer, pour dire ce que l'affaire a coûté. */
+  before: Record<number, Character>;
 };
 
 /** Gravité comparée d'une blessure, pour retenir la pire de deux balles. */
@@ -247,6 +254,15 @@ export class Game {
   private briefActor: number | null = null;
 
   private add(t: string, cls: LogClass, cardId?: string, detail?: string) {
+    /**
+     * Un duel est un bloc : ses passes, ses jets et son décompte vivent dans
+     * sa fenêtre, et la chronique n'en reçoit qu'une ligne à la fermeture.
+     * Seuls les faits qui débordent le pré — une mort, une retraite — passent.
+     */
+    if (this.duelRun && cls !== 'title' && cls !== 'warn' && cls !== 'phase') {
+      this.duelRun.journal.push(t);
+      return;
+    }
     // Un concurrent ne commente pas ses dés : on retient l'essentiel et on le
     // rendra d'un trait. Les faits marquants — promotion, croix, mort — passent.
     // Une carte est sur la table : là, ses dés roulent sur le plateau comme les
@@ -886,14 +902,24 @@ export class Game {
       a: setup.a,
       b: setup.b,
       returnTo: this.active,
+      journal: [],
+      before: this.duelSnapshot(setup.a, setup.b),
     };
-    this.phase(terms.label);
-    const adv = (d: Duelist, s: Side) => {
-      const n = this.duelRun!.sword!.hands[s].length;
-      return `${d.name} ${n} cartes`;
-    };
-    this.info(`Sur le pré : ${adv(setup.a, 'a')} · ${adv(setup.b, 'b')}.`);
+    const n = (s: Side) => this.duelRun!.sword!.hands[s].length;
+    this.duelSay(`${setup.a.name} ${n('a')} cartes · ${setup.b.name} ${n('b')} cartes.`);
     this.stepDuel();
+  }
+
+  /** Une ligne dans le journal du duel — pas dans la chronique. */
+  private duelSay(t: string) {
+    this.duelRun?.journal.push(t);
+  }
+
+  /** Copie des feuilles concernées, pour mesurer ce que le duel aura changé. */
+  private duelSnapshot(...who: Duelist[]): Record<number, Character> {
+    const out: Record<number, Character> = {};
+    for (const d of who) if (d.idx !== null) out[d.idx] = { ...this.chars[d.idx] };
+    return out;
   }
 
   /**
@@ -941,12 +967,9 @@ export class Game {
       const what = played.card === 'no-card'
         ? 'n’a plus de carte'
         : `${SWORD_LABEL[played.card]}${played.card !== 'parry' ? (played.aim === 'kill' ? ' pour tuer' : ' pour blesser') : ''}`;
-      const line = `${who.name} ${responding ? 'répond' : 'attaque'} : ${what}.`;
-      // la ligne appartient au bretteur, non au Grognard qui tenait la main
-      if (who.pilot === null) this.add(line, 'card');
-      else this.asActor(who.pilot, () => this.add(line, 'card'));
+      this.duelSay(`${who.name} ${responding ? 'répond' : 'ouvre'} : ${what}.`);
     }
-    if (duel.deals > before && !duel.done) this.info('Les deux mains sont vides : on redistribue, le duel continue.');
+    if (duel.deals > before && !duel.done) this.duelSay('Les deux mains sont vides : on redistribue.');
     // relancé par le joueur : c'est ici que la boucle reprend
     if (i >= 0 && !this.isAuto(who) && !duel.done) { this.stepDuel(); return; }
     if (duel.done) this.endSwordDuel();
@@ -957,17 +980,18 @@ export class Game {
     const run = this.duelRun;
     const o = run?.sword?.outcome ?? null;
     if (!run) return;
-    this.duelRun = null;
+    // le duel reste ouvert le temps du décompte : la fenêtre doit pouvoir le lire
     this.handOver(run.returnTo);
     if (!o || !o.woundedSide) {
-      this.info('Les témoins séparent les bretteurs : l’honneur est satisfait.');
+      this.duelSay('Les témoins séparent les bretteurs : l’honneur est satisfait.');
       this.applyDuelResults(run, null);
       run.terms.then?.(o);
+      this.closeDuel(run, null);
       return;
     }
     const winner = o.winnerSide === 'a' ? run.a : run.b;
     const loser = o.woundedSide === 'a' ? run.a : run.b;
-    this.title(`⚔ ${winner.name} touche ${loser.name} (${o.aim === 'kill' ? 'pour tuer' : 'pour blesser'}).`);
+    this.duelSay(`${winner.name} touche ${loser.name} — ${o.aim === 'kill' ? 'pour tuer' : 'pour blesser'}.`);
     // la magnanimité : renoncer à frapper vaut plus que le sang, mais on ne
     // l'accorde pas à un personnage de carte, qui n'a rien à en faire
     const spare = run.terms.magnanimity && loser.idx !== null && winner.idx !== null;
@@ -975,6 +999,7 @@ export class Game {
       const row = this.duelWound(loser, o.aim);
       this.applyDuelResults(run, o);
       run.terms.then?.(o, row);
+      this.closeDuel(run, `${winner.name} touche ${loser.name} — ${this.woundName(row.type).toLowerCase()}`);
     };
     if (!spare) { strike(); return; }
     const askSpare = () => {
@@ -988,7 +1013,9 @@ export class Game {
             this.applyStat('G', 5, 'magnanimité');
             this.handOver(run.returnTo);
             this.applyDuelResults(run, o);
+            this.duelSay(`${winner.name} fait grâce.`);
             run.terms.then?.(o);
+            this.closeDuel(run, `${winner.name} fait grâce à ${loser.name}`);
           },
         },
       ]);
@@ -999,6 +1026,68 @@ export class Game {
       return;
     }
     askSpare();
+  }
+
+  /**
+   * Referme le duel : une seule ligne dans la chronique, qui dit l'issue et ce
+   * que l'affaire a coûté à chacun. Le détail des passes reste dans la fenêtre.
+   */
+  private closeDuel(run: DuelRun, issue: string | null) {
+    const bilan = (d: Duelist): string | null => {
+      if (d.idx === null) return null;
+      const av = run.before[d.idx];
+      const ap = this.chars[d.idx];
+      if (!av) return null;
+      const parts: string[] = [];
+      const champs: [keyof Character, string][] = [
+        ['N', 'N'], ['G', 'G'], ['E', 'E'], ['H', 'H'], ['C', 'C'], ['F', 'F'], ['standing', 'S'],
+      ];
+      for (const [k, nom] of champs) {
+        const dv = (ap[k] as number) - (av[k] as number);
+        if (dv) parts.push(`${nom}${dv > 0 ? '+' : ''}${dv}`);
+      }
+      if (ap.absent?.type && ap.absent.type !== av.absent?.type) {
+        parts.push(ap.absent.type === 'death' ? 'mort' : ap.absent.type === 'convalescence' ? 'convalescence' : ap.absent.type);
+      }
+      return parts.length ? `${d.name} ${parts.join(' ')}` : null;
+    };
+    const comptes = [bilan(run.a), bilan(run.b)].filter(Boolean).join(' · ');
+    const tete = issue ?? 'l’honneur est satisfait';
+    this.duelRun = null;
+    this.title(`⚔ ${run.terms.label} — ${tete}`, comptes || undefined);
+    if (comptes) this.info(comptes);
+  }
+
+  /**
+   * Ce que la fenêtre de duel a besoin de savoir. Elle ne touche jamais à
+   * l'état : elle lit, et rend la main au moteur par `choose()`.
+   */
+  duelView(): {
+    label: string;
+    journal: string[];
+    a: { name: string; cards: number; mine: boolean };
+    b: { name: string; cards: number; mine: boolean };
+    table: { card: string; aim: Aim; side: Side } | null;
+    turn: Side | null;
+    myTurn: boolean;
+    hand: { card: string; aim?: Aim; label: string }[];
+  } | null {
+    const run = this.duelRun;
+    const duel = run?.sword;
+    if (!run || !duel) return null;
+    const tenu = (d: Duelist) => d.pilot === 0;
+    const side = duel.turn;
+    const who = side === 'a' ? run.a : run.b;
+    return {
+      label: run.terms.label,
+      journal: run.journal,
+      a: { name: run.a.name, cards: duel.hands.a.length, mine: tenu(run.a) },
+      b: { name: run.b.name, cards: duel.hands.b.length, mine: tenu(run.b) },
+      table: duel.table,
+      turn: side,
+      myTurn: !!side && tenu(who) && !!this.pending,
+      hand: side && tenu(who) ? duel.choices() : [],
+    };
   }
 
   /** La table des blessures, pointée par l'intention du coup. */
@@ -1056,7 +1145,11 @@ export class Game {
     if (ord.priority) {
       this.roll(`Qui tire le premier : ${a.name} 1D10=${ord.priority.a} · ${b.name} 1D10=${ord.priority.b}`);
     }
-    const run: DuelRun = { sword: null, terms, a, b, returnTo: this.active };
+    const run: DuelRun = {
+      sword: null, terms, a, b, returnTo: this.active,
+      journal: [], before: this.duelSnapshot(a, b),
+    };
+    this.duelRun = run;
     if (ord.bothMisfired) {
       // « the duel can be over by mutual agreement » — les témoins l'entendent ainsi
       this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');

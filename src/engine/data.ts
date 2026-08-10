@@ -24,8 +24,15 @@ const asShape = <T>(json: unknown) => json as T;
 
 // On extrait la branche utile sans garder l'objet qui l'entoure : ce que rien
 // ne retient, l'empaqueteur l'écarte du bundle.
-const { images: CARD_IMAGES, numbers: CARD_NUMBERS } =
-  asShape<{ images: Record<string, string>; numbers: Record<string, number> }>(imagesJson);
+const { images: CARD_IMAGES, numbers: CARD_NUMBERS, duel: DUEL_ART } =
+  asShape<{
+    images: Record<string, string>;
+    numbers: Record<string, number>;
+    duel: {
+      back: string;
+      cards: { type: string; natural: 'kill' | 'wound' | null; file: string }[];
+    };
+  }>(imagesJson);
 
 /**
  * Racine des fichiers publics. Un chemin absolu casserait dès que le jeu est
@@ -43,6 +50,20 @@ export function cardImage(id: string): string | null {
 /** Chemin d'un fichier de `public/`, valable quelle que soit la racine du site. */
 export function publicPath(rel: string): string {
   return BASE + rel;
+}
+
+/** Dos du deck de duel — le seul visible côté adversaire. */
+export function duelBack(): string { return publicPath(DUEL_ART.back); }
+
+/**
+ * Les faces du deck de duel, par type. Une carte se pointe en la retournant :
+ * `natural` dit ce qui se lit en bas de la carte telle qu'elle est scannée, si
+ * bien que la montrer dans l'autre intention demande une rotation de 180°.
+ */
+export function duelArt(type: string): { file: string; natural: 'kill' | 'wound' | null }[] {
+  return DUEL_ART.cards.filter((c) => c.type === type).map((c) => ({
+    file: publicPath(c.file), natural: c.natural,
+  }));
 }
 
 /** Numéro imprimé sur l'écusson de la carte. */

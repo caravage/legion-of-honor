@@ -331,5 +331,101 @@
     "unit-decimated-2": "cards/slices/cbt-18.jpg",
     "held-in-reserve-1": "cards/slices/cbt-19.jpg",
     "held-in-reserve-2": "cards/slices/cbt-20.jpg"
+  },
+  "duel": {
+    "comment": "Planche des 18 cartes de duel. « natural » est l'intention lisible en bas de la carte ; pointer l'autre revient à la retourner de 180°.",
+    "back": "cards/slices/duel-18.jpg",
+    "cards": [
+      {
+        "type": "lunge",
+        "natural": "wound",
+        "file": "cards/slices/duel-00.jpg"
+      },
+      {
+        "type": "lunge",
+        "natural": "kill",
+        "file": "cards/slices/duel-01.jpg"
+      },
+      {
+        "type": "lunge",
+        "natural": "kill",
+        "file": "cards/slices/duel-02.jpg"
+      },
+      {
+        "type": "lunge",
+        "natural": "kill",
+        "file": "cards/slices/duel-03.jpg"
+      },
+      {
+        "type": "lunge",
+        "natural": "kill",
+        "file": "cards/slices/duel-04.jpg"
+      },
+      {
+        "type": "lunge",
+        "natural": "kill",
+        "file": "cards/slices/duel-05.jpg"
+      },
+      {
+        "type": "lunge",
+        "natural": "kill",
+        "file": "cards/slices/duel-06.jpg"
+      },
+      {
+        "type": "riposte",
+        "natural": "kill",
+        "file": "cards/slices/duel-07.jpg"
+      },
+      {
+        "type": "riposte",
+        "natural": "kill",
+        "file": "cards/slices/duel-08.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-09.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-10.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-11.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-12.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-13.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-14.jpg"
+      },
+      {
+        "type": "parry",
+        "natural": null,
+        "file": "cards/slices/duel-15.jpg"
+      },
+      {
+        "type": "fire",
+        "natural": "kill",
+        "file": "cards/slices/duel-16.jpg"
+      },
+      {
+        "type": "fire",
+        "natural": "kill",
+        "file": "cards/slices/duel-17.jpg"
+      }
+    ]
   }
 }

@@ -11,6 +11,7 @@ import { DiceTray } from './Dice';
 import { LogView } from './Chronicle';
 import { GrognardSheet, Rivals, RivalSheet, ScoreView, SetupSheet } from './Sheets';
 import { GodMode } from './GodMode';
+import { DuelWindow } from './DuelWindow';
 
 export default function App() {
   const gameRef = useRef<Game | null>(null);
@@ -285,6 +286,9 @@ export default function App() {
               </div>
             ) : game.pending?.kind === 'money' ? (
               <MoneyPanel game={game} onDone={refresh} />
+            ) : game.duelView() ? (
+              // le duel a sa fenêtre : pas de seconde liste de boutons derrière
+              <div className="placeholder">Sur le pré…</div>
             ) : game.pending ? (
               <div className="pending">
                 <h3>{game.pending.title}</h3>
@@ -324,6 +328,7 @@ export default function App() {
       {god && (
         <GodMode game={game} onJump={jumpTo} onClose={() => setGod(false)} onChange={refresh} />
       )}
+      {!replaying && <DuelWindow game={game} onChange={refresh} />}
     </div>
   );
 }

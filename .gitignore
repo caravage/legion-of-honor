@@ -4,9 +4,7 @@ dist/
 tsconfig.tsbuildinfo
 # planches sources (très lourdes) — seules les découpes sont versionnées
 public/cards/*.png
-# … sauf celle des duels, légère et nécessaire au mini-jeu
-!public/cards/duel.png
-!public/cards/duels.png
+# (celle des duels comprise : le jeu ne sert que les découpes)
 
 # le dossier d'apports ne filtre rien : c'est par là que les images arrivent
 !apports/**

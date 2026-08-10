@@ -1,1146 +1,122 @@
 {
-  "ig": {
-    "plate": "garnison generique.png",
+  "duel": {
+    "plate": "duels.png",
     "cols": 10,
-    "rows": 4,
+    "rows": 2,
     "cells": [
       {
         "idx": 0,
         "row": 0,
         "col": 0,
-        "file": "cards/slices/ig-00.jpg"
+        "file": "cards/slices/duel-00.jpg"
       },
       {
         "idx": 1,
         "row": 0,
         "col": 1,
-        "file": "cards/slices/ig-01.jpg"
+        "file": "cards/slices/duel-01.jpg"
       },
       {
         "idx": 2,
         "row": 0,
         "col": 2,
-        "file": "cards/slices/ig-02.jpg"
+        "file": "cards/slices/duel-02.jpg"
       },
       {
         "idx": 3,
         "row": 0,
         "col": 3,
-        "file": "cards/slices/ig-03.jpg"
+        "file": "cards/slices/duel-03.jpg"
       },
       {
         "idx": 4,
         "row": 0,
         "col": 4,
-        "file": "cards/slices/ig-04.jpg"
+        "file": "cards/slices/duel-04.jpg"
       },
       {
         "idx": 5,
         "row": 0,
         "col": 5,
-        "file": "cards/slices/ig-05.jpg"
+        "file": "cards/slices/duel-05.jpg"
       },
       {
         "idx": 6,
         "row": 0,
         "col": 6,
-        "file": "cards/slices/ig-06.jpg"
+        "file": "cards/slices/duel-06.jpg"
       },
       {
         "idx": 7,
         "row": 0,
         "col": 7,
-        "file": "cards/slices/ig-07.jpg"
+        "file": "cards/slices/duel-07.jpg"
       },
       {
         "idx": 8,
         "row": 0,
         "col": 8,
-        "file": "cards/slices/ig-08.jpg"
+        "file": "cards/slices/duel-08.jpg"
       },
       {
         "idx": 9,
         "row": 0,
         "col": 9,
-        "file": "cards/slices/ig-09.jpg"
+        "file": "cards/slices/duel-09.jpg"
       },
       {
         "idx": 10,
         "row": 1,
         "col": 0,
-        "file": "cards/slices/ig-10.jpg"
+        "file": "cards/slices/duel-10.jpg"
       },
       {
         "idx": 11,
         "row": 1,
         "col": 1,
-        "file": "cards/slices/ig-11.jpg"
+        "file": "cards/slices/duel-11.jpg"
       },
       {
         "idx": 12,
         "row": 1,
         "col": 2,
-        "file": "cards/slices/ig-12.jpg"
+        "file": "cards/slices/duel-12.jpg"
       },
       {
         "idx": 13,
         "row": 1,
         "col": 3,
-        "file": "cards/slices/ig-13.jpg"
+        "file": "cards/slices/duel-13.jpg"
       },
       {
         "idx": 14,
         "row": 1,
         "col": 4,
-        "file": "cards/slices/ig-14.jpg"
+        "file": "cards/slices/duel-14.jpg"
       },
       {
         "idx": 15,
         "row": 1,
         "col": 5,
-        "file": "cards/slices/ig-15.jpg"
+        "file": "cards/slices/duel-15.jpg"
       },
       {
         "idx": 16,
         "row": 1,
         "col": 6,
-        "file": "cards/slices/ig-16.jpg"
+        "file": "cards/slices/duel-16.jpg"
       },
       {
         "idx": 17,
         "row": 1,
         "col": 7,
-        "file": "cards/slices/ig-17.jpg"
+        "file": "cards/slices/duel-17.jpg"
       },
       {
         "idx": 18,
         "row": 1,
         "col": 8,
-        "file": "cards/slices/ig-18.jpg"
-      },
-      {
-        "idx": 19,
-        "row": 1,
-        "col": 9,
-        "file": "cards/slices/ig-19.jpg"
-      },
-      {
-        "idx": 20,
-        "row": 2,
-        "col": 0,
-        "file": "cards/slices/ig-20.jpg"
-      },
-      {
-        "idx": 21,
-        "row": 2,
-        "col": 1,
-        "file": "cards/slices/ig-21.jpg"
-      },
-      {
-        "idx": 22,
-        "row": 2,
-        "col": 2,
-        "file": "cards/slices/ig-22.jpg"
-      },
-      {
-        "idx": 23,
-        "row": 2,
-        "col": 3,
-        "file": "cards/slices/ig-23.jpg"
-      },
-      {
-        "idx": 24,
-        "row": 2,
-        "col": 4,
-        "file": "cards/slices/ig-24.jpg"
-      },
-      {
-        "idx": 25,
-        "row": 2,
-        "col": 5,
-        "file": "cards/slices/ig-25.jpg"
-      },
-      {
-        "idx": 26,
-        "row": 2,
-        "col": 6,
-        "file": "cards/slices/ig-26.jpg"
-      },
-      {
-        "idx": 27,
-        "row": 2,
-        "col": 7,
-        "file": "cards/slices/ig-27.jpg"
-      },
-      {
-        "idx": 28,
-        "row": 2,
-        "col": 8,
-        "file": "cards/slices/ig-28.jpg"
-      },
-      {
-        "idx": 29,
-        "row": 2,
-        "col": 9,
-        "file": "cards/slices/ig-29.jpg"
-      },
-      {
-        "idx": 30,
-        "row": 3,
-        "col": 0,
-        "file": "cards/slices/ig-30.jpg"
-      },
-      {
-        "idx": 31,
-        "row": 3,
-        "col": 1,
-        "file": "cards/slices/ig-31.jpg"
-      },
-      {
-        "idx": 32,
-        "row": 3,
-        "col": 2,
-        "file": "cards/slices/ig-32.jpg"
-      }
-    ]
-  },
-  "ige": {
-    "plate": "garnison evenement.png",
-    "cols": 10,
-    "rows": 5,
-    "cells": [
-      {
-        "idx": 0,
-        "row": 0,
-        "col": 0,
-        "file": "cards/slices/ige-00.jpg"
-      },
-      {
-        "idx": 1,
-        "row": 0,
-        "col": 1,
-        "file": "cards/slices/ige-01.jpg"
-      },
-      {
-        "idx": 2,
-        "row": 0,
-        "col": 2,
-        "file": "cards/slices/ige-02.jpg"
-      },
-      {
-        "idx": 3,
-        "row": 0,
-        "col": 3,
-        "file": "cards/slices/ige-03.jpg"
-      },
-      {
-        "idx": 4,
-        "row": 0,
-        "col": 4,
-        "file": "cards/slices/ige-04.jpg"
-      },
-      {
-        "idx": 5,
-        "row": 0,
-        "col": 5,
-        "file": "cards/slices/ige-05.jpg"
-      },
-      {
-        "idx": 6,
-        "row": 0,
-        "col": 6,
-        "file": "cards/slices/ige-06.jpg"
-      },
-      {
-        "idx": 7,
-        "row": 0,
-        "col": 7,
-        "file": "cards/slices/ige-07.jpg"
-      },
-      {
-        "idx": 8,
-        "row": 0,
-        "col": 8,
-        "file": "cards/slices/ige-08.jpg"
-      },
-      {
-        "idx": 9,
-        "row": 0,
-        "col": 9,
-        "file": "cards/slices/ige-09.jpg"
-      },
-      {
-        "idx": 10,
-        "row": 1,
-        "col": 0,
-        "file": "cards/slices/ige-10.jpg"
-      },
-      {
-        "idx": 11,
-        "row": 1,
-        "col": 1,
-        "file": "cards/slices/ige-11.jpg"
-      },
-      {
-        "idx": 12,
-        "row": 1,
-        "col": 2,
-        "file": "cards/slices/ige-12.jpg"
-      },
-      {
-        "idx": 13,
-        "row": 1,
-        "col": 3,
-        "file": "cards/slices/ige-13.jpg"
-      },
-      {
-        "idx": 14,
-        "row": 1,
-        "col": 4,
-        "file": "cards/slices/ige-14.jpg"
-      },
-      {
-        "idx": 15,
-        "row": 1,
-        "col": 5,
-        "file": "cards/slices/ige-15.jpg"
-      },
-      {
-        "idx": 16,
-        "row": 1,
-        "col": 6,
-        "file": "cards/slices/ige-16.jpg"
-      },
-      {
-        "idx": 17,
-        "row": 1,
-        "col": 7,
-        "file": "cards/slices/ige-17.jpg"
-      },
-      {
-        "idx": 18,
-        "row": 1,
-        "col": 8,
-        "file": "cards/slices/ige-18.jpg"
-      },
-      {
-        "idx": 19,
-        "row": 1,
-        "col": 9,
-        "file": "cards/slices/ige-19.jpg"
-      },
-      {
-        "idx": 20,
-        "row": 2,
-        "col": 0,
-        "file": "cards/slices/ige-20.jpg"
-      },
-      {
-        "idx": 21,
-        "row": 2,
-        "col": 1,
-        "file": "cards/slices/ige-21.jpg"
-      },
-      {
-        "idx": 22,
-        "row": 2,
-        "col": 2,
-        "file": "cards/slices/ige-22.jpg"
-      },
-      {
-        "idx": 23,
-        "row": 2,
-        "col": 3,
-        "file": "cards/slices/ige-23.jpg"
-      },
-      {
-        "idx": 24,
-        "row": 2,
-        "col": 4,
-        "file": "cards/slices/ige-24.jpg"
-      },
-      {
-        "idx": 25,
-        "row": 2,
-        "col": 5,
-        "file": "cards/slices/ige-25.jpg"
-      },
-      {
-        "idx": 26,
-        "row": 2,
-        "col": 6,
-        "file": "cards/slices/ige-26.jpg"
-      },
-      {
-        "idx": 27,
-        "row": 2,
-        "col": 7,
-        "file": "cards/slices/ige-27.jpg"
-      },
-      {
-        "idx": 28,
-        "row": 2,
-        "col": 8,
-        "file": "cards/slices/ige-28.jpg"
-      },
-      {
-        "idx": 29,
-        "row": 2,
-        "col": 9,
-        "file": "cards/slices/ige-29.jpg"
-      },
-      {
-        "idx": 30,
-        "row": 3,
-        "col": 0,
-        "file": "cards/slices/ige-30.jpg"
-      },
-      {
-        "idx": 31,
-        "row": 3,
-        "col": 1,
-        "file": "cards/slices/ige-31.jpg"
-      },
-      {
-        "idx": 32,
-        "row": 3,
-        "col": 2,
-        "file": "cards/slices/ige-32.jpg"
-      },
-      {
-        "idx": 33,
-        "row": 3,
-        "col": 3,
-        "file": "cards/slices/ige-33.jpg"
-      },
-      {
-        "idx": 34,
-        "row": 3,
-        "col": 4,
-        "file": "cards/slices/ige-34.jpg"
-      },
-      {
-        "idx": 35,
-        "row": 3,
-        "col": 5,
-        "file": "cards/slices/ige-35.jpg"
-      },
-      {
-        "idx": 36,
-        "row": 3,
-        "col": 6,
-        "file": "cards/slices/ige-36.jpg"
-      },
-      {
-        "idx": 37,
-        "row": 3,
-        "col": 7,
-        "file": "cards/slices/ige-37.jpg"
-      },
-      {
-        "idx": 38,
-        "row": 3,
-        "col": 8,
-        "file": "cards/slices/ige-38.jpg"
-      },
-      {
-        "idx": 39,
-        "row": 3,
-        "col": 9,
-        "file": "cards/slices/ige-39.jpg"
-      },
-      {
-        "idx": 40,
-        "row": 4,
-        "col": 0,
-        "file": "cards/slices/ige-40.jpg"
-      },
-      {
-        "idx": 41,
-        "row": 4,
-        "col": 1,
-        "file": "cards/slices/ige-41.jpg"
-      }
-    ]
-  },
-  "oc": {
-    "plate": "campagne generique.png",
-    "cols": 10,
-    "rows": 4,
-    "cells": [
-      {
-        "idx": 0,
-        "row": 0,
-        "col": 0,
-        "file": "cards/slices/oc-00.jpg"
-      },
-      {
-        "idx": 1,
-        "row": 0,
-        "col": 1,
-        "file": "cards/slices/oc-01.jpg"
-      },
-      {
-        "idx": 2,
-        "row": 0,
-        "col": 2,
-        "file": "cards/slices/oc-02.jpg"
-      },
-      {
-        "idx": 3,
-        "row": 0,
-        "col": 3,
-        "file": "cards/slices/oc-03.jpg"
-      },
-      {
-        "idx": 4,
-        "row": 0,
-        "col": 4,
-        "file": "cards/slices/oc-04.jpg"
-      },
-      {
-        "idx": 5,
-        "row": 0,
-        "col": 5,
-        "file": "cards/slices/oc-05.jpg"
-      },
-      {
-        "idx": 6,
-        "row": 0,
-        "col": 6,
-        "file": "cards/slices/oc-06.jpg"
-      },
-      {
-        "idx": 7,
-        "row": 0,
-        "col": 7,
-        "file": "cards/slices/oc-07.jpg"
-      },
-      {
-        "idx": 8,
-        "row": 0,
-        "col": 8,
-        "file": "cards/slices/oc-08.jpg"
-      },
-      {
-        "idx": 9,
-        "row": 0,
-        "col": 9,
-        "file": "cards/slices/oc-09.jpg"
-      },
-      {
-        "idx": 10,
-        "row": 1,
-        "col": 0,
-        "file": "cards/slices/oc-10.jpg"
-      },
-      {
-        "idx": 11,
-        "row": 1,
-        "col": 1,
-        "file": "cards/slices/oc-11.jpg"
-      },
-      {
-        "idx": 12,
-        "row": 1,
-        "col": 2,
-        "file": "cards/slices/oc-12.jpg"
-      },
-      {
-        "idx": 13,
-        "row": 1,
-        "col": 3,
-        "file": "cards/slices/oc-13.jpg"
-      },
-      {
-        "idx": 14,
-        "row": 1,
-        "col": 4,
-        "file": "cards/slices/oc-14.jpg"
-      },
-      {
-        "idx": 15,
-        "row": 1,
-        "col": 5,
-        "file": "cards/slices/oc-15.jpg"
-      },
-      {
-        "idx": 16,
-        "row": 1,
-        "col": 6,
-        "file": "cards/slices/oc-16.jpg"
-      },
-      {
-        "idx": 17,
-        "row": 1,
-        "col": 7,
-        "file": "cards/slices/oc-17.jpg"
-      },
-      {
-        "idx": 18,
-        "row": 1,
-        "col": 8,
-        "file": "cards/slices/oc-18.jpg"
-      },
-      {
-        "idx": 19,
-        "row": 1,
-        "col": 9,
-        "file": "cards/slices/oc-19.jpg"
-      },
-      {
-        "idx": 20,
-        "row": 2,
-        "col": 0,
-        "file": "cards/slices/oc-20.jpg"
-      },
-      {
-        "idx": 21,
-        "row": 2,
-        "col": 1,
-        "file": "cards/slices/oc-21.jpg"
-      },
-      {
-        "idx": 22,
-        "row": 2,
-        "col": 2,
-        "file": "cards/slices/oc-22.jpg"
-      },
-      {
-        "idx": 23,
-        "row": 2,
-        "col": 3,
-        "file": "cards/slices/oc-23.jpg"
-      },
-      {
-        "idx": 24,
-        "row": 2,
-        "col": 4,
-        "file": "cards/slices/oc-24.jpg"
-      },
-      {
-        "idx": 25,
-        "row": 2,
-        "col": 5,
-        "file": "cards/slices/oc-25.jpg"
-      },
-      {
-        "idx": 26,
-        "row": 2,
-        "col": 6,
-        "file": "cards/slices/oc-26.jpg"
-      },
-      {
-        "idx": 27,
-        "row": 2,
-        "col": 7,
-        "file": "cards/slices/oc-27.jpg"
-      },
-      {
-        "idx": 28,
-        "row": 2,
-        "col": 8,
-        "file": "cards/slices/oc-28.jpg"
-      },
-      {
-        "idx": 29,
-        "row": 2,
-        "col": 9,
-        "file": "cards/slices/oc-29.jpg"
-      },
-      {
-        "idx": 30,
-        "row": 3,
-        "col": 0,
-        "file": "cards/slices/oc-30.jpg"
-      },
-      {
-        "idx": 31,
-        "row": 3,
-        "col": 1,
-        "file": "cards/slices/oc-31.jpg"
-      },
-      {
-        "idx": 32,
-        "row": 3,
-        "col": 2,
-        "file": "cards/slices/oc-32.jpg"
-      },
-      {
-        "idx": 33,
-        "row": 3,
-        "col": 3,
-        "file": "cards/slices/oc-33.jpg"
-      },
-      {
-        "idx": 34,
-        "row": 3,
-        "col": 4,
-        "file": "cards/slices/oc-34.jpg"
-      }
-    ]
-  },
-  "oce": {
-    "plate": "campagne evenement.png",
-    "cols": 10,
-    "rows": 6,
-    "cells": [
-      {
-        "idx": 0,
-        "row": 0,
-        "col": 0,
-        "file": "cards/slices/oce-00.jpg"
-      },
-      {
-        "idx": 1,
-        "row": 0,
-        "col": 1,
-        "file": "cards/slices/oce-01.jpg"
-      },
-      {
-        "idx": 2,
-        "row": 0,
-        "col": 2,
-        "file": "cards/slices/oce-02.jpg"
-      },
-      {
-        "idx": 3,
-        "row": 0,
-        "col": 3,
-        "file": "cards/slices/oce-03.jpg"
-      },
-      {
-        "idx": 4,
-        "row": 0,
-        "col": 4,
-        "file": "cards/slices/oce-04.jpg"
-      },
-      {
-        "idx": 5,
-        "row": 0,
-        "col": 5,
-        "file": "cards/slices/oce-05.jpg"
-      },
-      {
-        "idx": 6,
-        "row": 0,
-        "col": 6,
-        "file": "cards/slices/oce-06.jpg"
-      },
-      {
-        "idx": 7,
-        "row": 0,
-        "col": 7,
-        "file": "cards/slices/oce-07.jpg"
-      },
-      {
-        "idx": 8,
-        "row": 0,
-        "col": 8,
-        "file": "cards/slices/oce-08.jpg"
-      },
-      {
-        "idx": 9,
-        "row": 0,
-        "col": 9,
-        "file": "cards/slices/oce-09.jpg"
-      },
-      {
-        "idx": 10,
-        "row": 1,
-        "col": 0,
-        "file": "cards/slices/oce-10.jpg"
-      },
-      {
-        "idx": 11,
-        "row": 1,
-        "col": 1,
-        "file": "cards/slices/oce-11.jpg"
-      },
-      {
-        "idx": 12,
-        "row": 1,
-        "col": 2,
-        "file": "cards/slices/oce-12.jpg"
-      },
-      {
-        "idx": 13,
-        "row": 1,
-        "col": 3,
-        "file": "cards/slices/oce-13.jpg"
-      },
-      {
-        "idx": 14,
-        "row": 1,
-        "col": 4,
-        "file": "cards/slices/oce-14.jpg"
-      },
-      {
-        "idx": 15,
-        "row": 1,
-        "col": 5,
-        "file": "cards/slices/oce-15.jpg"
-      },
-      {
-        "idx": 16,
-        "row": 1,
-        "col": 6,
-        "file": "cards/slices/oce-16.jpg"
-      },
-      {
-        "idx": 17,
-        "row": 1,
-        "col": 7,
-        "file": "cards/slices/oce-17.jpg"
-      },
-      {
-        "idx": 18,
-        "row": 1,
-        "col": 8,
-        "file": "cards/slices/oce-18.jpg"
-      },
-      {
-        "idx": 19,
-        "row": 1,
-        "col": 9,
-        "file": "cards/slices/oce-19.jpg"
-      },
-      {
-        "idx": 20,
-        "row": 2,
-        "col": 0,
-        "file": "cards/slices/oce-20.jpg"
-      },
-      {
-        "idx": 21,
-        "row": 2,
-        "col": 1,
-        "file": "cards/slices/oce-21.jpg"
-      },
-      {
-        "idx": 22,
-        "row": 2,
-        "col": 2,
-        "file": "cards/slices/oce-22.jpg"
-      },
-      {
-        "idx": 23,
-        "row": 2,
-        "col": 3,
-        "file": "cards/slices/oce-23.jpg"
-      },
-      {
-        "idx": 24,
-        "row": 2,
-        "col": 4,
-        "file": "cards/slices/oce-24.jpg"
-      },
-      {
-        "idx": 25,
-        "row": 2,
-        "col": 5,
-        "file": "cards/slices/oce-25.jpg"
-      },
-      {
-        "idx": 26,
-        "row": 2,
-        "col": 6,
-        "file": "cards/slices/oce-26.jpg"
-      },
-      {
-        "idx": 27,
-        "row": 2,
-        "col": 7,
-        "file": "cards/slices/oce-27.jpg"
-      },
-      {
-        "idx": 28,
-        "row": 2,
-        "col": 8,
-        "file": "cards/slices/oce-28.jpg"
-      },
-      {
-        "idx": 29,
-        "row": 2,
-        "col": 9,
-        "file": "cards/slices/oce-29.jpg"
-      },
-      {
-        "idx": 30,
-        "row": 3,
-        "col": 0,
-        "file": "cards/slices/oce-30.jpg"
-      },
-      {
-        "idx": 31,
-        "row": 3,
-        "col": 1,
-        "file": "cards/slices/oce-31.jpg"
-      },
-      {
-        "idx": 32,
-        "row": 3,
-        "col": 2,
-        "file": "cards/slices/oce-32.jpg"
-      },
-      {
-        "idx": 33,
-        "row": 3,
-        "col": 3,
-        "file": "cards/slices/oce-33.jpg"
-      },
-      {
-        "idx": 34,
-        "row": 3,
-        "col": 4,
-        "file": "cards/slices/oce-34.jpg"
-      },
-      {
-        "idx": 35,
-        "row": 3,
-        "col": 5,
-        "file": "cards/slices/oce-35.jpg"
-      },
-      {
-        "idx": 36,
-        "row": 3,
-        "col": 6,
-        "file": "cards/slices/oce-36.jpg"
-      },
-      {
-        "idx": 37,
-        "row": 3,
-        "col": 7,
-        "file": "cards/slices/oce-37.jpg"
-      },
-      {
-        "idx": 38,
-        "row": 3,
-        "col": 8,
-        "file": "cards/slices/oce-38.jpg"
-      },
-      {
-        "idx": 39,
-        "row": 3,
-        "col": 9,
-        "file": "cards/slices/oce-39.jpg"
-      },
-      {
-        "idx": 40,
-        "row": 4,
-        "col": 0,
-        "file": "cards/slices/oce-40.jpg"
-      },
-      {
-        "idx": 41,
-        "row": 4,
-        "col": 1,
-        "file": "cards/slices/oce-41.jpg"
-      },
-      {
-        "idx": 42,
-        "row": 4,
-        "col": 2,
-        "file": "cards/slices/oce-42.jpg"
-      },
-      {
-        "idx": 43,
-        "row": 4,
-        "col": 3,
-        "file": "cards/slices/oce-43.jpg"
-      },
-      {
-        "idx": 44,
-        "row": 4,
-        "col": 4,
-        "file": "cards/slices/oce-44.jpg"
-      },
-      {
-        "idx": 45,
-        "row": 4,
-        "col": 5,
-        "file": "cards/slices/oce-45.jpg"
-      },
-      {
-        "idx": 46,
-        "row": 4,
-        "col": 6,
-        "file": "cards/slices/oce-46.jpg"
-      },
-      {
-        "idx": 47,
-        "row": 4,
-        "col": 7,
-        "file": "cards/slices/oce-47.jpg"
-      },
-      {
-        "idx": 48,
-        "row": 4,
-        "col": 8,
-        "file": "cards/slices/oce-48.jpg"
-      },
-      {
-        "idx": 49,
-        "row": 4,
-        "col": 9,
-        "file": "cards/slices/oce-49.jpg"
-      },
-      {
-        "idx": 50,
-        "row": 5,
-        "col": 0,
-        "file": "cards/slices/oce-50.jpg"
-      },
-      {
-        "idx": 51,
-        "row": 5,
-        "col": 1,
-        "file": "cards/slices/oce-51.jpg"
-      },
-      {
-        "idx": 52,
-        "row": 5,
-        "col": 2,
-        "file": "cards/slices/oce-52.jpg"
-      }
-    ]
-  },
-  "cbt": {
-    "plate": "combat.png",
-    "cols": 10,
-    "rows": 3,
-    "cells": [
-      {
-        "idx": 0,
-        "row": 0,
-        "col": 0,
-        "file": "cards/slices/cbt-00.jpg"
-      },
-      {
-        "idx": 1,
-        "row": 0,
-        "col": 1,
-        "file": "cards/slices/cbt-01.jpg"
-      },
-      {
-        "idx": 2,
-        "row": 0,
-        "col": 2,
-        "file": "cards/slices/cbt-02.jpg"
-      },
-      {
-        "idx": 3,
-        "row": 0,
-        "col": 3,
-        "file": "cards/slices/cbt-03.jpg"
-      },
-      {
-        "idx": 4,
-        "row": 0,
-        "col": 4,
-        "file": "cards/slices/cbt-04.jpg"
-      },
-      {
-        "idx": 5,
-        "row": 0,
-        "col": 5,
-        "file": "cards/slices/cbt-05.jpg"
-      },
-      {
-        "idx": 6,
-        "row": 0,
-        "col": 6,
-        "file": "cards/slices/cbt-06.jpg"
-      },
-      {
-        "idx": 7,
-        "row": 0,
-        "col": 7,
-        "file": "cards/slices/cbt-07.jpg"
-      },
-      {
-        "idx": 8,
-        "row": 0,
-        "col": 8,
-        "file": "cards/slices/cbt-08.jpg"
-      },
-      {
-        "idx": 9,
-        "row": 0,
-        "col": 9,
-        "file": "cards/slices/cbt-09.jpg"
-      },
-      {
-        "idx": 10,
-        "row": 1,
-        "col": 0,
-        "file": "cards/slices/cbt-10.jpg"
-      },
-      {
-        "idx": 11,
-        "row": 1,
-        "col": 1,
-        "file": "cards/slices/cbt-11.jpg"
-      },
-      {
-        "idx": 12,
-        "row": 1,
-        "col": 2,
-        "file": "cards/slices/cbt-12.jpg"
-      },
-      {
-        "idx": 13,
-        "row": 1,
-        "col": 3,
-        "file": "cards/slices/cbt-13.jpg"
-      },
-      {
-        "idx": 14,
-        "row": 1,
-        "col": 4,
-        "file": "cards/slices/cbt-14.jpg"
-      },
-      {
-        "idx": 15,
-        "row": 1,
-        "col": 5,
-        "file": "cards/slices/cbt-15.jpg"
-      },
-      {
-        "idx": 16,
-        "row": 1,
-        "col": 6,
-        "file": "cards/slices/cbt-16.jpg"
-      },
-      {
-        "idx": 17,
-        "row": 1,
-        "col": 7,
-        "file": "cards/slices/cbt-17.jpg"
-      },
-      {
-        "idx": 18,
-        "row": 1,
-        "col": 8,
-        "file": "cards/slices/cbt-18.jpg"
-      },
-      {
-        "idx": 19,
-        "row": 1,
-        "col": 9,
-        "file": "cards/slices/cbt-19.jpg"
-      },
-      {
-        "idx": 20,
-        "row": 2,
-        "col": 0,
-        "file": "cards/slices/cbt-20.jpg"
-      },
-      {
-        "idx": 21,
-        "row": 2,
-        "col": 1,
-        "file": "cards/slices/cbt-21.jpg"
+        "file": "cards/slices/duel-18.jpg"
       }
     ]
   }

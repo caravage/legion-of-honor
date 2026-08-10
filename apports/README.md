@@ -14,12 +14,7 @@ le même commit. Ce qui reste ici est donc ce qui attend encore.
 
 ## En attente
 
-- **La planche des 18 cartes de duel** — 7 Botte, 2 Riposte, 7 Parade, 2 Feu,
-  plus le dos. Elle est le dernier obstacle au mini-jeu de duel.
-
-  Les cartes sont à double sens : Botte, Riposte et Feu portent « to Kill » à
-  une extrémité et « to Wound » à l'autre. La découpe doit donc garder la
-  carte **entière**, sans recadrer sur une moitié.
+Rien pour l'instant.
 
 ## Pourquoi ce dossier existe
 
