@@ -2257,14 +2257,42 @@ export class Game {
       } else normal();
       return;
     }
-    if (block?.label) this.info(block.label);
-    this.applyEffects(block ?? {});
-    if (c.roll) this.resolveRollField(c.roll);
-    if (block?.W) {
-      this.checkWound(block.W);
-      if (this.ch.absent?.type !== 'death' && block.P) this.checkPrisoner(block.P);
+    const apply = () => {
+      if (block?.label) this.info(block.label);
+      this.applyEffects(block ?? {});
+      if (c.roll) this.resolveRollField(c.roll);
+      if (block?.W) {
+        this.checkWound(block.W);
+        if (this.ch.absent?.type !== 'death' && block.P) this.checkPrisoner(block.P);
+      }
+      if (c.effect && !block) this.info(c.effect);
+    };
+    // Une carte qui prévoit son refus le propose : sans cela on force la main
+    // au Grognard, et le prix du refus reste lettre morte.
+    const decline = (c as CampaignCard).decline;
+    if (decline && block) {
+      const { loseTurn, ...cost } = decline;
+      const prix = Object.entries(cost)
+        .map(([k, v]) => `${k}${typeof v === 'number' && v >= 0 ? '+' : ''}${v}`)
+        .join(', ');
+      this.ask(c.name, [
+        { label: `Accepter (${this.riskLabel(block)})`, run: apply },
+        {
+          label: `Refuser${prix ? ` (${prix})` : ''}${loseTurn ? ' — tour perdu' : ''}`,
+          run: () => this.applyEffects(cost as Effects),
+        },
+      ]);
+      return;
     }
-    if (c.effect && !block) this.info(c.effect);
+    apply();
+  }
+
+  /** Ce qu'une proposition met en jeu, résumé pour le bouton qui l'accepte. */
+  private riskLabel(block: Effects): string {
+    return Object.entries(block)
+      .filter(([k]) => k !== 'label' && k !== 'zeal')
+      .map(([k, v]) => (k === 'W' ? `blessure ${v}%` : k === 'P' ? `capture ${v}%` : `${k}${typeof v === 'number' && v >= 0 ? '+' : ''}${v}`))
+      .join(', ');
   }
 
   /**
