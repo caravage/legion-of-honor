@@ -110,11 +110,39 @@ croiser le fer. Elles ne sont écartées **qu'en solo** — `cardAllowed()` inte
 `multi`, et non plus `soloPlayable` seul. Deux d'entre elles étaient déjà dans le
 deck sans effet faute de cible (*Sack the Town*, *Dangerous Mission*).
 
+S'y ajoutent deux actions d'Idle Time qui ne vivaient que dans les données :
+`challenge` et le pari `againstGrognard` de `gambleRules`. La liste
+`cardsTargetingOtherPlayers` de `misc-rules.json` sert de feuille de contrôle —
+tout y est traité sauf les prêts.
+
 Pour toucher la feuille d'un rival, passer par `asActor()` : `applyStat()` et
 tout ce qui en découle travaillent sur le Grognard actif, jamais sur un index.
 
 `flags.grievanceAgainst` est la seule porte vers un défi : sans partie lésée,
 pas de duel — c'est la règle de la planche, pas une prudence de notre part.
+
+Deux occasions l'ouvrent, et elles ne se valent pas :
+
+| source du grief | griefs/partie | défis/partie |
+|---|---|---|
+| accusation de lâcheté | 6,6 | 0,06 |
+| **disgrâce du commandement** | 0,41 | 0,44 |
+
+Mesuré à 600 parties, six Grognards. La disgrâce convertit cent fois mieux
+parce qu'elle lie d'office deux Grognards du **même commandement** — l'une des
+deux restrictions du défi. L'accusation de lâcheté, elle, frappe n'importe qui :
+le grief est ouvert, mais presque jamais exerçable.
+
+Le levier reste sous un défi par partie, et c'est la planche qui le veut : il
+faut un acte de discrétion déshonoré pour ouvrir un grief de commandement, et
+les concurrents ne se mettent à couvert qu'en dessous de leur seuil de
+tempérament. Les trois autres raisons que reconnaît `duel.json` — insulte,
+termes de prêt violés, cocuage — n'ont aucun support : la première n'est portée
+par aucune carte, la deuxième attend les prêts, la troisième *The Fair Sex*.
+
+L'effet sur la course est nul : joueur vainqueur 5,2 % sans le levier, 6,0 %
+avec, pour une erreur type de 0,9 point. Mortalité inchangée (0,46 → 0,45 par
+carrière). C'est un gain de fidélité, pas un réglage de difficulté.
 
 ## Le duel
 
@@ -144,11 +172,11 @@ duel après avoir été gracié — n'est pas implémenté, et le cocuage attend
 ## Chantiers ouverts
 
 - *Comrades in Arms* reste à faire : c'est le dernier bloc multijoueur.
-- **Le défi d'Idle Time n'est presque jamais proposé** — 0,13 fois par partie à
-  six Grognards. Deux causes : les restrictions de la planche (même commandement
-  *et* même grade) et le fait qu'un concurrent n'atteint jamais la branche
-  aléatoire d'Idle Time, `Demander un transfert` passant toujours avant quand
-  l'armée est au repos. Le levier est câblé mais dort.
+- **Les prêts entre Grognards** n'existent pas. Les données n'en disent qu'une
+  ligne — « multijoueur ; sans objet en solo » — sans montants, ni intérêt, ni
+  terme. Rien à implémenter tant que la règle n'est pas fournie ; c'est le seul
+  point de `cardsTargetingOtherPlayers` encore vide, et il tient en otage l'une
+  des raisons de défi.
 - *The Terror* porte `commands: ["all"]` mais ne frappe que son piocheur.
 - Le maréchalat n'est couvert par aucune partie témoin.
 - 4 `any` subsistent dans `src/ui/Reference.tsx`.

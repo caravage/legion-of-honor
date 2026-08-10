@@ -679,6 +679,20 @@ export class Game {
     this.active = idx;
   }
 
+  /**
+   * La disgrâce d'un Grognard rejaillit sur son commandement : chacun de ceux
+   * qui s'y sont battus devient partie lésée envers lui, et peut lui demander
+   * réparation. C'est la première des raisons que la planche reconnaît au défi,
+   * et la seule qui se présente assez souvent pour que le pré serve.
+   */
+  private disgraceComrades() {
+    const culprit = this.active;
+    const witnesses = this.rivals({ sameCommand: true });
+    if (!witnesses.length) return;
+    for (const i of witnesses) this.chars[i].flags.grievanceAgainst = culprit;
+    this.warn(`Le commandement a vu : ${witnesses.length > 1 ? 'ses camarades sont' : 'son camarade est'} en droit de lui demander réparation.`);
+  }
+
   /** Les rivaux que l'on peut prendre pour cible, selon ce que la carte exige. */
   rivals(opts: { sameCommand?: boolean; sameRank?: boolean; from?: number } = {}): number[] {
     const selfIdx = opts.from ?? this.active;
@@ -1202,7 +1216,12 @@ export class Game {
     while (this.pending && this.ch.bot && guard++ < 30) {
       const pend = this.pending;
       if (pend.kind === 'money') { this.applyMoney(botMoneyTransfer(this.ch)); continue; }
-      this.choose(botChoice(pend, this.ch, { engaged: this.activeCommands().has(this.ch.assignment), rng: this.rng }));
+      const offender = this.challengeable();
+      this.choose(botChoice(pend, this.ch, {
+        engaged: this.activeCommands().has(this.ch.assignment),
+        duelFavorable: offender >= 0 && acceptsDuel(this.ch, this.chars[offender]),
+        rng: this.rng,
+      }));
     }
   }
 
@@ -2636,6 +2655,11 @@ export class Game {
       out.push({ label: 'Jouer contre la maison…', run: () => this.askGamble(1, ch.mPurse) });
     }
 
+    // — Jouer contre un camarade —
+    if (ch.mPurse > 0 && this.rivals({ sameCommand: true }).some((i) => this.chars[i].mPurse > 0)) {
+      out.push({ label: 'Proposer un pari à un camarade…', run: () => this.askWager() });
+    }
+
     return out;
   }
 
@@ -2789,6 +2813,61 @@ export class Game {
       })),
       { label: 'Quitter la table', run: () => this.finishGamble(purseAtStart) },
     ]);
+  }
+
+  /**
+   * Le pari entre Grognards. Une seule mise, contre un camarade du même
+   * commandement : refuser coûte trois points de gloire, et l'égalité annule
+   * tout. La gloire ne suit l'argent que par tranches de vingt-cinq francs.
+   */
+  private askWager() {
+    const ch = this.ch;
+    const cands = this.rivals({ sameCommand: true }).filter((i) => this.chars[i].mPurse > 0);
+    if (!cands.length) { this.info('Personne à la table.'); return; }
+    this.askTarget('À qui proposer le pari ?', cands, (idx) => {
+      const foe = this.chars[idx];
+      const max = Math.min(ch.mPurse, foe.mPurse, 100);
+      const sizes = [5, 10, 25, 50, 100].filter((s) => s <= max);
+      if (!sizes.length) { this.info('Les bourses sont trop plates pour parier.'); return; }
+      const settle = (stake: number) => {
+        const challenger = this.active;
+        const accepted = foe.bot ? foe.mPurse >= stake * 2 || stake <= 10 : null;
+        const play = () => {
+          const mine = d10(this.rng);
+          const his = d10(this.rng);
+          this.roll(`Pari de ${stake} F — ${ch.name} 1D10=${mine} · ${foe.name} 1D10=${his}`);
+          if (mine === his) { this.info('Égalité : le pari est annulé.'); return; }
+          const winner = mine > his ? challenger : idx;
+          const loser = mine > his ? idx : challenger;
+          this.asActor(loser, () => this.applyStat('M', -stake, 'pari perdu'));
+          this.asActor(winner, () => {
+            this.applyStat('M', stake, 'pari gagné');
+            const g = Math.floor(stake / 25);
+            if (g > 0) this.applyStat('G', g, 'sa veine fait jaser');
+          });
+        };
+        const decline = () => {
+          this.asActor(idx, () => this.applyStat('G', -3, 'pari refusé'));
+          this.info(`${foe.name} se dérobe.`);
+        };
+        if (accepted === null) {
+          // le pari vise le joueur : la main lui passe jusqu'à sa réponse
+          this.handOver(idx);
+          this.ask(`${this.chars[challenger].name} propose un pari de ${stake} F`, [
+            { label: `Tenir le pari (${stake} F)`, run: () => { this.handOver(challenger); play(); } },
+            { label: 'Refuser (G−3)', run: () => { this.handOver(challenger); decline(); } },
+          ]);
+          return;
+        }
+        if (accepted) play();
+        else decline();
+      };
+      if (this.ch.bot) { settle(sizes[Math.floor(this.rng() * sizes.length)]); return; }
+      this.ask(`Pari contre ${foe.name} — combien ?`, [
+        ...sizes.map((s) => ({ label: `Miser ${s} F`, run: () => settle(s) })),
+        { label: 'Renoncer', run: () => {} },
+      ]);
+    }, { kind: 'harm' });
   }
 
   private finishGamble(purseAtStart: number) {
@@ -3214,6 +3293,7 @@ export class Game {
         disgraced = true;
         this.roll(`2D10=${r} ≤ ${dis} — déshonoré !`);
         this.warn('Sa prudence se remarque : ni notice ni gloire pour cette bataille.');
+        this.disgraceComrades();
       } else this.roll(`2D10=${r} > ${dis} — personne n’a rien vu.`);
       N = Math.floor(N / 2); G = Math.floor(G / 2); E = Math.floor(E / 2);
     }

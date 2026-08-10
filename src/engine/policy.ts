@@ -63,6 +63,12 @@ export function traitsOf(ch: Character): Traits {
 export interface BotContext {
   /** Son commandement actuel est-il engagé dans une bataille cette saison ? */
   engaged?: boolean;
+  /**
+   * Le fer lui est-il favorable contre celui qui l'a lésé ? Calculé par le
+   * moteur, qui seul connaît l'escrime de l'offenseur : la politique lit des
+   * intitulés d'options, elle n'y cherche pas des chiffres.
+   */
+  duelFavorable?: boolean;
   /** Tirage de la partie, pour que les choix restent reproductibles. */
   rng?: () => number;
 }
@@ -113,6 +119,16 @@ export function botChoice(p: Pending, ch: Character, ctx: BotContext = {}): numb
   // Une charge se garde ; on la brigue dès qu'on le peut.
   i = find(/Briguer un office/);
   if (i >= 0) return i;
+
+  /**
+   * Demander réparation. L'occasion ne revient pas : le défi ne se porte que
+   * sur une carte Idle Time ou en permission, et un affront ravalé le reste.
+   * Elle passe donc avant la mutation — mais seulement quand le fer nous est
+   * favorable, car trois points de standing et une blessure valent plus cher
+   * que l'honneur d'un sous-lieutenant.
+   */
+  i = find(/Demander réparation/);
+  if (i >= 0 && ctx.duelFavorable) return i;
 
   // On ne demande sa mutation que si l'on croupit loin du feu, ou si son
   // standing est si bas qu'il vaut la peine de le rejouer.
