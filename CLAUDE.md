@@ -176,11 +176,14 @@ donne l'identifiant de chacune. **Une carte marquée `verify` se tranche en la
 lisant**, pas en raisonnant sur sa transcription. Elles ne sont pas versionnées
 (110 Mo) mais elles sont présentes en session.
 
-La leçon a coûté trois erreurs sur la seule carte 52, toutes venues de sa
+La leçon a coûté quatre erreurs sur la seule carte 52, toutes venues de sa
 transcription : la carte d'avantage revient au **tireur** et non au Burger, le
 choix de l'arme appartient au **Grognard qui tient le rôle** et non au tireur,
-et le barème N/S était résumé en « selon la blessure » quand la carte le donne
-en clair. Il reste 31 cartes portant `verify` ; chacune se règle en une minute.
+le barème N/S était résumé en « selon la blessure » quand la carte le donne en
+clair, et le Burger n'est pas un personnage de carte — **c'est un duel
+ordinaire entre deux Grognards**, avec les résultats communs des deux côtés et
+les avantages habituels. Le E+1 et le G+3 que la carte rappelle sont ceux de la
+planche : ils ne s'y ajoutent pas. Il reste 31 cartes portant `verify`.
 
 ## Une carte peut être muette sans que rien ne le signale
 

@@ -2523,14 +2523,16 @@ export class Game {
       return;
     }
     const drawer = this.active;
-    const burger = this.cardDuelist('Le Burger', this.chars[drawer].F);
     const terms = (weapon: 'sword' | 'pistol'): DuelTerms => ({
       label: `${weapon === 'sword' ? 'Duel à l’épée' : 'Duel au pistolet'} — le Burger`,
       weapon,
-      standard: false,
-      // La carte énonce E+1 et G+3 à la place des résultats communs ; le F+1
-      // de tout duel à l'épée, lui, relève de la procédure générale.
-      drawerEffects: weapon === 'sword' ? { E: 1, G: 3, F: 1 } : { E: 1, G: 3 },
+      /**
+       * L'évènement ouvre un duel ordinaire : les deux hommes en subissent les
+       * résultats communs. Le E+1 et le G+3 que la carte rappelle sont ceux de
+       * la planche, ils ne s'y ajoutent pas. Seul le barème N/S lui appartient.
+       */
+      standard: true,
+      magnanimity: true,
       then: (o, blessure) => {
         if (o?.winnerSide !== 'a' || !blessure) return;
         // Avoir versé le sang d'un bourgeois se paie, et d'autant plus cher
@@ -2548,31 +2550,39 @@ export class Game {
     });
     /**
      * Le Burger est tenu par un autre Grognard, désigné au hasard — et c'est
-     * lui qui choisit l'arme, non le tireur. Seul le tireur reçoit la carte
-     * d'avantage. En solo, faute de second Grognard, la machine tient le rôle.
+     * lui qui choisit l'arme, non le tireur. Le duel est celui de la planche,
+     * avantages compris ; la carte n'y ajoute que la carte supplémentaire du
+     * tireur et le premier coup au Burger. En solo, la machine tient le rôle,
+     * et faute de feuille elle se bat à escrime égale.
      */
-    const fight = (weapon: 'sword' | 'pistol') => {
+    const fight = (weapon: 'sword' | 'pistol', foe: Duelist) => {
       this.handOver(drawer);
       if (weapon === 'sword') {
         this.startSwordDuel(
-          { a: this.asDuelist(drawer), b: burger, first: 'b', autoCard: 'a', healthCard: 'none' },
+          { a: this.asDuelist(drawer), b: foe, first: 'b', autoCard: 'a' },
           terms('sword'),
         );
       } else {
         this.askAim('Pointer l’arme', (aim) =>
-          this.pistolDuel(this.asDuelist(drawer), burger, terms('pistol'), { a: aim, b: 'wound' }, 4));
+          this.pistolDuel(this.asDuelist(drawer), foe, terms('pistol'), { a: aim, b: 'wound' }, 4));
       }
     };
     const chooseWeapon = () => {
       const roles = this.rivals();
-      if (!roles.length) { fight(burgerWeapon(this.chars[drawer])); return; }
+      if (!roles.length) {
+        const seul = this.cardDuelist('Le Burger', this.chars[drawer].F);
+        fight(burgerWeapon(this.chars[drawer]), seul);
+        return;
+      }
       this.askTarget('Qui tient le rôle du Burger ?', roles, (idx) => {
+        const foe = this.asDuelist(idx);
+        foe.name = `${this.chars[idx].name} (le Burger)`;
         this.info(`${this.chars[idx].name} prend le rôle du Burger — à lui de choisir l’arme.`);
-        if (this.chars[idx].bot) { fight(burgerWeapon(this.chars[drawer])); return; }
+        if (this.chars[idx].bot) { fight(burgerWeapon(this.chars[drawer]), foe); return; }
         this.handOver(idx);
         this.ask('Vous tenez le Burger — quelle arme ?', [
-          { label: 'L’épée', run: () => fight('sword') },
-          { label: 'Le pistolet', run: () => fight('pistol') },
+          { label: 'L’épée', run: () => fight('sword', foe) },
+          { label: 'Le pistolet', run: () => fight('pistol', foe) },
         ]);
       }, { random: true });
     };
