@@ -931,6 +931,9 @@ export class Game {
     this.phase(terms.label);
     const ord = pistolOrder(this.rng);
     this.roll(`Amorces : ${a.name} 2D10=${ord.rolls.a}${ord.misfire.a ? ' — raté !' : ''} · ${b.name} 2D10=${ord.rolls.b}${ord.misfire.b ? ' — raté !' : ''}`);
+    if (ord.priority) {
+      this.roll(`Qui tire le premier : ${a.name} 1D10=${ord.priority.a} · ${b.name} 1D10=${ord.priority.b}`);
+    }
     const run: DuelRun = { sword: null, terms, a, b, returnTo: this.active };
     if (ord.bothMisfired) {
       this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');

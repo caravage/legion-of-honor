@@ -245,7 +245,10 @@ export function pistolHits(rng: RNG, cap = 5): { roll: number; hit: boolean } {
  */
 export function pistolOrder(rng: RNG): {
   misfire: Record<Side, boolean>;
+  /** Les 2D10 d'amorce. */
   rolls: Record<Side, number>;
+  /** Les 1D10 de priorité, quand les deux armes ont pris feu. */
+  priority: Record<Side, number> | null;
   first: Side | null;
   bothMisfired: boolean;
 } {
@@ -253,13 +256,13 @@ export function pistolOrder(rng: RNG): {
   const mb = d100(rng);
   const misfire: Record<Side, boolean> = { a: ma <= 5, b: mb <= 5 };
   const rolls: Record<Side, number> = { a: ma, b: mb };
-  if (misfire.a && misfire.b) return { misfire, rolls, first: null, bothMisfired: true };
-  if (misfire.a) return { misfire, rolls, first: 'b', bothMisfired: false };
-  if (misfire.b) return { misfire, rolls, first: 'a', bothMisfired: false };
+  if (misfire.a && misfire.b) return { misfire, rolls, priority: null, first: null, bothMisfired: true };
+  if (misfire.a) return { misfire, rolls, priority: null, first: 'b', bothMisfired: false };
+  if (misfire.b) return { misfire, rolls, priority: null, first: 'a', bothMisfired: false };
   let ra = 0;
   let rb = 0;
   do { ra = d10(rng); rb = d10(rng); } while (ra === rb);
-  return { misfire, rolls: { a: ra, b: rb }, first: ra > rb ? 'a' : 'b', bothMisfired: false };
+  return { misfire, rolls, priority: { a: ra, b: rb }, first: ra > rb ? 'a' : 'b', bothMisfired: false };
 }
 
 export const SWORD_LABEL = LABEL;
