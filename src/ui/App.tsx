@@ -9,6 +9,7 @@ import { CardBack, CardPeek, CardView } from './Cards';
 import { DiceTray } from './Dice';
 import { LogView } from './Chronicle';
 import { GrognardSheet, Rivals, RivalSheet, ScoreView, SetupSheet } from './Sheets';
+import { GodMode } from './GodMode';
 
 export default function App() {
   const gameRef = useRef<Game | null>(null);
@@ -20,6 +21,7 @@ export default function App() {
   const [modal, setModal] = useState<RefKind | null>(null);
   const [bots, setBots] = useState(0);
   const [sheetOf, setSheetOf] = useState<number | null>(null);
+  const [god, setGod] = useState(false);
   const archivedRef = useRef(false);
   const refresh = () => setTick((t) => t + 1);
 
@@ -52,6 +54,17 @@ export default function App() {
     refresh();
   };
 
+  /** Atelier : une carrière neuve, amenée d'office à la saison demandée. */
+  const jumpTo = (season: number) => {
+    if (!gameRef.current) {
+      gameRef.current = new Game(name.trim(), Math.random, 'quick', bots);
+      archivedRef.current = false;
+    }
+    gameRef.current.jumpToSeason(season);
+    setRevealed(gameRef.current.log.length);
+    refresh();
+  };
+
   const resume = () => {
     const g = Game.load();
     if (!g) return;
@@ -64,7 +77,10 @@ export default function App() {
   if (!game) {
     return (
       <>
-        <Header />
+        <Header onGod={() => setGod(true)} />
+        {god && (
+          <GodMode game={null} onJump={jumpTo} onClose={() => setGod(false)} onChange={refresh} />
+        )}
         <div className="panel newgame">
           <h2>Une nouvelle carrière dans la Grande Armée</h2>
           <p>Nommez votre Grognard, sergent ou sous-lieutenant en 1792 :</p>
@@ -173,7 +189,7 @@ export default function App() {
 
   return (
     <div className={`tone-${tone}`}>
-      <Header season={game.seasonDef()} game={game} onOpen={setModal} />
+      <Header season={game.seasonDef()} game={game} onOpen={setModal} onGod={() => setGod(true)} />
       <ProgressBar prog={prog} />
       {game.chars.length > 1 && (
         <Rivals
@@ -296,6 +312,9 @@ export default function App() {
       )}
       {peek && <CardPeek src={peek} onClose={() => setPeek(null)} />}
       {modal && <Reference which={modal} game={game} onClose={() => setModal(null)} />}
+      {god && (
+        <GodMode game={game} onJump={jumpTo} onClose={() => setGod(false)} onChange={refresh} />
+      )}
     </div>
   );
 }

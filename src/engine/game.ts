@@ -650,6 +650,63 @@ export class Game {
     if (this.ch.office) { this.ch.office = false; this.info('Office perdu (retraite).'); }
   }
 
+  // ---------- atelier (god mode) ----------
+  //
+  // Ces deux entrées ne servent qu'à essayer le jeu : elles court-circuitent
+  // la carrière pour poser une situation directement sur la table. Rien dans
+  // le déroulement normal ne les appelle.
+
+  /**
+   * Saute au début d'une saison, exactement comme le ferait la fin de la
+   * précédente : le segment de saison s'ouvre, et la phase d'affectation
+   * remettra le Grognard dans un commandement qui existe encore.
+   */
+  jumpToSeason(n: number) {
+    const target = Math.max(1, Math.min(SEASONS.length, Math.trunc(n)));
+    if (target === this.season) return;
+    this.pending = null;
+    this.duelRun = null;
+    this.battleQueue = [];
+    this.afterBattles = null;
+    this.wwtQueue = [];
+    this.closeSeasonChronicle();
+    this.season = target;
+    this.roundIdx = 0;
+    this.turnQueue = [];
+    this.deck = [];
+    this.currentCard = null;
+    this.combatCard = null;
+    this.openSeasonChronicle();
+    this.title(`⚙ Atelier : la carrière reprend en saison ${this.seasonDef().roman}`,
+      `${this.seasonDef().name} · ${this.seasonDef().years}`);
+    this.stage = target === 1 ? 'round-start' : 'segment';
+    this.sub = 0;
+    this.save();
+  }
+
+  /**
+   * Met deux hommes sur le pré, séance tenante. `foe` désigne un concurrent,
+   * ou vaut null pour un adversaire de carte sans feuille — celui-ci ne
+   * saigne pas et ne gagne rien, comme le Burger.
+   */
+  testDuel(foe: number | null, weapon: 'sword' | 'pistol', escrime = 5) {
+    const me = this.asDuelist(0);
+    const other = foe === null ? this.cardDuelist('Un inconnu masqué', escrime) : this.asDuelist(foe);
+    const terms: DuelTerms = {
+      label: `⚙ Atelier — duel ${weapon === 'sword' ? 'à l’épée' : 'au pistolet'}`,
+      weapon,
+      standard: true,
+      magnanimity: foe !== null,
+    };
+    this.active = 0;
+    if (weapon === 'sword') {
+      this.startSwordDuel({ a: me, b: other, first: 'a' }, terms);
+    } else {
+      this.askAim('Pointer l’arme', (aim) =>
+        this.pistolDuel(me, other, terms, { a: aim, b: 'wound' }));
+    }
+  }
+
   // ---------- désigner un rival ----------
 
   /**

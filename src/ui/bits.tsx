@@ -56,8 +56,8 @@ export function Stat({ k, v, bar }: { k: string; v: ReactNode; bar?: number }) {
 }
 
 export function Header({
-  season, game, onOpen,
-}: { season?: Season; game?: Game; onOpen?: (k: RefKind) => void }) {
+  season, game, onOpen, onGod,
+}: { season?: Season; game?: Game; onOpen?: (k: RefKind) => void; onGod?: () => void }) {
   return (
     <div className="app-header">
       <h1>
@@ -77,6 +77,9 @@ export function Header({
           <button className="link-btn" onClick={() => onOpen('ranks')}>Grades</button>
           <button className="link-btn" onClick={() => onOpen('opportunity')}>Opportunites</button>
         </nav>
+      )}
+      {onGod && (
+        <button className="gear" title="Atelier" onClick={onGod}>⚙</button>
       )}
     </div>
   );
