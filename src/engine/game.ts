@@ -60,6 +60,11 @@ type DuelRun = {
   returnTo: number;
 };
 
+/** Gravité comparée d'une blessure, pour retenir la pire de deux balles. */
+const GRAVITE: Record<string, number> = {
+  scratch: 1, flesh: 2, badly: 3, severely: 4, gravely: 5, killed: 6,
+};
+
 type Stage =
   | 'setup' | 'segment' | 'round-start' | 'draw' | 'round-over' | 'season-end' | 'game-over';
 
@@ -851,12 +856,22 @@ export class Game {
   /** Un Grognard sur le pré, vu par le moteur de duel. */
   private asDuelist(idx: number): Duelist {
     const c = this.chars[idx];
-    return { idx, name: c.name, F: c.F, H: c.H, auto: !!c.bot, persona: c.persona };
+    return { idx, pilot: idx, name: c.name, F: c.F, H: c.H, persona: c.persona };
   }
 
-  /** Un adversaire qui n'a pas de feuille : le Burger, le champion ennemi. */
-  private cardDuelist(name: string, F: number): Duelist {
-    return { idx: null, name, F, H: 0, auto: true };
+  /**
+   * Un personnage de carte. Il n'a pas de feuille — rien ne l'atteint — mais
+   * un Grognard peut tenir le rôle et choisir ses cartes ; `pilot` dit lequel,
+   * et son escrime et sa santé servent aux cartes d'avantage quand la carte le
+   * prévoit. Sans pilote, la machine s'en charge.
+   */
+  private cardDuelist(name: string, F: number, pilot: number | null = null, H = 0): Duelist {
+    return { idx: null, pilot, name, F, H };
+  }
+
+  /** La machine joue-t-elle ce duelliste ? */
+  private isAuto(d: Duelist): boolean {
+    return d.pilot === null || !!this.chars[d.pilot]?.bot;
   }
 
   /**
@@ -896,18 +911,18 @@ export class Game {
       const side = duel.turn!;
       const who = side === 'a' ? run.a : run.b;
       const choices = duel.choices();
-      const defending = duel.onTable !== null;
+      const answering = duel.answering;
       if (!choices.length) { this.playDuelCard(-1); continue; }
-      if (!who.auto) {
+      if (!this.isAuto(who)) {
         // le joueur tient les cartes : on lui rend la main et l'on attend
-        this.handOver(who.idx ?? 0);
+        this.handOver(who.pilot ?? 0);
         this.ask(
-          `${run.terms.label} — ${defending ? 'répondre' : 'attaquer'} (${choices.length ? duel.hands[side].length : 0} cartes en main)`,
+          `${run.terms.label} — ${answering ? 'répondre' : 'ouvrir'} (${duel.hands[side].length} carte${duel.hands[side].length > 1 ? 's' : ''} en main)`,
           choices.map((c, i) => ({ label: c.label, run: () => this.playDuelCard(i) })),
         );
         return;
       }
-      this.playDuelCard(duelChoice(choices, who.idx === null ? null : this.chars[who.idx], defending));
+      this.playDuelCard(duelChoice(choices, who.pilot === null ? null : this.chars[who.pilot], answering));
     }
     this.endSwordDuel();
   }
@@ -920,7 +935,7 @@ export class Game {
     const side = duel.turn!;
     const who = side === 'a' ? run.a : run.b;
     const before = duel.deals;
-    const responding = duel.onTable !== null;
+    const responding = duel.answering;
     const played = duel.play(i);
     if (played) {
       const what = played.card === 'no-card'
@@ -928,12 +943,12 @@ export class Game {
         : `${SWORD_LABEL[played.card]}${played.card !== 'parry' ? (played.aim === 'kill' ? ' pour tuer' : ' pour blesser') : ''}`;
       const line = `${who.name} ${responding ? 'répond' : 'attaque'} : ${what}.`;
       // la ligne appartient au bretteur, non au Grognard qui tenait la main
-      if (who.idx === null) this.add(line, 'card');
-      else this.asActor(who.idx, () => this.add(line, 'card'));
+      if (who.pilot === null) this.add(line, 'card');
+      else this.asActor(who.pilot, () => this.add(line, 'card'));
     }
     if (duel.deals > before && !duel.done) this.info('Les deux mains sont vides : on redistribue, le duel continue.');
     // relancé par le joueur : c'est ici que la boucle reprend
-    if (i >= 0 && !who.auto && !duel.done) { this.stepDuel(); return; }
+    if (i >= 0 && !this.isAuto(who) && !duel.done) { this.stepDuel(); return; }
     if (duel.done) this.endSwordDuel();
   }
 
@@ -1043,6 +1058,7 @@ export class Game {
     }
     const run: DuelRun = { sword: null, terms, a, b, returnTo: this.active };
     if (ord.bothMisfired) {
+      // « the duel can be over by mutual agreement » — les témoins l'entendent ainsi
       this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');
       this.applyDuelResults(run, null);
       terms.then?.(null);
@@ -1051,23 +1067,28 @@ export class Game {
     const order: Side[] = ord.first === 'a' ? ['a', 'b'] : ['b', 'a'];
     let outcome: SwordOutcome | null = null;
     let blessure: WoundRow | undefined;
+    /**
+     * Les deux tirent, chacun son tour. Le second ne renonce que s'il est tué
+     * ou **gravement** blessé — une égratignure ne dispense pas de rendre le
+     * coup — ou si son amorce a raté. Les deux peuvent donc tomber.
+     */
+    let arrete = false;
     for (const side of order) {
-      if (ord.misfire[side]) continue;
+      if (ord.misfire[side] || arrete) continue;
       const shooter = side === 'a' ? a : b;
       const target = side === 'a' ? b : a;
-      // on n'abat pas un bourgeois comme un officier : le viser touche sur 1-4
-      const cap = target.idx === null ? hitCap : 5;
+      // le Burger n'est pas un tireur : jouant son rôle, on ne touche que sur 1-4
+      const cap = shooter.idx === null ? hitCap : 5;
       const shot = pistolHits(this.rng, cap);
       this.roll(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
       if (!shot.hit) continue;
-      outcome = { woundedSide: other(side), winnerSide: side, aim: aims[side], deals: 0 };
-      blessure = this.duelWound(target, aims[side]);
-      // un homme tué ou gravement atteint ne rend pas son coup
-      if (target.idx !== null) {
-        const st = this.chars[target.idx].absent;
-        if (st?.type === 'death' || st?.type === 'convalescence') break;
+      const row = this.duelWound(target, aims[side]);
+      // le premier sang ne clôt pas l'affaire au pistolet : on garde le plus grave
+      if (!outcome || !blessure || GRAVITE[row.type] > GRAVITE[blessure.type]) {
+        outcome = { woundedSide: other(side), winnerSide: side, aim: aims[side], deals: 0 };
+        blessure = row;
       }
-      break;
+      if (row.type === 'killed' || row.type === 'gravely') arrete = true;
     }
     if (!outcome) this.info('Les deux balles se perdent : l’honneur est satisfait.');
     this.applyDuelResults(run, outcome);
@@ -2591,8 +2612,13 @@ export class Game {
     if (!cands.length) { this.info('Aucun Grognard pour servir Feraud : tour perdu.'); return; }
     this.askTarget('Qui sert de second à Feraud ?', cands, (idx) => {
       this.removed.add('second-to-dhubert');
+      // « Do not apply any results of the duel to the Grognard dueling as
+      // Feraud's second » : il tient les cartes, mais rien ne l'atteint. Son
+      // escrime et sa santé comptent tout de même pour les cartes d'avantage.
+      const foe = this.cardDuelist(`${this.chars[idx].name} (second de Feraud)`,
+        this.chars[idx].F, idx, this.chars[idx].H);
       this.startSwordDuel(
-        { a: this.asDuelist(this.active), b: this.asDuelist(idx), first: 'b' },
+        { a: this.asDuelist(this.active), b: foe, first: 'b' },
         {
           label: `Duel — second de D’Hubert contre second de Feraud (${this.chars[idx].name})`,
           weapon: 'sword',
@@ -2676,11 +2702,14 @@ export class Game {
       label: `${weapon === 'sword' ? 'Duel à l’épée' : 'Duel au pistolet'} — le Burger`,
       weapon,
       /**
-       * L'évènement ouvre un duel ordinaire : les deux hommes en subissent les
-       * résultats communs. Le E+1 et le G+3 que la carte rappelle sont ceux de
-       * la planche, ils ne s'y ajoutent pas. Seul le barème N/S lui appartient.
+       * La procédure est celle d'un duel ordinaire, mais pas ses résultats :
+       * « Do not apply any other modifications to the drawing Grognard's status
+       * as listed at F. Results of Duels (Exception: fencing F+1 if swords) ».
+       * Donc E+1 et G+3 de la carte, F+1 à l'épée, le barème N/S — et pas de
+       * S−3, que seul un duel entre Grognards fait payer.
        */
-      standard: true,
+      standard: false,
+      drawerEffects: weapon === 'sword' ? { E: 1, G: 3, F: 1 } : { E: 1, G: 3 },
       then: (o, blessure) => {
         if (o?.winnerSide !== 'a' || !blessure) return;
         // Avoir versé le sang d'un bourgeois se paie, et d'autant plus cher
@@ -2707,9 +2736,10 @@ export class Game {
      * — seul le tireur se bat vraiment. Le rôle revient au joueur dès qu'il
      * n'est pas le tireur ; c'est la machine qui s'en charge sinon.
      */
-    const burger = this.cardDuelist('Le Burger', this.chars[drawer].F);
+    // le rôle revient à un autre joueur ; chez nous, à l'humain dès qu'il n'est
+    // pas le tireur — sa feuille n'est de toute façon jamais touchée
     const roleAuJoueur = !!this.chars[drawer].bot;
-    burger.auto = !roleAuJoueur;
+    const burger = this.cardDuelist('Le Burger', this.chars[drawer].F, roleAuJoueur ? 0 : null);
     const fight = (weapon: 'sword' | 'pistol') => {
       this.handOver(drawer);
       if (weapon === 'sword') {
@@ -2922,10 +2952,37 @@ export class Game {
     const accepted = foe.bot
       ? acceptsDuel(foe, { F: this.chars[challenger].F, H: this.chars[challenger].H })
       : null;
-    const fight = () => this.startSwordDuel(
-      { a: this.asDuelist(challenger), b: this.asDuelist(idx), first: 'b' },
-      { label: `Duel — ${this.chars[challenger].name} contre ${foe.name}`, weapon: 'sword', standard: true, magnanimity: true },
-    );
+    const label = `Duel — ${this.chars[challenger].name} contre ${foe.name}`;
+    /**
+     * Celui qui accepte choisit l'arme (XVIII.B), puis, à l'épée, annonce qui
+     * pose la première carte (XVIII.C, étape 2). Les deux décisions lui
+     * appartiennent : ni le provocateur ni la carte n'en décident.
+     */
+    const fight = (weapon: 'sword' | 'pistol', first: Side) => {
+      this.handOver(challenger);
+      const terms: DuelTerms = { label, weapon, standard: true, magnanimity: true };
+      if (weapon === 'sword') {
+        this.startSwordDuel({ a: this.asDuelist(challenger), b: this.asDuelist(idx), first }, terms);
+      } else {
+        this.askAim('Pointer l’arme', (aim) =>
+          this.pistolDuel(this.asDuelist(challenger), this.asDuelist(idx), terms, { a: aim, b: 'wound' }));
+      }
+    };
+    /** Le défié arme la rencontre : l'acier ou la poudre, et qui ouvre. */
+    const armAndStart = () => {
+      if (foe.bot) {
+        // il prend le pistolet contre une meilleure lame, et laisse l'autre ouvrir
+        const weapon = this.chars[challenger].F > foe.F ? 'pistol' : 'sword';
+        fight(weapon, 'a');
+        return;
+      }
+      this.handOver(idx);
+      this.ask(`${this.chars[challenger].name} vous demande réparation — l’arme est à vous`, [
+        { label: 'L’épée, à lui d’ouvrir', run: () => fight('sword', 'a') },
+        { label: 'L’épée, j’ouvre', run: () => fight('sword', 'b') },
+        { label: 'Le pistolet', run: () => fight('pistol', 'a') },
+      ]);
+    };
     const refuse = () => {
       this.asActor(idx, () => this.applyStat('G', -5, 'défi décliné'));
       this.info(`${foe.name} refuse le fer.`);
@@ -2936,12 +2993,12 @@ export class Game {
       // concurrents décider à sa place.
       this.handOver(idx);
       this.ask(`${this.chars[challenger].name} demande réparation`, [
-        { label: 'Accepter le duel (S−3)', run: () => { this.handOver(challenger); fight(); } },
+        { label: 'Accepter le duel (S−3)', run: armAndStart },
         { label: 'Décliner (G−5)', run: () => { this.handOver(challenger); refuse(); } },
       ]);
       return;
     }
-    if (accepted) fight();
+    if (accepted) armAndStart();
     else refuse();
   }
 

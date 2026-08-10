@@ -22,8 +22,8 @@
     "Chacun prend une carte Fire, compte jusqu'à 3, révèle en pointant to Kill ou to Wound",
     "Misfire : chacun 2D10 ; 1-5 = raté, l'autre tire en premier (le raté ne tire pas). Double misfire : fin par accord mutuel ou on recommence",
     "Sinon 1D10 chacun, le plus haut tire en premier (relancer les égalités)",
-    "Tireur : 1D10 1-5 (1-4 contre le Burger) = adversaire touché",
-    "Le second tire ensuite sauf s'il est tué/gravement blessé ou si son pistolet a raté"
+    "Tireur : 1D10 1-5 (1-4 si c'est lui qui tient le Burger) = adversaire touché",
+    "Le second tire ensuite sauf s'il est tué ou gravement blessé, ou si son pistolet a raté ; les deux peuvent donc tomber"
   ],
   "results": {
     "wounded": "Le vainqueur lance 2D10 sur la Wound Table (+10 si 'to Wound' pointé)",

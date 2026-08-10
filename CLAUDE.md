@@ -150,24 +150,40 @@ carrière). C'est un gain de fidélité, pas un réglage de difficulté.
 il dit qui touche et avec quelle intention, jamais ce qu'il en coûte. C'est
 `game.ts` qui lance la table des blessures, et `policy.ts` qui choisit les cartes.
 
-Trois choses à savoir avant d'y toucher :
+**Le livret fait foi** : chapitre XVIII, pages 19 à 22 du PDF des règles. Il a
+démenti quatre lectures que nous tenions pour acquises — les voici, pour ne pas
+les refaire.
 
-- **Un duel n'est pas une pioche : c'est une suite de questions.** Le moteur
-  annonce de qui il attend une carte ; `stepDuel()` joue pour la machine et
-  s'arrête dès qu'un humain doit trancher. Un duel entre deux concurrents se
-  déroule donc d'un trait, sans passer par l'interface.
-- **La riposte inverse les rôles séance tenante** (`safe-and-counts-as-lunge`) :
-  c'est pourquoi la table d'interaction a une entrée `vs-riposte`. Deux mains
-  épuisées sans blessure ne closent rien — on redistribue, jusqu'à six fois.
-- **Pointer « pour blesser » ajoute 10 au jet de blessure**, donc adoucit :
-  1 % de morts contre 11 %. Les concurrents pointent pour blesser, sauf le
-  sabreur. C'est ce qui fait que réintroduire les duels n'a pas augmenté la
-  mortalité des parties témoins.
+- **Il n'y a ni attaquant ni défenseur.** « Les Grognards jouent tour à tour
+  leur carte *en réponse à celle que l'adversaire vient de poser* », et toute
+  issue non sanglante se conclut par « l'adversaire joue une autre carte ».
+  C'est une alternance stricte : chaque carte répond à la précédente et devient
+  celle à laquelle l'autre devra répondre. Notre modèle attaque/réponse faisait
+  jouer deux cartes de suite au même homme, et rendait le journal illisible.
+- **Qui tient les cartes n'est pas qui saigne.** Dans un duel contre un
+  personnage de carte, un autre Grognard tient le rôle et « is never affected in
+  any way by the results of the duel » — blessure comprise. D'où `pilot` et
+  `idx` séparés sur `Duelist` : l'un décide, l'autre encaisse.
+- **Les résultats communs ne s'appliquent pas à ces duels-là.** Chaque carte le
+  dit : « Do not apply any other modifications … (Exception: fencing F+1) ».
+  Le Burger vaut E+1, G+3, F+1 et son barème N/S — **pas** le S−3 du duel
+  ordinaire.
+- **Les gains d'un duel entre Grognards se cumulent**, et le texte l'écrit deux
+  fois (« an additional G+3 »). Tuer son homme vaut G+9, N−3, S−3, E+1, F+1.
+- **Le défié arme la rencontre** : il choisit l'épée ou le pistolet *et*
+  annonce qui pose la première carte.
+- **Au pistolet les deux tirent.** Le second ne renonce que s'il est tué ou
+  *gravement* blessé, ou si son amorce a raté — donc les deux peuvent tomber.
+  Et c'est celui qui **tient** le Burger qui ne touche que sur 1-4.
 
-Non traités, faute de règles fournies ou d'occasion : la magnanimité n'est
-offerte qu'au joueur (un concurrent frappe toujours), le fanatisme — rejouer un
-duel après avoir été gracié — n'est pas implémenté, et le cocuage attend
-*The Fair Sex*.
+Enfin, **pointer « pour blesser » ajoute 10 au jet de blessure**, donc adoucit :
+1 % de morts contre 11 %. Les concurrents pointent pour blesser, sauf le
+sabreur — c'est ce qui fait que les duels n'ont pas alourdi la mortalité.
+
+Restent à faire : le **fanatisme** (le gracié peut exiger qu'on rejoue, une fois
+par duel), la magnanimité pour les concurrents (ils frappent toujours), les
+griefs **multiples** — `flags.grievanceAgainst` n'en retient qu'un et les
+écrase — et leur extinction à la mort de l'offenseur.
 
 ## Les cartes sont lisibles : les planches sont là
 

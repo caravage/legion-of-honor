@@ -34,14 +34,20 @@ export interface DuelData {
 }
 
 /** Un duelliste, qu'il tienne une feuille de Grognard ou sorte d'une carte. */
+/**
+ * Un duelliste — et la distinction qui compte : **qui tient les cartes** n'est
+ * pas forcément **qui saigne**. Un Grognard désigné pour jouer le Burger décide
+ * de ses coups mais « is never affected in any way by the results of the duel »
+ * (XVIII.E) : sa feuille reste intacte, blessure comprise.
+ */
 export interface Duelist {
-  /** Index dans `Game.chars`, ou null pour un personnage de carte. */
+  /** Feuille touchée par le duel ; null pour un personnage de carte. */
   idx: number | null;
+  /** Qui choisit les cartes ; null : la machine. */
+  pilot: number | null;
   name: string;
   F: number;
   H: number;
-  /** La machine joue ce duelliste (concurrent ou personnage de carte). */
-  auto: boolean;
   persona?: string;
 }
 
@@ -87,18 +93,25 @@ const LABEL: Record<SwordCardType, string> = {
 const AIM_LABEL: Record<Aim, string> = { kill: 'pour tuer', wound: 'pour blesser' };
 
 /**
- * Un assaut à l'épée, joué carte après carte.
+ * Un assaut à l'épée.
  *
- * L'attaquant pose une carte, le défenseur y répond, et la table d'interaction
- * dit ce qu'il advient — touché, ou l'assaut continue et l'on sait qui reprend
- * la main. Deux mains épuisées sans blessure ne closent rien : on redistribue.
+ * Le texte (XVIII.C, étape 3) ne connaît ni attaquant ni défenseur : « les
+ * Grognards jouent tour à tour leur carte **en réponse à celle que l'adversaire
+ * vient de poser** ». Chaque carte répond donc à la précédente et devient
+ * aussitôt celle à laquelle l'autre devra répondre. Toute issue non sanglante
+ * se conclut par « l'adversaire joue une autre carte » : l'alternance ne
+ * s'interrompt jamais.
+ *
+ * Celui qui n'a plus de carte ne rend pas les armes pour autant : l'autre
+ * continue de poser les siennes, sans réponse — ce qui vaut blessure face à
+ * une botte ou une riposte, et rien face à une parade.
  */
 export class SwordDuel {
   hands: Record<Side, SwordCardType[]> = { a: [], b: [] };
-  /** Qui a posé la carte à laquelle on répond. */
-  attacker: Side;
-  /** La carte posée, en attente de réponse ; null : on attend une attaque. */
-  onTable: { card: SwordCardType; aim: Aim } | null = null;
+  /** La dernière carte posée, à laquelle il faut répondre. */
+  table: { card: SwordCardType; aim: Aim; side: Side } | null = null;
+  /** De qui l'on attend une carte. */
+  toPlay: Side;
   outcome: SwordOutcome | null = null;
   deals = 0;
 
@@ -106,10 +119,10 @@ export class SwordDuel {
     private readonly data: DuelData,
     private readonly rng: RNG,
     readonly setup: SwordSetup,
-    /** Au-delà, on considère que les deux bretteurs se sont épuisés. */
-    private readonly maxDeals = 6,
+    /** Garde-fou : deux bretteurs ne s'épuisent pas indéfiniment. */
+    private readonly maxDeals = 12,
   ) {
-    this.attacker = setup.first;
+    this.toPlay = setup.first;
     this.deal();
   }
 
@@ -131,29 +144,30 @@ export class SwordDuel {
       if (a.H - b.H >= 10) bonus.a++;
       else if (b.H - a.H >= 10) bonus.b++;
     } else if (health === 'random') {
-      // le champion ennemi : la santé se tire au sort, impair au tireur
+      // le champion ennemi : la carte de santé se tire au dé, impair au tireur
       bonus[d10(this.rng) % 2 === 1 ? 'a' : 'b']++;
     }
     if (this.setup.autoCard) bonus[this.setup.autoCard]++;
     this.hands.a = deck.splice(0, 5 + bonus.a);
     this.hands.b = deck.splice(0, 5 + bonus.b);
+    this.table = null;
+    this.toPlay = this.setup.first;
     this.deals++;
   }
 
   get done(): boolean { return this.outcome !== null; }
 
   /** De qui attend-on une carte ? */
-  get turn(): Side | null {
-    if (this.done) return null;
-    return this.onTable ? other(this.attacker) : this.attacker;
-  }
+  get turn(): Side | null { return this.done ? null : this.toPlay; }
 
-  get duelist(): Duelist { return this.turn === 'a' ? this.setup.a : this.setup.b; }
+  get duelist(): Duelist { return this.toPlay === 'a' ? this.setup.a : this.setup.b; }
+
+  /** Vrai si la carte attendue répond à une autre — la première ne répond à rien. */
+  get answering(): boolean { return this.table !== null; }
 
   /**
    * Les cartes jouables par celui dont c'est le tour. Une main vide ne rend
-   * rien : `play(-1)` la traduit en « pas de carte », qui est un coup reçu
-   * quand on répondait à une botte.
+   * rien : `play(-1)` la traduit en « pas de carte ».
    */
   choices(): SwordChoice[] {
     const side = this.turn;
@@ -166,22 +180,17 @@ export class SwordDuel {
         const key = `${card}/${aim ?? ''}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        out.push({
-          card,
-          aim,
-          label: aim ? `${LABEL[card]} ${AIM_LABEL[aim]}` : LABEL[card],
-        });
+        out.push({ card, aim, label: aim ? `${LABEL[card]} ${AIM_LABEL[aim]}` : LABEL[card] });
       }
     }
     return out;
   }
 
   /** Joue le choix d'indice `i` — ou, à −1, l'aveu qu'on n'a plus de carte. */
-  play(i: number): { card: SwordCardType | 'no-card'; aim: Aim; side: Side; verdict: string } | null {
+  play(i: number): { card: SwordCardType | 'no-card'; aim: Aim; side: Side; wounded: boolean } | null {
     const side = this.turn;
     if (!side) return null;
-    const list = this.choices();
-    const pick = list[i];
+    const pick = this.choices()[i];
     const card: SwordCardType | 'no-card' = pick ? pick.card : 'no-card';
     const aim: Aim = pick?.aim ?? 'wound';
     if (pick) {
@@ -189,44 +198,29 @@ export class SwordDuel {
       if (k >= 0) this.hands[side].splice(k, 1);
     }
 
-    // une attaque se pose sur la table ; c'est la réponse qui tranche
-    if (!this.onTable) {
-      if (card === 'no-card') { this.redealOrEnd(); return { card, aim, side, verdict: 'sans carte' }; }
-      this.onTable = { card, aim };
-      return { card, aim, side, verdict: 'en attente de réponse' };
+    let wounded = false;
+    if (this.table) {
+      const row = this.data.swordInteraction[`vs-${this.table.card}`] ?? {};
+      if ((row[card] ?? 'safe').includes('wounded')) {
+        // le coup porte, avec l'intention que lui donnait la carte reçue
+        this.outcome = {
+          woundedSide: side, winnerSide: other(side), aim: this.table.aim, deals: this.deals,
+        };
+        return { card, aim, side, wounded: true };
+      }
     }
 
-    const table = this.data.swordInteraction[`vs-${this.onTable.card}`] ?? {};
-    const verdict = table[card] ?? 'safe';
-    const attackAim = this.onTable.aim;
-    this.onTable = null;
+    // la carte posée devient celle à laquelle l'adversaire doit répondre
+    this.table = card === 'no-card' ? null : { card, aim, side };
+    this.toPlay = other(side);
 
-    if (verdict.includes('wounded')) {
-      // le défenseur encaisse la botte, avec l'intention qu'elle portait
-      this.finish(side, attackAim);
-      return { card, aim, side, verdict };
+    // personne n'a plus rien à poser : on redistribue, le duel continue
+    if (!this.hands.a.length && !this.hands.b.length) {
+      if (this.deals >= this.maxDeals) {
+        this.outcome = { woundedSide: null, winnerSide: null, aim: 'wound', deals: this.deals };
+      } else this.deal();
     }
-    if (verdict.includes('counts-as-lunge')) {
-      // la riposte devient une botte : les rôles s'inversent séance tenante
-      this.attacker = side;
-      this.onTable = { card: 'riposte', aim };
-      return { card, aim, side, verdict };
-    }
-    if (!verdict.includes('A-plays-next')) this.attacker = side;
-    if (!this.hands.a.length && !this.hands.b.length) this.redealOrEnd();
-    return { card, aim, side, verdict };
-  }
-
-  private redealOrEnd() {
-    if (this.deals >= this.maxDeals) {
-      this.outcome = { woundedSide: null, winnerSide: null, aim: 'wound', deals: this.deals };
-      return;
-    }
-    this.deal();
-  }
-
-  private finish(woundedSide: Side, aim: Aim) {
-    this.outcome = { woundedSide, winnerSide: other(woundedSide), aim, deals: this.deals };
+    return { card, aim, side, wounded };
   }
 }
 
