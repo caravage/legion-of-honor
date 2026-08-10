@@ -489,6 +489,38 @@ button.link:hover { background: none; color: #fff; }
   padding-left: 2px;
 }
 
+/* une ligne qui porte un calcul se déroule d'un clic */
+.line-fold { display: block; cursor: pointer; }
+.line-fold > summary {
+  list-style: none;
+  cursor: pointer;
+  display: block;
+}
+.line-fold > summary::-webkit-details-marker { display: none; }
+.line-fold > summary::after {
+  content: ' ⌄';
+  opacity: 0.45;
+  font-size: 0.8em;
+}
+.line-fold[open] > summary::after { content: ' ⌃'; }
+.line-fold > summary:hover { text-decoration: underline dotted; }
+.line-fold > .line-detail { display: block; padding-left: 10px; margin-top: 1px; }
+
+/* Un Grognard, un fait, un rang : ni filet ni retrait supplémentaires. */
+.line-solo { gap: 0 7px; padding-left: 0; }
+.line-solo.line-choice { border-left: none; padding-left: 0; font-weight: 500; }
+.line-solo > .who { flex: none; }
+.line-fold.line-solo > summary > .who { margin-right: 6px; }
+
+/* une décision logée dans le corps de sa carte */
+.line-choice {
+  font-weight: 600;
+  color: var(--navy-2);
+  border-left: 2px solid rgba(36, 52, 77, 0.3);
+  padding-left: 6px;
+  margin: 3px 0 1px;
+}
+
 .line-roll { color: #4a4335; font-style: italic; }
 .line-roll .line-text { font-variant-numeric: tabular-nums; }
 .line-ask { color: var(--navy-2); font-weight: 600; }
@@ -727,7 +759,7 @@ body { transition: background-color 0.8s ease; }
 }
 
 /* ---------- pioche ---------- */
-.draw-zone { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 6px 0; }
+.draw-zone { display: flex; width: 100%; flex-direction: column; align-items: center; gap: 10px; padding: 6px 0; }
 .draw-title {
   font-size: 0.72rem;
   letter-spacing: 2px;
@@ -736,7 +768,7 @@ body { transition: background-color 0.8s ease; }
 }
 .card-back {
   position: relative;
-  width: 152px;
+  width: 100%;
   padding: 0;
   border: 2px solid var(--gold);
   border-radius: 9px;
@@ -764,6 +796,17 @@ body { transition: background-color 0.8s ease; }
 
 /* ---------- carte Combat à côté de l'événement ---------- */
 .combat-slot { margin-top: 12px; }
+/* qui a tiré cette carte Combat */
+.combat-porteur {
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  text-align: center;
+  background: var(--navy);
+  color: var(--parchment);
+  border-radius: 0 0 4px 4px;
+}
 .combat-slot::before {
   content: 'Carte Combat';
   display: block;
@@ -884,11 +927,42 @@ button.link-btn:hover { background: rgba(244, 234, 212, 0.18); }
 }
 .ref-table td { padding: 4px 6px; border-bottom: 1px solid rgba(166, 124, 0, 0.22); }
 .ref-table tr.here { background: #fff0c9; font-weight: bold; }
+.who-chip {
+  display: inline-block;
+  font-size: 0.66rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  background: rgba(36, 52, 77, 0.14);
+  color: var(--navy-2);
+  border-radius: 9px;
+  padding: 0 6px;
+  margin: 0 3px 2px 0;
+  font-weight: 600;
+}
+.who-chip.who-me { background: rgba(139, 26, 26, 0.16); color: var(--accent); }
 .ref-table tfoot td { border: none; padding-top: 10px; line-height: 1.5; }
 
 .opp-season { margin-bottom: 18px; }
 .opp-season h4 { margin: 0 0 4px; color: var(--navy-2); font-variant: small-caps; }
-.opp-season.now { background: rgba(255, 240, 201, 0.55); border-radius: 4px; padding: 8px; }
+.opp-season.now {
+  background: rgba(255, 240, 201, 0.75);
+  border-radius: 4px;
+  padding: 10px;
+  border-left: 4px solid var(--accent);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+}
+.now-tag {
+  margin-left: 8px;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 9px;
+  padding: 1px 8px;
+  vertical-align: 2px;
+  font-variant: normal;
+}
 .opp-round { font-family: monospace; color: var(--accent); white-space: nowrap; }
 .cmd-chip {
   display: inline-block;
@@ -1052,8 +1126,23 @@ button.rival.acting {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.rival-line { opacity: 0.8; font-style: italic; }
-.rival-cmd { opacity: 0.6; font-size: 0.72rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* le grade se lisait à peine sur le fond sombre du bandeau */
+.rival-line { opacity: 1; color: #e8d9b5; font-style: italic; }
+.rival-cmd {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  opacity: 0.75;
+  font-size: 0.72rem;
+}
+.rival-cmd > :first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rival-standing {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 8px;
+  padding: 0 6px;
+}
 .rival-health {
   position: relative;
   height: 9px;
@@ -1138,3 +1227,36 @@ button.gear:hover svg { transform: rotate(60deg); }
 }
 .season-grid { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
 .season-grid button.chip { min-width: 42px; }
+/* ---------- signalement de bug ---------- */
+.link-btn.bug { color: #e8a06a; }
+.link-btn.bug:hover { color: #fff; }
+.bug-ou {
+  margin: 10px 0;
+  padding: 7px 10px;
+  background: rgba(36, 52, 77, 0.09);
+  border-left: 3px solid var(--navy-2);
+  border-radius: 0 3px 3px 0;
+  font-size: 0.82rem;
+  color: var(--navy-2);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.bug-texte {
+  width: 100%;
+  min-height: 110px;
+  padding: 9px 11px;
+  border: 1px solid var(--gold-soft);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+.bug-texte:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.bug-ok {
+  margin-top: 10px;
+  color: var(--green);
+  font-weight: 600;
+  font-size: 0.86rem;
+}

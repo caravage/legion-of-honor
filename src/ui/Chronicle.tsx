@@ -18,7 +18,10 @@ interface Section {
 function sectionize(entries: LogEntry[]): Section[] {
   const out: Section[] = [];
   entries.forEach((e, i) => {
-    const opens = e.cls === 'title' || e.cls === 'phase' || e.cls === 'card';
+    // Une décision (« ▸ … ») n'ouvre pas de bloc : elle appartient à la carte
+    // qui l'a provoquée. Sans quoi, les sections étant antéchronologiques, le
+    // choix et ses effets flottaient *au-dessus* de leur propre carte.
+    const opens = e.cls === 'title' || e.cls === 'phase' || (e.cls === 'card' && !!e.cardId);
     if (opens || out.length === 0) out.push({ head: e, headIdx: i, body: [] });
     else out[out.length - 1].body.push({ e, i });
   });
@@ -32,11 +35,26 @@ function titleKind(t: string): 'season' | 'round' | 'event' {
   return 'event';
 }
 
-function LogLine({ e, fresh }: { e: LogEntry; fresh: boolean }) {
+function LogLine({
+  e, fresh, who, moi,
+}: { e: LogEntry; fresh: boolean; who?: string | null; moi?: boolean }) {
+  // une décision garde son allure, même logée dans le corps de sa carte
+  const kind = e.cls === 'card' ? 'choice' : e.cls;
+  const cls = `line line-${kind}${who ? ' line-solo' : ''}${fresh ? ' fresh' : ''}`;
+  const badge = who ? <span className={`who${moi ? ' who-me' : ''}`}>{who}</span> : null;
+  // un calcul se replie derrière son résultat : on le déroule si on le veut
+  if (e.detail) {
+    return (
+      <details className={`${cls} line-fold`}>
+        <summary className="line-text">{badge}{e.t}</summary>
+        <span className="line-detail">{e.detail}</span>
+      </details>
+    );
+  }
   return (
-    <div className={`line line-${e.cls}${fresh ? ' fresh' : ''}`}>
+    <div className={cls}>
+      {badge}
       <span className="line-text">{e.t}</span>
-      {e.detail && <span className="line-detail">{e.detail}</span>}
     </div>
   );
 }
@@ -133,6 +151,21 @@ export function LogView({
                       && (runs.length > 1 || run.actor !== h.actor)
                       ? names[run.actor]
                       : null;
+                  // Un Grognard, une ligne : nom et fait sur le même rang, sans
+                  // filet ni retrait. C'est le cas de toutes les phases où
+                  // chacun ne dit qu'une chose — permission, revenus, gloire.
+                  if (run.lines.length === 1) {
+                    const { e, i } = run.lines[0];
+                    return (
+                      <LogLine
+                        key={k}
+                        e={e}
+                        fresh={i === revealed - 1}
+                        who={label}
+                        moi={run.actor === 0}
+                      />
+                    );
+                  }
                   return (
                     <div key={k} className={`run${label ? ' run-named' : ''}`}>
                       {label && (

@@ -1,6 +1,6 @@
 /** Ce qui montre une carte : son dos, sa photo, sa transcription, son agrandissement. */
 import { useState } from 'react';
-import { cardImage, cardNumber, commandName } from '../engine/data';
+import { cardImage, cardNumber, commandName, publicPath } from '../engine/data';
 import type { DeckEntry } from '../engine/game';
 import type { CampaignCard, CombatCard, Effects, GarrisonCard } from '../engine/cards';
 
@@ -12,7 +12,7 @@ export function CardBack({
     <div className="draw-zone">
       <div className="draw-title">{title}</div>
       <button className="card-back" onClick={onDraw} autoFocus title={label}>
-        <img src={`/cards/backs/${deck}.jpg`} alt="" />
+        <img src={publicPath(`cards/backs/${deck}.jpg`)} alt="" />
         <span className="back-hint">{label}</span>
       </button>
     </div>

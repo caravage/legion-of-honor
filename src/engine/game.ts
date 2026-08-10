@@ -94,6 +94,8 @@ export class Game {
   chars: Character[] = [];
   /** Index du Grognard dont c'est le tour. */
   active = 0;
+  /** Celui dont c'est le tour : il ne bouge pas quand un autre résout un effet. */
+  turnHolder = 0;
   get ch(): Character { return this.chars[this.active]; }
   /** Le joueur humain. */
   get me(): Character { return this.chars[0]; }
@@ -130,6 +132,8 @@ export class Game {
   currentCard: DeckEntry | null = null;
   /** Carte Combat de la bataille en cours, affichée à côté de la carte d'événement */
   combatCard: DeckEntry | null = null;
+  /** Les cartes Combat tirées pour l’évènement en cours, avec leur porteur. */
+  battleCards: { card: DeckEntry; who: number }[] = [];
   /** Cartes tirées depuis le début du round, pour consultation */
   drawnThisRound: { id: string; name: string }[] = [];
   /** « We Were There! » : Grognards restant à interroger pour la carte en cours */
@@ -230,6 +234,12 @@ export class Game {
 
   /** Gains d'un concurrent en attente d'être résumés en une ligne. */
   private briefBuf: string[] = [];
+  /**
+   * À qui appartient ce qui attend. Le tampon ne doit jamais enjamber deux
+   * Grognards : sans cela, les gains d'une bataille s'écrivaient sous la carte
+   * du suivant, et l'on croyait Reconnaissance responsable d'un butin.
+   */
+  private briefActor: number | null = null;
 
   private add(t: string, cls: LogClass, cardId?: string, detail?: string) {
     // Un concurrent ne commente pas ses dés : on retient l'essentiel et on le
@@ -242,6 +252,9 @@ export class Game {
         // les gains déjà mis de côté passent devant : l'ordre de lecture tient
         this.flushBrief();
       } else if (cls === 'gain' || cls === 'loss' || cls === 'info') {
+        // le tampon change de main : on solde le précédent avant d'ouvrir le sien
+        if (this.briefActor !== null && this.briefActor !== this.active) this.flushBrief();
+        this.briefActor = this.active;
         // On coupe le détail du calcul — « (1D10=4/2↓=2) » —, jamais la raison
         // d'une ligne : « Instructions ignorées (zèle de la carte précédente) »
         // amputée de sa parenthèse ne dit plus rien à personne. Le détail se
@@ -254,6 +267,42 @@ export class Game {
     this.snaps.push(
       this.chars.map((c) => ({ ...c, flags: { ...c.flags }, absent: c.absent ? { ...c.absent } : null })),
     );
+  }
+
+  /**
+   * Tout ce qu'il faut pour reproduire une situation signalée : l'état des
+   * Grognards, la carte en cours, et la fin du journal. Le tirage n'est pas
+   * rejouable — la partie tourne sur Math.random — mais le journal dit ce qui
+   * s'est passé, et c'est ce qui manque le plus quand on cherche une faute.
+   */
+  bugReport(message: string) {
+    const carte = (e: DeckEntry | null) => (e ? { kind: e.kind, id: e.card.id, name: e.card.name } : null);
+    return {
+      message,
+      date: new Date().toISOString(),
+      ou: {
+        saison: this.season,
+        round: this.roundCode(),
+        etape: this.stage,
+        sousEtape: this.sub,
+        actif: this.active,
+        aQuiLeTour: this.turnHolder,
+        senior: this.senior,
+        fileDuTour: this.turnQueue,
+      },
+      grognards: this.chars.map((c, i) => ({ i, ...c })),
+      table: {
+        carteEnCours: carte(this.currentCard),
+        carteCombat: carte(this.combatCard),
+        cartesCombat: this.battleCards.map((b) => ({ ...carte(b.card), qui: b.who })),
+        enAttente: this.pending?.title ?? null,
+        options: this.pending?.options.map((o) => o.label) ?? [],
+        filesDeBataille: this.battleQueue.map((b) => ({ nom: b.name, qui: b.who })),
+      },
+      deck: this.deck.map((d) => ({ kind: d.kind, id: d.card.id })),
+      tireesCeRound: this.drawnThisRound,
+      journal: this.log.slice(-150),
+    };
   }
 
   /** Cartes tirées dans le round en cours. */
@@ -575,7 +624,7 @@ export class Game {
   // ---------- blessures / mort / prison ----------
   checkWound(w: number): boolean {
     if (w <= 0) return false;
-    this.announce(`Blessure ? — touché sur 2D10 ≤ ${w} (soit ${w} chances sur 100)`);
+    this.announce(`Blessure ? — touché sur 2D10 ≤ ${w}`);
     const r = d100(this.rng);
     if (r > w) { this.roll(`2D10=${r} > ${w} — indemne.`); return false; }
     this.roll(`2D10=${r} ≤ ${w} — touché !`);
@@ -636,7 +685,7 @@ export class Game {
   checkPrisoner(p: number) {
     if (p <= 0) return;
     if (this.ch.absent?.type === 'death') return;
-    this.announce(`Prisonnier ? — capturé sur 2D10 ≤ ${p} (soit ${p} chances sur 100)`);
+    this.announce(`Prisonnier ? — capturé sur 2D10 ≤ ${p}`);
     const r = d100(this.rng);
     if (r <= p) { this.roll(`2D10=${r} ≤ ${p} — capturé !`); this.becomePrisoner(); }
     else this.roll(`2D10=${r} > ${p} — échappe à la capture.`);
@@ -1314,8 +1363,8 @@ export class Game {
    * Ligne condensée d'un concurrent : elle contourne la mise en attente. Le nom
    * n'y figure pas — le journal le porte en pastille, en tête du groupe.
    */
-  private brief(text: string) {
-    this.log.push({ t: text, cls: 'info', actor: this.active });
+  private brief(text: string, actor = this.active) {
+    this.log.push({ t: text, cls: 'info', actor });
     this.snaps.push(
       this.chars.map((c) => ({ ...c, flags: { ...c.flags }, absent: c.absent ? { ...c.absent } : null })),
     );
@@ -1323,9 +1372,11 @@ export class Game {
 
   /** Rend en une ligne ce qu'un concurrent vient de faire. */
   private flushBrief() {
-    if (!this.briefBuf.length) return;
+    if (!this.briefBuf.length) { this.briefActor = null; return; }
     const parts = this.briefBuf.splice(0);
-    this.brief(parts.join(' · '));
+    const qui = this.briefActor ?? this.active;
+    this.briefActor = null;
+    this.brief(parts.join(' · '), qui);
   }
 
   /** Vrai si l'on doit détailler : le joueur seul a droit aux jets commentés. */
@@ -1775,11 +1826,19 @@ export class Game {
     const lohM = ch.loh > 0 && !ch.armsOfHonor ? LOH_LEVELS[ch.loh - 1].income : 0;
     const total = rankM + officeM + titleM + lohM;
     const dest = ch.absent?.type === 'prisoner' ? 'MParis' : 'M';
-    this.info(
-      `Solde : ${total} F${dest === 'MParis' ? ' — versés à Paris, il est prisonnier' : ''}`,
-      `grade ${rankM} · office ${officeM} · titre ${titleM} · Légion d’Honneur ${lohM}`,
+    // Une seule ligne, de la même forme que la récupération — « Bourse +4 → 9 » —
+    // et le calcul derrière, à dérouler d'un clic.
+    const prop = dest === 'MParis' ? 'mParis' : 'mPurse';
+    const before = ch[prop];
+    if (total > 0) this.applyStat(dest, total, 'solde', true);
+    const gained = ch[prop] - before;
+    this.add(
+      `${dest === 'MParis' ? 'Paris' : 'Bourse'} +${gained} → ${ch[prop]}`
+        + (dest === 'MParis' ? ' (prisonnier : versé à Paris)' : ''),
+      gained > 0 ? 'gain' : 'info',
+      undefined,
+      `grade ${rankM} · office ${officeM} · titre ${titleM} · Légion d’Honneur ${lohM} = ${total} F`,
     );
-    if (total > 0) this.applyStat(dest, total, 'solde');
   }
 
   private buildDeck(code: string) {
@@ -1851,7 +1910,11 @@ export class Game {
 
   private stepDraw() {
     if (this.roundEnded || this.deck.length === 0) {
+      // le round se ferme : la table se débarrasse aussi de la carte Combat,
+      // qui restait sinon affichée jusqu'au prochain tirage
       this.currentCard = null;
+      this.combatCard = null;
+      this.battleCards = [];
       this.stage = 'round-over';
       this.sub = 0;
       return;
@@ -1859,6 +1922,7 @@ export class Game {
     // à qui le tour ? la rotation repart quand elle est épuisée
     if (!this.turnQueue.length) this.turnQueue = this.buildTurnQueue();
     this.active = this.turnQueue.shift()!;
+    this.turnHolder = this.active;
     if (this.chars.length > 1) this.who();
     const entry = this.deck.shift()!;
     this.currentCard = entry;
@@ -3275,13 +3339,20 @@ export class Game {
   private resolveCampaignEvent(c: CampaignCard) {
     const ch = this.ch;
     if (c.id === 'the-terror') {
-      // la carte le dit : elle ne trouve pas un homme absent
-      if (ch.absent) { this.info('Absent : la Terreur ne l’atteint pas.'); return; }
-      const r = d10(this.rng);
-      this.roll(`La Terreur : 1D10=${r}`);
-      if (r === 1) { this.warn('Guillotiné !'); this.die(); }
-      else if (r <= 3) { this.warn('Emprisonné : prochaine carte sans effet.'); ch.flags.skipReason = 'Emprisonné'; }
-      else this.info('Exonéré.');
+      // « commands: all » : chacun passe devant le Comité, non le seul piocheur.
+      // Un absent, lui, n'est pas là pour qu'on l'y traîne.
+      const first = this.active;
+      for (let i = 0; i < this.chars.length; i++) {
+        this.active = (first + i) % this.chars.length;
+        if (this.ch.absent) { this.info('Absent : la Terreur ne l’atteint pas.'); continue; }
+        if (this.chars.length > 1) this.who();
+        const r = d10(this.rng);
+        this.roll(`La Terreur : 1D10=${r}`);
+        if (r === 1) { this.warn('Guillotiné !'); this.die(); }
+        else if (r <= 3) { this.warn('Emprisonné : prochaine carte sans effet.'); this.ch.flags.skipReason = 'Emprisonné'; }
+        else this.info('Exonéré.');
+      }
+      this.active = first;
       return;
     }
     const drawer = this.active;
@@ -3303,16 +3374,20 @@ export class Game {
         if (engaged(cmds, this.chars[drawer])) { any = true; armistice = true; }
         continue;
       }
-      for (const idx of rotation) {
+      // certaines actions n'appartiennent qu'à celui qui a tiré la carte : les
+      // autres n'y étaient pas, quand bien même leur commandement y figure
+      const rota = ev.drawingGrognardOnly ? [drawer] : rotation;
+      for (const idx of rota) {
         const who = this.chars[idx];
         if (!engaged(cmds, who) || who.absent) continue;
         // les batailles des Cent-Jours n'engagent que les Bonapartistes
         if (/Bonapartistes/i.test(ev.condition ?? '') && !who.flags.bonapartist) continue;
         any = true;
         if (ev.noCombatCard) {
-          this.active = idx;
-          if (n > 1) this.who();
-          this.resolveFieldEvent(ev, c);
+          // Il rejoint la file au lieu d'être résolu sur-le-champ : une carte se
+          // joue dans son ordre de lecture, et le second évènement attend que le
+          // premier soit terminé pour tous ceux qu'il concerne.
+          battles.push({ ev: { ...ev, id: ev.id ?? c.id, noCombatCard: true }, name: ev.name ?? c.name, who: idx });
           continue;
         }
         if (ev.excluded !== undefined || ev.oneCombatCard || ev.oneEvent || ev.values) {
@@ -3339,10 +3414,13 @@ export class Game {
     const gStart = this.ch.G;
     const vals = ev.values ? (ev.values[this.category()] ?? ev.values.any) : null;
     if (vals) {
-      const { W, P, ...rest } = vals;
-      this.applyEffects(rest);
+      // l'ordre de la carte : on encaisse d'abord, on récolte ensuite — sinon
+      // un homme monte en grade avant qu'on sache s'il finit prisonnier
+      const { W, P, M, ...rest } = vals;
       if (W) this.checkWound(W);
       if (P && this.ch.absent?.type !== 'death') this.checkPrisoner(P);
+      this.applyEffects(rest);
+      if (M && this.ch.absent?.type !== 'prisoner') this.applyStat('M', M, 'butin');
     }
     if ((ev.legionOfHonor || ev.armsOfHonor) &&
         this.ch.absent?.type !== 'death' && this.ch.absent?.type !== 'prisoner') {
@@ -3353,11 +3431,15 @@ export class Game {
   // ---------- batailles ----------
 
   private queueBattles(list: { ev: CampaignSubEvent; name: string; who: number }[]) {
+    if (!this.battleQueue.length) this.battleCards = [];
     this.battleQueue.push(...list);
     this.nextBattle();
   }
 
   private nextBattle() {
+    // ce que le précédent a gagné se dit avant qu’un autre entre en lice,
+    // sans quoi ses lignes s’écrivent sous la carte du suivant
+    this.flushBrief();
     const t = this.battleQueue.shift();
     if (!t) {
       const f = this.afterBattles;
@@ -3372,6 +3454,13 @@ export class Game {
       return;
     }
     if (this.chars.length > 1) this.who();
+    // un évènement de terrain n'appelle pas de carte Combat, mais il prend son
+    // rang dans la file : c'est ainsi que l'ordre de lecture est respecté
+    if (t.ev.noCombatCard) {
+      this.resolveFieldEvent(t.ev, this.currentCard?.card as CampaignCard);
+      this.nextBattle();
+      return;
+    }
     this.resolveBattle(t.ev, t.name);
   }
 
@@ -3395,6 +3484,7 @@ export class Game {
     });
     const card = pool[Math.floor(this.rng() * pool.length)];
     this.combatCard = { kind: 'combat', card };
+    this.battleCards.push({ card: this.combatCard, who: this.active });
     this.drawnThisRound.push({ id: card.id, name: card.name });
     this.cardLog(`Carte Combat : ${card.name}`, card.id);
     if (combatBaseId(card.id) === 'victory-mont-st-jean') { this.resolveVictoryMSJ(); return; }
@@ -3473,10 +3563,9 @@ export class Game {
         this.info(this.ch.standing > 0 ? 'Cité dans les dépêches (standing).' : 'Son fait d’armes est passé sous silence (standing).');
       }
     }
-    if (N) this.applyStat('N', N, 'bataille');
-    if (G) this.applyStat('G', G, 'bataille');
-    if (E) this.applyStat('E', E, 'bataille');
-
+    // L'ordre de la carte, et il compte : blessure, capture, puis seulement les
+    // gains. Autrement le Grognard était promu avant qu'on sache s'il tombait
+    // aux mains de l'ennemi — et un prisonnier ne monte pas en grade.
     let becamePrisoner = false;
     if (glory) {
       const W = (cb.W ?? 0) + num(evv.W);
@@ -3487,6 +3576,10 @@ export class Game {
         becamePrisoner = ch.absent?.type === 'prisoner';
       }
     } else this.info('À distance respectueuse : ni blessure ni capture possibles.');
+
+    if (N) this.applyStat('N', N, 'bataille');
+    if (G) this.applyStat('G', G, 'bataille');
+    if (E) this.applyStat('E', E, 'bataille');
 
     if (ch.absent?.type !== 'death' && !becamePrisoner) {
       if (cb.M) this.applyStat('M', cb.M, 'butin');
@@ -3523,7 +3616,7 @@ export class Game {
   /** Jet de Légion d'Honneur : 1D10 ≤ gloire de la bataille ÷ 4. */
   private legionCheck(gained: number) {
     const target = Math.floor(Math.max(0, gained) / 4);
-    if (target <= 0) { this.info(`Gloire de la bataille : ${Math.max(0, gained)} — pas de quoi prétendre à une croix.`); return; }
+    if (target <= 0) return;   // aucune gloire gagnée : rien à annoncer
     this.announce(`Légion d’Honneur ? — décoré si 1D10 ≤ ${target} (gloire de la bataille ${Math.max(0, gained)} ÷ 4)`);
     const r = d10(this.rng);
     if (r <= target) {

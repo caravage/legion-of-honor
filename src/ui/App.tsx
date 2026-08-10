@@ -4,6 +4,7 @@ import type { SetupMode } from '../engine/game';
 import { generateName } from '../engine/names';
 import { pushHall } from '../engine/storage';
 import { Reference, RefKind } from './Reference';
+import { BugReport } from './BugReport';
 import { Header, ProgressBar } from './bits';
 import { CardBack, CardPeek, CardView } from './Cards';
 import { DiceTray } from './Dice';
@@ -242,11 +243,18 @@ export default function App() {
             ) : (
               <div className="placeholder">Aucune carte en jeu</div>
             )}
-            {game.combatCard && (
-              <div className="combat-slot">
-                <CardView entry={game.combatCard} category={game.category()} />
+            {/* toutes les cartes Combat de l'évènement restent sur la table,
+                chacune sous le nom de celui qui l'a tirée */}
+            {game.battleCards.map((b, k) => (
+              <div className="combat-slot" key={k}>
+                <CardView entry={b.card} category={game.category()} />
+                {game.chars.length > 1 && (
+                  <div className="combat-porteur">
+                    {b.who === 0 ? 'Vous' : game.chars[b.who].name}
+                  </div>
+                )}
               </div>
-            )}
+            ))}
           </div>
 
           <div className="stage-action">
@@ -311,7 +319,8 @@ export default function App() {
         />
       )}
       {peek && <CardPeek src={peek} onClose={() => setPeek(null)} />}
-      {modal && <Reference which={modal} game={game} onClose={() => setModal(null)} />}
+      {modal === 'bug' && <BugReport game={game} onClose={() => setModal(null)} />}
+      {modal && modal !== 'bug' && <Reference which={modal} game={game} onClose={() => setModal(null)} />}
       {god && (
         <GodMode game={game} onJump={jumpTo} onClose={() => setGod(false)} onChange={refresh} />
       )}

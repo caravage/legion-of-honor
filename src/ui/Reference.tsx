@@ -1,13 +1,14 @@
 import { Game } from '../engine/game';
 import { RANKS, SEASONS, CAMPAIGN_EVENTS, cardImage, commandName } from '../engine/data';
 
-export type RefKind = 'chronicles' | 'ranks' | 'opportunity' | 'cards';
+export type RefKind = 'chronicles' | 'ranks' | 'opportunity' | 'cards' | 'bug';
 
 const TITLES: Record<RefKind, string> = {
   chronicles: 'Chroniques du Grognard',
   ranks: 'Grades, seuils et soldes',
   opportunity: 'Fiche d’opportunité — qui se bat, et quand',
   cards: 'Cartes tirées dans ce round',
+  bug: 'Signaler un bug',
 };
 
 export function Reference({
@@ -50,31 +51,61 @@ function Chronicles({ game }: { game: Game }) {
 }
 
 function RanksTable({ game }: { game: Game }) {
-  const cur = game.ch.rankIdx;
   const cat = (c: string) =>
     c === 'line' ? 'officier de ligne' : c === 'field' ? 'officier supérieur' : 'officier général';
+  // qui se tient à chaque grade — le maréchalat est hors table, tout en haut
+  const at = (i: number) =>
+    game.chars
+      .map((c, k) => ({ c, k }))
+      .filter(({ c }) => !c.marechal && c.rankIdx === i);
   return (
     <table className="ref-table">
       <thead>
         <tr>
           <th>Grade</th><th>Catégorie</th><th>Notice</th><th>Gloire</th><th>Expér.</th><th>Solde</th>
+          <th>Qui</th>
         </tr>
       </thead>
       <tbody>
-        {RANKS.map((r: any, i: number) => (
-          <tr key={r.id} className={i === cur && !game.ch.marechal ? 'here' : ''}>
-            <td>{r.name}</td>
-            <td className="muted">{cat(r.category)}</td>
-            <td>{r.promotion ? r.promotion.N || '—' : '—'}</td>
-            <td>{r.promotion ? r.promotion.G : '—'}</td>
-            <td>{r.promotion ? r.promotion.E : '—'}</td>
-            <td>{r.income} F</td>
+        {RANKS.map((r, i) => {
+          const ici = at(i);
+          return (
+            <tr key={r.id} className={ici.some(({ k }) => k === 0) ? 'here' : ''}>
+              <td>{r.name}</td>
+              <td className="muted">{cat(r.category)}</td>
+              <td>{r.promotion ? r.promotion.N || '—' : '—'}</td>
+              <td>{r.promotion ? r.promotion.G : '—'}</td>
+              <td>{r.promotion ? r.promotion.E : '—'}</td>
+              <td>{r.income} F</td>
+              <td>
+                {ici.map(({ c, k }) => (
+                  <span key={k} className={`who-chip${k === 0 ? ' who-me' : ''}`}>
+                    {k === 0 ? 'vous' : c.name.split(' ').pop()}
+                  </span>
+                ))}
+              </td>
+            </tr>
+          );
+        })}
+        {game.chars.some((c) => c.marechal) && (
+          <tr className={game.me.marechal ? 'here' : ''}>
+            <td>Maréchal</td>
+            <td className="muted">officier général</td>
+            <td colSpan={3} className="muted">par carte Combat « Title? »</td>
+            <td>22 F</td>
+            <td>
+              {game.chars.map((c, k) => c.marechal && (
+                <span key={k} className={`who-chip${k === 0 ? ' who-me' : ''}`}>
+                  {k === 0 ? 'vous' : c.name.split(' ').pop()}
+                </span>
+              ))}
+            </td>
           </tr>
-        ))}
+        )}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={6} className="muted">
+          <td colSpan={7} className="muted">
             La notice n’est exigée qu’à partir de la saison VI. Le surplus de notice peut tenir lieu
             de gloire, un pour un ; deux points de gloire en trop valent un point d’expérience.
             Le bâton de maréchal ne s’obtient que par une carte Combat marquée « Title? », après la
@@ -93,15 +124,15 @@ function Opportunity({ game }: { game: Game }) {
         Quels commandements sont engagés à chaque bataille. Le vôtre est en surbrillance : c’est lui
         qui décide si vous verrez le feu. Choisir son armée, c’est choisir ses occasions de gloire.
       </p>
-      {SEASONS.map((s: any) => {
+      {SEASONS.map((s) => {
         const rows = (Object.entries(s.events) as [string, string[]][])
           .flatMap(([round, ids]) =>
             ids
               .map((id) => {
-                const ev: any = CAMPAIGN_EVENTS.find((e: any) => e.id === id);
+                const ev = CAMPAIGN_EVENTS.find((e) => e.id === id);
                 if (!ev) return null;
                 const cmds: string[] =
-                  ev.commands ?? (ev.subEvents ?? []).flatMap((x: any) => x.commands ?? []);
+                  ev.commands ?? (ev.subEvents ?? []).flatMap((x) => x.commands ?? []);
                 if (!cmds.length) return null;
                 return { round, name: ev.name, cmds: [...new Set(cmds)] };
               })
@@ -112,6 +143,7 @@ function Opportunity({ game }: { game: Game }) {
           <div key={s.num} className={`opp-season${s.num === game.season ? ' now' : ''}`}>
             <h4>
               Saison {s.roman} — {s.name} <span className="years">{s.years}</span>
+              {s.num === game.season && <span className="now-tag">vous y êtes</span>}
             </h4>
             <table className="ref-table">
               <tbody>
@@ -120,8 +152,9 @@ function Opportunity({ game }: { game: Game }) {
                     <td className="opp-round">{r.round}</td>
                     <td>{r.name}</td>
                     <td>
+                      {/* seule votre armée s'éclaire — jamais celle d'un concurrent */}
                       {r.cmds.map((c) => (
-                        <span key={c} className={`cmd-chip${c === game.ch.assignment ? ' mine' : ''}`}>
+                        <span key={c} className={`cmd-chip${c === game.me.assignment ? ' mine' : ''}`}>
                           {c === 'all' || c === 'all-not-spain' ? 'tous' : commandName(c)}
                         </span>
                       ))}

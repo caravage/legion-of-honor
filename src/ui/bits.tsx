@@ -76,6 +76,7 @@ export function Header({
           <button className="link-btn" onClick={() => onOpen('cards')}>Cartes du round</button>
           <button className="link-btn" onClick={() => onOpen('ranks')}>Grades</button>
           <button className="link-btn" onClick={() => onOpen('opportunity')}>Opportunites</button>
+          <button className="link-btn bug" onClick={() => onOpen('bug')}>🐞 Signaler un bug</button>
         </nav>
       )}
       {onGod && (

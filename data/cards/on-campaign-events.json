@@ -1,172 +1,909 @@
 {
   "comment": "On Campaign Event Cards 93-127 (numéros sûrs : 95-101, 103-105, 107, 109, 111, 113, 117-119, 122-127 ; autres déduits). commands = participants (Opportunity Sheet). excluded = cartes Combat exclues (redistribuer). values = valeurs W/P/N/G/E/M propres à l'event (s'ajoutent à la carte Combat). noCombatCard = pas de pioche Combat pour ce sous-event. armsOfHonor / legionOfHonor = jet d'attribution spécifique.",
   "cards": [
-    { "id": "battle-of-valmy", "num": 93, "numVerify": true, "round": "I-A", "name": "Battle of Valmy", "commands": ["army-north", "army-center"], "excluded": [] },
-    { "id": "battle-of-jemappes", "num": 94, "numVerify": true, "round": "I-B", "name": "Battle of Jemappes", "commands": ["army-north"], "excluded": [] },
     {
-      "id": "neerwinden-traitor", "num": 95, "round": "II-A", "name": "Battle of Neerwinden / Traitor",
+      "id": "battle-of-valmy",
+      "num": 93,
+      "numVerify": true,
+      "round": "I-A",
+      "name": "Battle of Valmy",
+      "commands": [
+        "army-north",
+        "army-center"
+      ],
+      "excluded": []
+    },
+    {
+      "id": "battle-of-jemappes",
+      "num": 94,
+      "numVerify": true,
+      "round": "I-B",
+      "name": "Battle of Jemappes",
+      "commands": [
+        "army-north"
+      ],
+      "excluded": []
+    },
+    {
+      "id": "neerwinden-traitor",
+      "num": 95,
+      "round": "II-A",
+      "name": "Battle of Neerwinden / Traitor",
       "subEvents": [
-        { "name": "Battle of Neerwinden", "commands": ["army-north"], "excluded": ["carry-the-day", "lead-counterattack", "telling-maneuver"] },
-        { "name": "Fire on Dumouriez", "commands": ["army-north"], "noCombatCard": true, "effects": { "N": 2, "G": 2, "E": 1 }, "verify": true }
+        {
+          "name": "Battle of Neerwinden",
+          "commands": [
+            "army-north"
+          ],
+          "excluded": [
+            "carry-the-day",
+            "lead-counterattack",
+            "telling-maneuver"
+          ]
+        },
+        {
+          "name": "Fire on Dumouriez",
+          "commands": [
+            "army-north"
+          ],
+          "noCombatCard": true,
+          "effects": {
+            "N": 2,
+            "G": 2,
+            "E": 1
+          },
+          "drawingGrognardOnly": true,
+          "note": "« Si el Grognard que roba la carta » : le piocheur seul."
+        }
       ]
     },
     {
-      "id": "rebellion-vendee", "num": 96, "round": "II-B", "name": "Rebellion in the Vendee",
-      "commands": ["army-reserve"], "noCombatCard": true, "noArmsOfHonor": true,
-      "values": { "line": { "W": 2, "P": 0, "N": 4, "G": 3, "E": 2, "M": "+1D10/2up" }, "field": { "W": 1, "P": 0, "N": 4, "G": 2, "E": 3, "M": "+1D10" }, "general": { "W": 0, "P": 0, "N": 4, "G": 1, "E": 4, "M": "+1D10x2" } },
-      "verify": true, "wwt": { "restrictedTo": "army-reserve" }
+      "id": "rebellion-vendee",
+      "num": 96,
+      "round": "II-B",
+      "name": "Rebellion in the Vendee",
+      "commands": [
+        "army-reserve"
+      ],
+      "noCombatCard": true,
+      "noArmsOfHonor": true,
+      "values": {
+        "line": {
+          "W": 7,
+          "P": 3,
+          "E": 2
+        },
+        "field": {
+          "W": 5,
+          "P": 1,
+          "E": 3
+        },
+        "general": {
+          "W": 4,
+          "P": 3,
+          "E": 4
+        }
+      },
+      "wwt": {
+        "restrictedTo": "army-reserve"
+      },
+      "note": "Le piocheur y prend part par son commandement ; les autres passent par le jet de We Were There.",
+      "drawingGrognardOnly": true
     },
     {
-      "id": "siege-of-toulon", "num": 97, "round": "II-B", "name": "Siege of Toulon",
-      "commands": ["army-reserve"], "noCombatCard": true, "noPrisoner": true, "armsOfHonor": true,
-      "values": { "line": { "W": 7, "P": 3, "E": 2 }, "field": { "W": 5, "P": 1, "E": 3 }, "general": { "W": 3, "P": 0, "E": 4 } },
-      "verify": true,
-      "note": "Jet de blessure selon le grade, pas de jet prisonnier"
+      "id": "siege-of-toulon",
+      "num": 97,
+      "round": "II-B",
+      "name": "Siege of Toulon",
+      "drawingGrognardOnly": true,
+      "commands": [
+        "army-reserve"
+      ],
+      "noCombatCard": true,
+      "armsOfHonor": true,
+      "values": {
+        "line": {
+          "W": 2,
+          "P": 0,
+          "N": 4,
+          "G": 3,
+          "E": 2,
+          "M": "+1D10/2up"
+        },
+        "field": {
+          "W": 1,
+          "P": 0,
+          "N": 4,
+          "G": 2,
+          "E": 3,
+          "M": "+1D10"
+        },
+        "general": {
+          "W": 0,
+          "P": 0,
+          "N": 4,
+          "G": 1,
+          "E": 4,
+          "M": "+1D10x2"
+        }
+      },
+      "note": "Traitée comme une bataille, sans carte Combat, avec contrôle d’Arms of Honor. Le piocheur seul."
     },
     {
-      "id": "the-terror", "num": 98, "round": "II-C", "name": "The Terror",
-      "commands": ["all"], "appliesEvenIfPrisoner": false,
-      "roll": { "die": "1D10", "results": { "1": "guillotiné (mort, procédure normale)", "2-3": "emprisonné : pioche sa/ses prochaines cartes du round mais ne les applique pas (participe quand même à Fleurus si tirée : non)", "4-10": "exonéré" } }
+      "id": "the-terror",
+      "num": 98,
+      "round": "II-C",
+      "name": "The Terror",
+      "commands": [
+        "all"
+      ],
+      "appliesEvenIfPrisoner": false,
+      "roll": {
+        "die": "1D10",
+        "results": {
+          "1": "guillotiné (mort, procédure normale)",
+          "2-3": "emprisonné : pioche sa/ses prochaines cartes du round mais ne les applique pas (participe quand même à Fleurus si tirée : non)",
+          "4-10": "exonéré"
+        }
+      }
     },
-    { "id": "battle-of-fleurus", "num": 99, "round": "II-C", "name": "Battle of Fleurus", "commands": ["army-sambre-meuse", "army-north"], "excluded": [] },
     {
-      "id": "lodi-castiglione", "num": 100, "round": "III-A", "name": "Bridge at Lodi / Battle of Castiglione",
+      "id": "battle-of-fleurus",
+      "num": 99,
+      "round": "II-C",
+      "name": "Battle of Fleurus",
+      "commands": [
+        "army-sambre-meuse",
+        "army-north"
+      ],
+      "excluded": []
+    },
+    {
+      "id": "lodi-castiglione",
+      "num": 100,
+      "round": "III-A",
+      "name": "Bridge at Lodi / Battle of Castiglione",
       "subEvents": [
-        { "name": "The Bridge at Lodi", "commands": ["army-italy"], "condition": "grade line uniquement", "noCombatCard": true, "armsOfHonor": true, "choice": true, "values": { "line": { "W": 30, "N": 4, "G": 9, "E": 1, "M": "+2D10" } }, "verify": true },
-        { "name": "Battle of Castiglione", "commands": ["army-italy"], "excluded": [] }
+        {
+          "name": "The Bridge at Lodi",
+          "commands": [
+            "army-italy"
+          ],
+          "condition": "grade line uniquement",
+          "noCombatCard": true,
+          "armsOfHonor": true,
+          "choice": true,
+          "values": {
+            "line": {
+              "W": 30,
+              "N": 4,
+              "G": 9,
+              "E": 4,
+              "M": "+2D10"
+            }
+          }
+        },
+        {
+          "name": "Battle of Castiglione",
+          "commands": [
+            "army-italy"
+          ],
+          "excluded": [],
+          "effects": {
+            "N": 2
+          }
+        }
       ]
     },
     {
-      "id": "arcola-rivoli", "num": 101, "round": "III-B", "name": "Guides at Arcola / Battle of Rivoli",
+      "id": "arcola-rivoli",
+      "num": 101,
+      "round": "III-B",
+      "name": "Guides at Arcola / Battle of Rivoli",
       "subEvents": [
-        { "name": "Ride with the Guides at Arcola", "commands": ["army-italy"], "noCombatCard": true, "armsOfHonor": true, "choice": true, "wwt": { "restrictedTo": "army-italy" }, "values": { "any": { "W": 10, "P": 3, "N": 5, "G": 8, "E": 3 } }, "verify": true },
-        { "name": "Battle of Rivoli", "commands": ["army-italy"], "excluded": ["held-in-reserve"] }
+        {
+          "name": "Ride with the Guides at Arcola",
+          "commands": [
+            "army-italy"
+          ],
+          "noCombatCard": true,
+          "armsOfHonor": true,
+          "choice": true,
+          "wwt": {
+            "restrictedTo": "army-italy"
+          },
+          "values": {
+            "line": {
+              "W": 15,
+              "P": 4,
+              "N": 5,
+              "G": 8,
+              "E": 3
+            },
+            "field": {
+              "W": 10,
+              "P": 3,
+              "N": 5,
+              "G": 6,
+              "E": 3
+            },
+            "general": {
+              "W": 5,
+              "P": 2,
+              "N": 6,
+              "G": 4,
+              "E": 3
+            }
+          },
+          "drawingGrognardOnly": true,
+          "note": "Le piocheur y prend part par son commandement ; les autres passent par le jet de We Were There."
+        },
+        {
+          "name": "Battle of Rivoli",
+          "commands": [
+            "army-italy"
+          ],
+          "excluded": [
+            "held-in-reserve"
+          ]
+        }
       ]
     },
     {
-      "id": "battle-of-the-pyramids", "num": 102, "numVerify": true, "round": "IV-A", "name": "Battle of the Pyramids",
-      "commands": ["army-orient"], "excluded": ["unit-overrun", "unit-decimated"],
-      "values": { "any": { "N": 2, "M": "+1D10" } }, "verify": true
-    },
-    {
-      "id": "first-zurich-trebbia", "num": 103, "round": "IV-B", "name": "Battles of First Zurich & Trebbia",
-      "subEvents": [
-        { "name": "Battle of First Zurich", "commands": ["army-helvetia"], "excluded": [] },
-        { "name": "Battle of Trebbia", "commands": ["army-italy"], "excluded": ["carry-the-day", "telling-maneuver"], "verify": true }
-      ]
-    },
-    {
-      "id": "victories-and-defeat", "num": 104, "round": "IV-C", "name": "Victories & Defeat",
-      "subEvents": [
-        { "name": "Battle of Aboukir", "commands": ["army-orient"], "values": { "any": { "N": 2 } }, "excluded": ["unit-overrun", "unit-decimated"], "verify": true },
-        { "name": "Battle of Novi", "commands": ["army-italy"], "excluded": ["carry-the-day", "telling-maneuver"], "verify": true },
-        { "name": "Battle of Second Zurich", "commands": ["army-helvetia"], "excluded": ["unit-overrun", "unit-decimated"], "verify": true },
-        { "name": "Battle of Castricum", "commands": ["army-north"], "excluded": [] }
-      ]
-    },
-    {
-      "id": "st-bernard-marengo", "num": 105, "round": "V-A", "name": "St. Bernard Pass / Battle of Marengo",
-      "subEvents": [
-        { "name": "Cross Alps at St. Bernard Pass", "commands": ["army-reserve"], "noCombatCard": true, "wwt": { "restrictedTo": "army-reserve" }, "values": { "any": { "N": 3, "G": 1, "E": 2 } }, "verify": true },
-        { "name": "Battle of Marengo", "commands": ["army-reserve"], "excluded": ["held-in-reserve"], "verify": true }
-      ]
-    },
-    { "id": "battle-of-hohenlinden", "num": 106, "numVerify": true, "round": "V-B", "name": "Battle of Hohenlinden", "commands": ["army-rhine"], "excluded": ["unit-overrun"] },
-    {
-      "id": "elchingen-danube", "num": 107, "round": "VII-A", "name": "Battle of Elchingen / Danube Bridge",
-      "subEvents": [
-        { "name": "Battle of Elchingen", "commands": ["corps-2", "corps-4", "corps-5", "corps-6"], "noPrisonerOnCombatCard": true, "note": "Tous les Grognards des II, IV, V, VI Corps ; VI Corps : carte Combat exclue = ?", "verify": true },
-        { "name": "Capture of the Danube Bridge", "drawingGrognardOnly": true, "noCombatCard": true, "legionOfHonor": true, "wwt": true, "values": { "any": { "N": 3, "G": 5, "E": 3, "M": "+1D10x2" } }, "verify": true }
-      ]
-    },
-    { "id": "battle-of-austerlitz", "num": 108, "numVerify": true, "round": "VII-B", "name": "Battle of Austerlitz", "commands": ["corps-1", "corps-3", "corps-4", "corps-5"], "values": { "any": { "N": 4 } }, "excluded": ["unit-overrun"], "verify": true },
-    {
-      "id": "jena-auerstadt", "num": 109, "round": "VIII-A", "name": "Battles of Jena and Auerstadt",
-      "commands": ["corps-1", "corps-3", "corps-4", "corps-5", "corps-6", "corps-7"], "oneCombatCard": true,
-      "note": "Un seul event, deux batailles ; aucun corps dans les deux. Cartes Combat varient selon corps (exclusions par corps).", "verify": true
-    },
-    {
-      "id": "battle-of-eylau", "num": 110, "numVerify": true, "round": "IX-A", "name": "Battle of Eylau",
-      "commands": ["corps-3", "corps-4", "corps-6", "corps-7"],
-      "note": "Exclusions de cartes Combat selon corps (III, IV, VII : Held in Reserve ; Lead Counterattack, Defend the Position pour VI ?)", "verify": true
-    },
-    {
-      "id": "danzig-friedland", "num": 111, "round": "IX-B", "name": "Capitulation of Danzig / Battle of Friedland",
-      "subEvents": [
-        { "name": "Capitulation of Danzig", "commands": ["corps-reserve"], "noCombatCard": true, "legionOfHonor": true, "values": { "any": { "N": "+1D10/2down", "M": "+2D10", "G": 4, "E": 5 } }, "verify": true },
-        { "name": "Battle of Friedland", "commands": ["corps-1", "corps-6", "corps-reserve"], "values": { "any": { "N": 2 } }, "excluded": ["unit-overrun"], "verify": true }
-      ]
-    },
-    { "id": "battle-of-eckmuhl", "num": 112, "numVerify": true, "round": "XI-A", "name": "Battle of Eckmühl", "commands": ["corps-2", "corps-3", "corps-4"], "excluded": ["held-in-reserve"], "note": "III Corps : commandement indépendant (Battle Command). Exclusions à vérifier.", "verify": true },
-    {
-      "id": "vienna-aspern-essling", "num": 113, "round": "XI-B", "name": "Vienna / Battle of Aspern-Essling",
-      "subEvents": [
-        { "name": "Capture of Vienna", "commands": ["corps-2", "corps-3", "corps-4"], "noCombatCard": true, "values": { "any": { "N": 2 } }, "verify": true },
-        { "name": "Battle of Aspern-Essling", "commands": ["corps-2", "corps-4"], "excluded": ["carry-the-day", "telling-maneuver"], "verify": true }
-      ]
-    },
-    {
-      "id": "battle-of-wagram", "num": 114, "numVerify": true, "round": "XI-C", "name": "Battle of Wagram",
-      "commands": ["corps-2", "corps-3", "corps-4", "corps-9", "corps-11", "army-italy"],
-      "special": "Grognards du IX Corps piochent en premier, puis les autres dans l'ordre. Carry the Day exclue pour IX Corps (Bernadotte) ; s'il tire une carte avec Telling Maneuver W/P/N/G/E : valeurs ignorées, N-10, G-7.",
+      "id": "battle-of-the-pyramids",
+      "num": 102,
+      "numVerify": true,
+      "round": "IV-A",
+      "name": "Battle of the Pyramids",
+      "commands": [
+        "army-orient"
+      ],
+      "excluded": [
+        "unit-overrun",
+        "unit-decimated"
+      ],
+      "values": {
+        "any": {
+          "N": 2,
+          "M": "+1D10x2"
+        }
+      },
       "verify": true
     },
     {
-      "id": "march-into-russia", "num": 115, "numVerify": true, "round": "XIII-A", "name": "March into Russia",
-      "commands": ["corps-1", "corps-3", "corps-4", "corps-7", "corps-8", "corps-10"], "noCombatCard": true,
-      "values": { "line": { "W": 25, "E": 3, "M": -5, "H": -5 }, "field": { "W": 15, "E": 5, "M": -10, "H": -5 }, "general": { "W": 5, "E": 7, "M": -15, "H": -5 } },
-      "note": "Si M insuffisant : contracte la dysenterie, H-5 additionnel", "verify": true
-    },
-    { "id": "battle-of-borodino", "num": 116, "numVerify": true, "round": "XIII-B", "name": "Battle of Borodino", "commands": ["corps-1", "corps-3", "corps-4", "corps-8"], "values": { "any": { "N": 2 } }, "excluded": [], "verify": true },
-    {
-      "id": "moscow-berezina", "num": 117, "round": "XIII-C", "name": "Moscow / Berezina",
+      "id": "first-zurich-trebbia",
+      "num": 103,
+      "round": "IV-B",
+      "name": "Battles of First Zurich & Trebbia",
       "subEvents": [
-        { "name": "Burning of Moscow", "commands": ["corps-1", "corps-3", "corps-4", "corps-8"], "noCombatCard": true, "values": { "line": { "W": 10, "E": 2, "M": "+1D10" }, "field": { "W": 8, "E": 3, "M": "+1D10x2" }, "general": { "W": 6, "E": 4, "M": "+1D10x3" } }, "verify": true },
-        { "name": "Cross the Berezina", "commands": ["corps-1", "corps-3", "corps-4", "corps-8"], "noCombatCard": true, "values": { "line": { "W": 20, "E": 4 }, "field": { "W": 15, "E": 5 }, "general": { "W": 10, "E": 6 } }, "special": "Chaque Grognard 2D10 : une fois pour la bourse, une fois pour la santé ; bourse réduite de (jet x10)%, santé réduite de l'autre jet (à préciser)", "verify": true }
+        {
+          "name": "Battle of First Zurich",
+          "commands": [
+            "army-helvetia"
+          ],
+          "excluded": []
+        },
+        {
+          "name": "Battle of Trebbia",
+          "commands": [
+            "army-italy"
+          ],
+          "excluded": [
+            "carry-the-day",
+            "telling-maneuver"
+          ],
+          "verify": true
+        }
       ]
     },
     {
-      "id": "lutzen-bautzen-armistice", "num": 118, "round": "XIV-A", "name": "Lützen & Bautzen / Armistice",
+      "id": "victories-and-defeat",
+      "num": 104,
+      "round": "IV-C",
+      "name": "Victories & Defeat",
       "subEvents": [
-        { "name": "Battles of Lützen & Bautzen", "commands": ["corps-3", "corps-4", "corps-5", "corps-6", "corps-7"], "excluded": [], "oneEvent": true },
-        { "name": "The Armistice", "commands": ["all-not-spain"], "special": "Génère un round In Garrison d'une carte : chaque Grognard (sauf Espagne) en rotation horaire tire une carte et agit ; ignorer End of Round?. Pas de permission ni duel.", "verify": true }
+        {
+          "name": "Battle of Aboukir",
+          "commands": [
+            "army-orient"
+          ],
+          "values": {
+            "any": {
+              "N": 2
+            }
+          },
+          "excluded": [
+            "unit-overrun",
+            "unit-decimated"
+          ]
+        },
+        {
+          "name": "Battle of Novi",
+          "commands": [
+            "army-italy"
+          ],
+          "excluded": [
+            "carry-the-day",
+            "telling-maneuver"
+          ]
+        },
+        {
+          "name": "Battle of Second Zurich",
+          "commands": [
+            "army-helvetia"
+          ],
+          "excluded": [
+            "unit-overrun",
+            "unit-decimated"
+          ]
+        },
+        {
+          "name": "Battle of Castricum",
+          "commands": [
+            "army-north"
+          ],
+          "excluded": [
+            "unit-overrun",
+            "unit-decimated"
+          ]
+        }
       ]
     },
     {
-      "id": "dresden-katzbach", "num": 119, "round": "XIV-B", "name": "Battles of Dresden & Katzbach",
-      "commands": ["corps-3", "corps-4", "corps-5", "corps-6", "corps-7"], "oneCombatCard": true,
-      "special": "IV et VII Corps à Dresde : toutes cartes Combat. Sur la Katzbach : Carry the Day exclue.", "verify": true
+      "id": "st-bernard-marengo",
+      "num": 105,
+      "round": "V-A",
+      "name": "St. Bernard Pass / Battle of Marengo",
+      "subEvents": [
+        {
+          "name": "Cross Alps at St. Bernard Pass",
+          "commands": [
+            "army-reserve"
+          ],
+          "noCombatCard": true,
+          "wwt": {
+            "restrictedTo": "army-reserve"
+          },
+          "values": {
+            "any": {
+              "N": 3,
+              "G": 1,
+              "E": 2
+            }
+          },
+          "verify": true,
+          "drawingGrognardOnly": true,
+          "note": "Le piocheur y prend part par son commandement ; les autres passent par le jet de We Were There."
+        },
+        {
+          "name": "Battle of Marengo",
+          "commands": [
+            "army-reserve"
+          ],
+          "excluded": [
+            "held-in-reserve"
+          ],
+          "verify": true,
+          "values": {
+            "any": {
+              "N": 4
+            }
+          }
+        }
+      ]
     },
-    { "id": "battle-of-leipzig", "num": 120, "numVerify": true, "round": "XIV-C", "name": "Battle of Leipzig", "commands": ["corps-3", "corps-4", "corps-5", "corps-6", "corps-7"], "excluded": ["carry-the-day"] },
-    { "id": "battle-of-la-rothiere", "num": 121, "numVerify": true, "round": "XV-A", "name": "Battle of La Rothiere", "commands": ["imperial-guard", "corps-2", "corps-6", "corps-reserve"], "excluded": ["unit-flanked", "unit-overrun", "unit-decimated", "held-in-reserve"], "verify": true },
     {
-      "id": "six-days-of-glory", "num": 122, "round": "XV-B", "name": "Battles of the Six Days of Glory",
-      "commands": ["imperial-guard", "corps-6"], "oneEvent": true,
-      "excluded": ["unit-flanked", "unit-overrun", "unit-decimated", "held-in-reserve"], "verify": true
+      "id": "battle-of-hohenlinden",
+      "num": 106,
+      "round": "V-B",
+      "name": "Battle of Hohenlinden",
+      "commands": [
+        "army-rhine"
+      ],
+      "excluded": [
+        "unit-overrun"
+      ],
+      "values": {
+        "any": {
+          "N": 2,
+          "M": "+1D10x2"
+        }
+      }
     },
     {
-      "id": "battle-of-ligny", "num": 123, "round": "XVI-A1", "name": "Battle of Ligny",
-      "commands": ["imperial-guard", "corps-3", "corps-4", "corps-6"], "condition": "Bonapartistes uniquement", "excluded": [],
+      "id": "elchingen-danube",
+      "num": 107,
+      "round": "VII-A",
+      "name": "Battle of Elchingen / Danube Bridge",
+      "subEvents": [
+        {
+          "name": "Battle of Elchingen",
+          "commands": [
+            "corps-2",
+            "corps-4",
+            "corps-5",
+            "corps-6"
+          ],
+          "noPrisonerOnCombatCard": true,
+          "note": "Tous les Grognards des II, IV, V, VI Corps ; VI Corps : carte Combat exclue = ?",
+          "verify": true,
+          "excluded": [
+            "carry-the-day"
+          ]
+        },
+        {
+          "name": "Capture of the Danube Bridge",
+          "drawingGrognardOnly": true,
+          "noCombatCard": true,
+          "legionOfHonor": true,
+          "wwt": true,
+          "values": {
+            "any": {
+              "N": 3,
+              "G": 5,
+              "E": 3,
+              "M": "+1D10x2"
+            }
+          },
+          "verify": true
+        }
+      ]
+    },
+    {
+      "id": "battle-of-austerlitz",
+      "num": 108,
+      "numVerify": true,
+      "round": "VII-B",
+      "name": "Battle of Austerlitz",
+      "commands": [
+        "corps-1",
+        "corps-3",
+        "corps-4",
+        "corps-5"
+      ],
+      "values": {
+        "any": {
+          "N": 4
+        }
+      },
+      "excluded": [
+        "unit-overrun"
+      ],
+      "verify": true
+    },
+    {
+      "id": "jena-auerstadt",
+      "num": 109,
+      "round": "VIII-A",
+      "name": "Battles of Jena and Auerstadt",
+      "commands": [
+        "corps-1",
+        "corps-3",
+        "corps-4",
+        "corps-5",
+        "corps-6",
+        "corps-7"
+      ],
+      "oneCombatCard": true,
+      "note": "Un seul event, deux batailles ; aucun corps dans les deux. Cartes Combat varient selon corps (exclusions par corps).",
+      "verify": true,
+      "excluded": [
+        "unit-overrun"
+      ]
+    },
+    {
+      "id": "battle-of-eylau",
+      "num": 110,
+      "numVerify": true,
+      "round": "IX-A",
+      "name": "Battle of Eylau",
+      "commands": [
+        "corps-3",
+        "corps-4",
+        "corps-6",
+        "corps-7"
+      ],
+      "note": "Exclusions par corps : Held in Reserve (III, IV, VII) ; Lead Counterattack et Defend the Position (VI).",
+      "verify": true,
+      "excluded": [
+        "carry-the-day"
+      ]
+    },
+    {
+      "id": "danzig-friedland",
+      "num": 111,
+      "round": "IX-B",
+      "name": "Capitulation of Danzig / Battle of Friedland",
+      "subEvents": [
+        {
+          "name": "Capitulation of Danzig",
+          "commands": [
+            "corps-reserve"
+          ],
+          "noCombatCard": true,
+          "legionOfHonor": true,
+          "values": {
+            "line": {
+              "N": "+1D10/2down",
+              "G": 4,
+              "E": 5,
+              "M": "+2D10"
+            },
+            "field": {
+              "N": "+1D10/2down",
+              "G": 2,
+              "E": 10,
+              "M": "+2D10"
+            },
+            "general": {
+              "N": 1,
+              "G": 1,
+              "E": 12,
+              "M": "+2D10"
+            }
+          }
+        },
+        {
+          "name": "Battle of Friedland",
+          "commands": [
+            "corps-1",
+            "corps-6",
+            "corps-reserve"
+          ],
+          "excluded": [
+            "unit-overrun"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "battle-of-eckmuhl",
+      "num": 112,
+      "round": "XI-A",
+      "name": "Battle of Eckmühl",
+      "commands": [
+        "corps-1",
+        "corps-3",
+        "corps-4"
+      ],
+      "excluded": [],
+      "values": {
+        "any": {
+          "N": 2
+        }
+      }
+    },
+    {
+      "id": "vienna-aspern-essling",
+      "num": 113,
+      "round": "XI-B",
+      "name": "Vienna / Battle of Aspern-Essling",
+      "subEvents": [
+        {
+          "name": "Capture of Vienna",
+          "commands": [
+            "corps-2",
+            "corps-3",
+            "corps-4"
+          ],
+          "noCombatCard": true,
+          "values": {
+            "any": {
+              "M": "+2D10"
+            }
+          }
+        },
+        {
+          "name": "Battle of Aspern-Essling",
+          "commands": [
+            "corps-2",
+            "corps-4"
+          ],
+          "excluded": [
+            "carry-the-day",
+            "telling-maneuver"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "battle-of-wagram",
+      "num": 114,
+      "round": "XI-C",
+      "name": "Battle of Wagram",
+      "commands": [
+        "corps-2",
+        "corps-3",
+        "corps-4",
+        "corps-9",
+        "corps-11",
+        "army-italy"
+      ],
+      "special": "IX Corps pioche en premier, puis l’Armée d’Italie. Carry the Day exclue pour le IX Corps et l’Armée d’Italie. Un officier supérieur ou général du IX Corps qui tire Telling Maneuver ignore W/P/N/G/E et subit N-10, G-7 (merci au maréchal Bernadotte)."
+    },
+    {
+      "id": "march-into-russia",
+      "num": 115,
+      "numVerify": true,
+      "round": "XIII-A",
+      "name": "March into Russia",
+      "commands": [
+        "corps-1",
+        "corps-3",
+        "corps-4",
+        "corps-7",
+        "corps-8",
+        "corps-10"
+      ],
+      "noCombatCard": true,
+      "values": {
+        "line": {
+          "W": 25,
+          "E": 3,
+          "M": -5,
+          "H": -5
+        },
+        "field": {
+          "W": 15,
+          "E": 5,
+          "M": -10,
+          "H": -5
+        },
+        "general": {
+          "W": 5,
+          "E": 7,
+          "M": -15,
+          "H": -5
+        }
+      },
+      "note": "Si M insuffisant : contracte la dysenterie, H-5 additionnel",
+      "verify": true
+    },
+    {
+      "id": "battle-of-borodino",
+      "num": 116,
+      "round": "XIII-B",
+      "name": "Battle of Borodino",
+      "commands": [
+        "corps-1",
+        "corps-3",
+        "corps-4",
+        "corps-8"
+      ],
+      "values": {
+        "any": {
+          "N": 2
+        }
+      },
+      "excluded": []
+    },
+    {
+      "id": "moscow-berezina",
+      "num": 117,
+      "round": "XIII-C",
+      "name": "Moscow / Berezina",
+      "subEvents": [
+        {
+          "name": "Burning of Moscow",
+          "commands": [
+            "corps-1",
+            "corps-3",
+            "corps-4",
+            "corps-8"
+          ],
+          "noCombatCard": true,
+          "values": {
+            "line": {
+              "W": 10,
+              "E": 2,
+              "M": "+1D10"
+            },
+            "field": {
+              "W": 8,
+              "E": 3,
+              "M": "+1D10x2"
+            },
+            "general": {
+              "W": 6,
+              "E": 4,
+              "M": "+1D10x3"
+            }
+          }
+        },
+        {
+          "name": "Cross the Berezina",
+          "commands": [
+            "corps-1",
+            "corps-3",
+            "corps-4",
+            "corps-8"
+          ],
+          "noCombatCard": true,
+          "values": {
+            "line": {
+              "W": 20,
+              "E": 4
+            },
+            "field": {
+              "W": 15,
+              "E": 5
+            },
+            "general": {
+              "W": 10,
+              "E": 6
+            }
+          },
+          "special": "Chaque Grognard 2D10 : une fois pour la bourse, une fois pour la santé ; bourse réduite de (jet x10)%, santé réduite de l'autre jet (à préciser)"
+        }
+      ]
+    },
+    {
+      "id": "lutzen-bautzen-armistice",
+      "num": 118,
+      "round": "XIV-A",
+      "name": "Lützen & Bautzen / Armistice",
+      "subEvents": [
+        {
+          "name": "Battles of Lützen & Bautzen",
+          "commands": [
+            "corps-1",
+            "corps-3",
+            "corps-4",
+            "corps-5",
+            "corps-6",
+            "corps-7"
+          ],
+          "excluded": [],
+          "oneEvent": true
+        },
+        {
+          "name": "The Armistice",
+          "commands": [
+            "all-not-spain"
+          ],
+          "special": "Génère un round In Garrison d'une carte : chaque Grognard (sauf Espagne) en rotation horaire tire une carte et agit ; ignorer End of Round?. Pas de permission ni duel."
+        }
+      ]
+    },
+    {
+      "id": "dresden-katzbach",
+      "num": 119,
+      "round": "XIV-B",
+      "name": "Battles of Dresden & Katzbach",
+      "commands": [
+        "corps-3",
+        "corps-4",
+        "corps-5",
+        "corps-6",
+        "corps-7",
+        "corps-11"
+      ],
+      "oneCombatCard": true,
+      "special": "IV et VII Corps à Dresde : toutes cartes Combat. Sur la Katzbach : Carry the Day exclue.",
+      "verify": true,
+      "excluded": [
+        "carry-the-day"
+      ],
+      "note": "IV et VI Corps à Dresde : toutes les cartes Combat en jeu."
+    },
+    {
+      "id": "battle-of-leipzig",
+      "num": 120,
+      "numVerify": true,
+      "round": "XIV-C",
+      "name": "Battle of Leipzig",
+      "commands": [
+        "corps-3",
+        "corps-4",
+        "corps-5",
+        "corps-6",
+        "corps-7"
+      ],
+      "excluded": [
+        "carry-the-day"
+      ]
+    },
+    {
+      "id": "battle-of-la-rothiere",
+      "num": 121,
+      "numVerify": true,
+      "round": "XV-A",
+      "name": "Battle of La Rothiere",
+      "commands": [
+        "imperial-guard",
+        "corps-2",
+        "corps-6",
+        "corps-reserve"
+      ],
+      "excluded": [
+        "carry-the-day"
+      ],
+      "verify": true
+    },
+    {
+      "id": "six-days-of-glory",
+      "num": 122,
+      "round": "XV-B",
+      "name": "Battles of the Six Days of Glory",
+      "commands": [
+        "imperial-guard",
+        "corps-6"
+      ],
+      "oneEvent": true,
+      "excluded": [
+        "unit-flanked",
+        "unit-surprised",
+        "unit-overrun",
+        "unit-decimated",
+        "held-in-reserve"
+      ],
+      "verify": true
+    },
+    {
+      "id": "battle-of-ligny",
+      "num": 123,
+      "round": "XVI-A1",
+      "name": "Battle of Ligny",
+      "commands": [
+        "imperial-guard",
+        "corps-3",
+        "corps-4",
+        "corps-6"
+      ],
+      "condition": "Bonapartistes uniquement",
+      "excluded": [],
       "carryTheDayBonus": "Peut faire défausser/repiocher la 1re carte Combat d'un Grognard à Waterloo"
     },
     {
-      "id": "battle-of-quatre-bras", "num": 124, "round": "XVI-A2", "name": "Battle of Quatre Bras",
-      "commands": ["corps-1", "corps-2"], "note": "I Corps : Held in Reserve d'office", "excluded": [],
+      "id": "battle-of-quatre-bras",
+      "num": 124,
+      "round": "XVI-A2",
+      "name": "Battle of Quatre Bras",
+      "commands": [
+        "corps-1",
+        "corps-2"
+      ],
+      "note": "I Corps : Held in Reserve d'office",
+      "excluded": [
+        "held-in-reserve"
+      ],
       "carryTheDayBonus": "Idem Ligny"
     },
     {
-      "id": "battle-of-wavre", "num": 125, "round": "XVI-A3", "name": "Battle of Wavre",
-      "commands": ["corps-3", "corps-4"], "excluded": [],
+      "id": "battle-of-wavre",
+      "num": 125,
+      "round": "XVI-A3",
+      "name": "Battle of Wavre",
+      "commands": [
+        "corps-3",
+        "corps-4"
+      ],
+      "excluded": [],
       "carryTheDayBonus": "Idem Ligny"
     },
     {
-      "id": "battle-of-waterloo", "num": 126, "round": "XVI-A4", "name": "Battle of Waterloo",
-      "commands": ["imperial-guard", "corps-1", "corps-2", "corps-6"],
+      "id": "battle-of-waterloo",
+      "num": 126,
+      "round": "XVI-A4",
+      "name": "Battle of Waterloo",
+      "commands": [
+        "imperial-guard",
+        "corps-1",
+        "corps-2",
+        "corps-6"
+      ],
       "special": "Insérer Victory at Mont St. Jean!, retirer les 2 Carry the Day. Excluded: Carry the Day + Held in Reserve ( ?). Si 180 non tirée : défaite, pas de titres, persécution des Bourbons pour les Bonapartistes.",
-      "verify": true
+      "verify": true,
+      "excluded": [
+        "held-in-reserve"
+      ]
     },
     {
-      "id": "battle-in-spain", "num": 127, "round": "X/XI/XII/XIII/XIV/XV", "name": "Battle in Spain", "optionalRule": "spain",
+      "id": "battle-in-spain",
+      "num": 127,
+      "round": "X/XI/XII/XIII/XIV/XV",
+      "name": "Battle in Spain",
+      "optionalRule": "spain",
       "special": "Consulter le Spain Battle Chart (fate-sheet.json). Utilisée seulement si un Grognard est en Espagne et que son commandement est en bataille ce round. Réutilisée chaque saison applicable."
     }
   ]
