@@ -79,9 +79,32 @@ export function Header({
         </nav>
       )}
       {onGod && (
-        <button className="gear" title="Atelier" onClick={onGod}>⚙</button>
+        <button className="gear" title="Atelier — éprouver une mécanique" onClick={onGod}>
+          <GearIcon />
+          <span>Atelier</span>
+        </button>
       )}
     </div>
+  );
+}
+
+/**
+ * La roue dentée, dessinée plutôt qu'écrite : le caractère ⚙ tombe dans une
+ * police d'emoji qui impose sa propre couleur, et se perdait sur le bandeau
+ * sombre. Un tracé suit `currentColor`.
+ */
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M8 5.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Zm0 1.4a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Z"
+      />
+      <path
+        fill="currentColor"
+        d="m6.9 0.6-.3 1.6a5.9 5.9 0 0 0-1.3.8L3.8 2.4 2 5.6l1.2 1.1a6 6 0 0 0 0 1.6L2 9.4l1.8 3.2 1.5-.6c.4.3.8.6 1.3.8l.3 1.6h3.2l.3-1.6c.5-.2.9-.5 1.3-.8l1.5.6 1.8-3.2-1.2-1.1a6 6 0 0 0 0-1.6L14 5.6l-1.8-3.2-1.5.6a5.9 5.9 0 0 0-1.3-.8L9.1.6H6.9Zm1.2 1.4h1l.2 1.4.5.2c.5.2.9.4 1.3.8l.4.3 1.3-.5.5.9-1 .9.1.5a4.6 4.6 0 0 1 0 1.4l-.1.5 1 .9-.5.9-1.3-.5-.4.3c-.4.4-.8.6-1.3.8l-.5.2-.2 1.4h-1l-.2-1.4-.5-.2a4.5 4.5 0 0 1-1.3-.8l-.4-.3-1.3.5-.5-.9 1-.9-.1-.5a4.6 4.6 0 0 1 0-1.4l.1-.5-1-.9.5-.9 1.3.5.4-.3c.4-.4.8-.6 1.3-.8l.5-.2.2-1.4Z"
+      />
+    </svg>
   );
 }
 

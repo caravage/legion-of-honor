@@ -1096,15 +1096,20 @@ button.rival.acting {
 
 /* ---------- atelier (god mode) ---------- */
 button.gear {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background: rgba(244, 234, 212, 0.08);
-  border: 1px solid var(--gold-soft);
+  border: 1px solid var(--gold);
   color: var(--parchment);
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   line-height: 1;
-  padding: 5px 9px;
+  padding: 5px 10px;
   border-radius: 3px;
 }
-button.gear:hover { background: rgba(244, 234, 212, 0.2); transform: rotate(30deg); }
+button.gear svg { transition: transform 0.25s ease; }
+button.gear:hover { background: rgba(244, 234, 212, 0.2); }
+button.gear:hover svg { transform: rotate(60deg); }
 
 .god-block {
   border-top: 1px solid var(--gold-soft);
