@@ -36,8 +36,8 @@
     },
     {
       "id": "burger-insults-napoleon", "num": 52, "name": "Burger Insults Napoleon",
-      "special": "Partie lésée : défier le Burger ou G-5. Le Burger accepte toujours. PNJ joué par un autre joueur (solo : app). Épées : +1 carte auto (pas de carte santé), le Burger joue en premier. E+1 et G+3 pour le duel ; pas de G pour blessure subie. Victoire : perte de N et S selon la blessure du Burger (carte). F+1 si épées. Colonel+ : pas de duel, tour perdu (envoie des gros bras). Avant III-2 : tour perdu. Pistolets : le Burger touche sur 1-4.",
-      "verify": true
+      "special": "Tour perdu si avant le round III-2, ou si le tireur est colonel ou d'un grade supérieur. Sinon le tireur doit défier le Burger, ou G-5. Un autre Grognard est désigné au hasard pour tenir le rôle du Burger, et c'est lui qui choisit l'épée ou le pistolet. À l'épée : le tireur reçoit une carte supplémentaire et le Burger joue la première carte. E+1, G+3. Si le Burger est tué N-3, S-3 ; gravement ou sévèrement blessé N-2, S-2 ; mal blessé N-1, S-1. Pas de gloire pour les blessures reçues en duel.",
+      "note": "Transcrite sur la carte elle-même (planche ige-33). Le seuil de 1-4 au pistolet ne figure pas sur la carte : il vient de la procédure de duel."
     },
     { "id": "dine-with-senior-commander", "num": null, "name": "Dine with Senior Commander", "effects": { "S": 1, "E": 1, "C": 1 } },
     { "id": "dine-with-magistrate", "num": null, "name": "Dine with Magistrate", "effects": { "E": 1, "C": 1 } },

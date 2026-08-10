@@ -169,6 +169,19 @@ offerte qu'au joueur (un concurrent frappe toujours), le fanatisme — rejouer u
 duel après avoir été gracié — n'est pas implémenté, et le cocuage attend
 *The Fair Sex*.
 
+## Les cartes sont lisibles : les planches sont là
+
+`public/cards/slices/` contient les 186 découpes, et `data/cards/images.json`
+donne l'identifiant de chacune. **Une carte marquée `verify` se tranche en la
+lisant**, pas en raisonnant sur sa transcription. Elles ne sont pas versionnées
+(110 Mo) mais elles sont présentes en session.
+
+La leçon a coûté trois erreurs sur la seule carte 52, toutes venues de sa
+transcription : la carte d'avantage revient au **tireur** et non au Burger, le
+choix de l'arme appartient au **Grognard qui tient le rôle** et non au tireur,
+et le barème N/S était résumé en « selon la blessure » quand la carte le donne
+en clair. Il reste 31 cartes portant `verify` ; chacune se règle en une minute.
+
 ## Une carte peut être muette sans que rien ne le signale
 
 Deux façons de ne rien faire, toutes deux silencieuses :

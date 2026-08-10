@@ -232,6 +232,16 @@ export function duelChoice(choices: SwordChoice[], self: Character | null, defen
 }
 
 /**
+ * Quelle arme choisir quand on tient le rôle du Burger. Le duel à l'épée
+ * récompense l'escrime — et le tireur y reçoit d'office une carte de plus.
+ * Contre une bonne lame, le pistolet remet les deux hommes à égalité devant
+ * le hasard : c'est là qu'un bourgeois a ses chances.
+ */
+export function burgerWeapon(drawer: Character): 'sword' | 'pistol' {
+  return drawer.F >= 4 ? 'pistol' : 'sword';
+}
+
+/**
  * Accepter le fer, ou l'affront. Décliner coûte cinq points de gloire ; se
  * battre en coûte trois de standing et peut coûter la vie. On accepte donc
  * tant qu'on n'est pas nettement le moins bon des deux — et le sabreur
