@@ -2231,6 +2231,7 @@ export class Game {
         return;
     }
     // générique
+    if (this.resolveChoiceCard(c)) return;
     const block = this.perRankBlock(c) ?? c.effects ?? null;
     const zealGain = c.zeal ?? block?.zeal;
     if (zealGain !== undefined) {
@@ -2264,6 +2265,40 @@ export class Game {
     if (c.effect && !block) this.info(c.effect);
   }
 
+  /**
+   * Une carte qui propose un marché : chaque branche porte son intitulé, ses
+   * gains, et parfois son jet. Rien ne lisait ce champ — une carte qui n'avait
+   * que lui traversait la table sans rien produire.
+   *
+   * Les cartes qui ont leur propre cas n'arrivent jamais ici : elles ont rendu
+   * la main plus haut. Une branche écrite en prose n'est pas jouable ; faute de
+   * deux branches applicables, on laisse la carte suivre son cours ordinaire.
+   */
+  private resolveChoiceCard(c: GarrisonCard | CampaignCard): boolean {
+    const choice = c.choice as Record<string, unknown> | undefined;
+    if (!choice || typeof choice !== 'object') return false;
+    const opts: PendingOption[] = [];
+    for (const branch of Object.values(choice)) {
+      if (!branch || typeof branch !== 'object') continue;
+      const b = branch as Effects & { label?: string; roll?: RollTable; duel?: string };
+      const { label, roll, duel, ...eff } = b;
+      if (duel) return false; // un duel se traite à la main, pas ici
+      const gains = Object.entries(eff)
+        .map(([k, v]) => `${k}${typeof v === 'number' && v >= 0 ? '+' : ''}${v}`)
+        .join(', ');
+      opts.push({
+        label: gains ? `${label ?? '—'} (${gains})` : `${label ?? '—'}`,
+        run: () => {
+          this.applyEffects(eff as Effects);
+          if (roll) this.resolveRollField(roll);
+        },
+      });
+    }
+    if (opts.length < 2) return false;
+    this.ask(c.name, opts);
+    return true;
+  }
+
   private resolveRollField(rollDef: RollTable) {
     const die = rollDef.die === '1D10' ? d10(this.rng) : d100(this.rng);
     this.roll(`${rollDef.die ?? '1D10'} = ${die}`);
@@ -2274,6 +2309,12 @@ export class Game {
           this.info(effect);
           if (/guillotin|mort/i.test(effect)) this.die();
           else if (/emprisonné|perd son prochain tour/i.test(effect)) this.ch.flags.skipReason = 'Emprisonné';
+          else if (/réaffecté en Espagne/i.test(effect)) {
+            // La règle Espagne est inactive : le texte prévoit lui-même la
+            // solution de rechange, et elle se perdait faute d'être appliquée.
+            this.info('Règle Espagne inactive : il en est quitte pour la notice.');
+            this.applyStat('N', -2, 'la liaison s’ébruite');
+          }
         } else this.applyEffects(effect as Effects);
         return;
       }
