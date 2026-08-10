@@ -36,7 +36,7 @@
     },
     {
       "id": "burger-insults-napoleon", "num": 52, "name": "Burger Insults Napoleon",
-      "special": "Tour perdu si avant le round III-2, ou si le tireur est colonel ou d'un grade supérieur. Sinon le tireur doit défier le Burger, ou G-5. Un autre Grognard est désigné au hasard pour tenir le rôle du Burger, et c'est lui qui choisit l'épée ou le pistolet. À l'épée : le tireur reçoit une carte supplémentaire et le Burger joue la première carte. E+1, G+3. Si le Burger est tué N-3, S-3 ; gravement ou sévèrement blessé N-2, S-2 ; mal blessé N-1, S-1. Pas de gloire pour les blessures reçues en duel.",
+      "special": "Tour perdu si avant le round III-2, ou si le tireur est colonel ou d'un grade supérieur. Sinon le tireur doit défier le Burger, ou G-5. Un autre Grognard tient le rôle du Burger — il le joue sans le devenir : aucune blessure ni aucun résultat ne touche sa feuille — et c'est lui qui choisit l'épée ou le pistolet. À l'épée : le tireur reçoit une carte supplémentaire et le Burger joue la première carte. E+1, G+3. Si le Burger est tué N-3, S-3 ; gravement ou sévèrement blessé N-2, S-2 ; mal blessé N-1, S-1. Pas de gloire pour les blessures reçues en duel.",
       "note": "Transcrite sur la carte elle-même (planche ige-33). Le seuil de 1-4 au pistolet ne figure pas sur la carte : il vient de la procédure de duel."
     },
     { "id": "dine-with-senior-commander", "num": null, "name": "Dine with Senior Commander", "effects": { "S": 1, "E": 1, "C": 1 } },

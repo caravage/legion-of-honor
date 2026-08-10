@@ -2532,7 +2532,6 @@ export class Game {
        * la planche, ils ne s'y ajoutent pas. Seul le barème N/S lui appartient.
        */
       standard: true,
-      magnanimity: true,
       then: (o, blessure) => {
         if (o?.winnerSide !== 'a' || !blessure) return;
         // Avoir versé le sang d'un bourgeois se paie, et d'autant plus cher
@@ -2549,42 +2548,35 @@ export class Game {
       },
     });
     /**
-     * Le Burger est tenu par un autre Grognard, désigné au hasard — et c'est
-     * lui qui choisit l'arme, non le tireur. Le duel est celui de la planche,
-     * avantages compris ; la carte n'y ajoute que la carte supplémentaire du
-     * tireur et le premier coup au Burger. En solo, la machine tient le rôle,
-     * et faute de feuille elle se bat à escrime égale.
+     * Le Burger n'a pas de feuille : un autre Grognard le *tient*, il ne le
+     * devient pas. Ni blessure ni résultat ne touchent celui qui joue le rôle
+     * — seul le tireur se bat vraiment. Le rôle revient au joueur dès qu'il
+     * n'est pas le tireur ; c'est la machine qui s'en charge sinon.
      */
-    const fight = (weapon: 'sword' | 'pistol', foe: Duelist) => {
+    const burger = this.cardDuelist('Le Burger', this.chars[drawer].F);
+    const roleAuJoueur = !!this.chars[drawer].bot;
+    burger.auto = !roleAuJoueur;
+    const fight = (weapon: 'sword' | 'pistol') => {
       this.handOver(drawer);
       if (weapon === 'sword') {
         this.startSwordDuel(
-          { a: this.asDuelist(drawer), b: foe, first: 'b', autoCard: 'a' },
+          { a: this.asDuelist(drawer), b: burger, first: 'b', autoCard: 'a', healthCard: 'none' },
           terms('sword'),
         );
       } else {
         this.askAim('Pointer l’arme', (aim) =>
-          this.pistolDuel(this.asDuelist(drawer), foe, terms('pistol'), { a: aim, b: 'wound' }, 4));
+          this.pistolDuel(this.asDuelist(drawer), burger, terms('pistol'), { a: aim, b: 'wound' }, 4));
       }
     };
+    // l'arme appartient à qui tient le Burger, jamais au tireur
     const chooseWeapon = () => {
-      const roles = this.rivals();
-      if (!roles.length) {
-        const seul = this.cardDuelist('Le Burger', this.chars[drawer].F);
-        fight(burgerWeapon(this.chars[drawer]), seul);
-        return;
-      }
-      this.askTarget('Qui tient le rôle du Burger ?', roles, (idx) => {
-        const foe = this.asDuelist(idx);
-        foe.name = `${this.chars[idx].name} (le Burger)`;
-        this.info(`${this.chars[idx].name} prend le rôle du Burger — à lui de choisir l’arme.`);
-        if (this.chars[idx].bot) { fight(burgerWeapon(this.chars[drawer]), foe); return; }
-        this.handOver(idx);
-        this.ask('Vous tenez le Burger — quelle arme ?', [
-          { label: 'L’épée', run: () => fight('sword', foe) },
-          { label: 'Le pistolet', run: () => fight('pistol', foe) },
-        ]);
-      }, { random: true });
+      if (!roleAuJoueur) { fight(burgerWeapon(this.chars[drawer])); return; }
+      this.handOver(0);
+      this.info('Vous tenez le Burger : ni ses blessures ni ses résultats ne vous touchent.');
+      this.ask('Vous tenez le Burger — quelle arme ?', [
+        { label: 'L’épée', run: () => fight('sword') },
+        { label: 'Le pistolet', run: () => fight('pistol') },
+      ]);
     };
     this.ask('Le Burger insulte l’Empereur', [
       { label: 'Le défier', run: chooseWeapon },
