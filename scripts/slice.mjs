@@ -19,6 +19,12 @@ const PLATES = {
   'campagne generique.png': 'oc',
   'campagne evenement.png': 'oce',
   'combat.png': 'cbt',
+  // La planche des duels : 18 cartes plus le dos, sur la même grille de 10.
+  // Plusieurs noms sont acceptés — c'est le fichier présent qui décide.
+  'duel.png': 'duel',
+  'duel.jpg': 'duel',
+  'duels.png': 'duel',
+  'duels.jpg': 'duel',
 };
 
 fs.mkdirSync(OUT, { recursive: true });
