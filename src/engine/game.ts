@@ -2539,6 +2539,11 @@ export class Game {
         const tarif: Record<string, [number, number]> = {
           killed: [-3, -3], gravely: [-2, -2], severely: [-2, -2], badly: [-1, -1],
         };
+        // un bourgeois mort ne se relève pas : la carte quitte le jeu
+        if (blessure.type === 'killed') {
+          this.removed.add('burger-insults-napoleon');
+          this.warn('Le Burger est mort : l’affaire ne se rejouera plus.');
+        }
         const [n, s] = tarif[blessure.type] ?? [0, 0];
         if (!n && !s) return;
         this.asActor(drawer, () => {
