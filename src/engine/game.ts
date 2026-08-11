@@ -987,7 +987,13 @@ export class Game {
         );
         return;
       }
-      this.playDuelCard(duelChoice(choices, who.pilot === null ? null : this.chars[who.pilot], answering));
+      const opp = side === 'a' ? run.b : run.a;
+      this.playDuelCard(duelChoice(
+        choices,
+        who.pilot === null ? null : this.chars[who.pilot],
+        opp.idx === null ? null : this.chars[opp.idx],
+        this.rng,
+      ));
     }
     this.endSwordDuel();
   }
