@@ -68,8 +68,6 @@ export function DuelWindow({ game, onChange }: { game: Game; onChange: () => voi
 
   const jouer = (i: number, aim: Aim) => { game.playDuelCard2(i, aim); setChoisie(null); onChange(); };
   const repondre = (i: number) => { game.choose(i); onChange(); };
-  const lancer = () => { game.duelRollWound(); onChange(); };
-  const fermer = () => { game.duelDismiss(); onChange(); };
 
   return (
     <div className="modal-back duel-back-drop">
@@ -84,7 +82,7 @@ export function DuelWindow({ game, onChange }: { game: Game; onChange: () => voi
         </div>
 
         <div className="duel-table">
-          {!v.done && <div className="duel-row foe">
+          {!v.done && v.weapon === 'sword' && <div className="duel-row foe">
             <span className="duel-name">{v.foe.name}</span>
             <span className="duel-backs">
               {Array.from({ length: Math.min(v.foe.cards, 10) }, (_, i) => (
@@ -95,7 +93,12 @@ export function DuelWindow({ game, onChange }: { game: Game; onChange: () => voi
           </div>}
 
           <div className={`duel-row slots${v.done ? ' fini' : ''}`}>
-            {v.table ? (
+            {v.weapon === 'pistol' ? (
+              <div className="duel-pistolets">
+                <img src={duelArt('fire')[0]?.file} alt="Feu" />
+                <img src={duelArt('fire')[1]?.file} alt="Feu" style={{ transform: 'rotate(180deg)' }} />
+              </div>
+            ) : v.table ? (
               <Carte
                 type={v.table.card}
                 aim={v.table.aim}
@@ -119,7 +122,7 @@ export function DuelWindow({ game, onChange }: { game: Game; onChange: () => voi
             )}
           </div>
 
-          {!v.done && <div className="duel-row mine">
+          {!v.done && v.weapon === 'sword' && <div className="duel-row mine">
             <span className="duel-name">
               {v.mine ? v.mine.name : ''}
               {v.mine ? <i>{v.mine.cards} cartes</i> : null}
@@ -164,12 +167,15 @@ export function DuelWindow({ game, onChange }: { game: Game; onChange: () => voi
                 ))}
               </>
             )}
-            {v.awaitingRoll && (
-              <button className="primary big" onClick={lancer}>🎲 Lancer la blessure</button>
-            )}
-            {v.done && (
-              <button className="primary big" onClick={fermer}>Quitter le pré ▸</button>
-            )}
+            {v.actions.map((act) => (
+              <button
+                key={act.id}
+                className="primary big"
+                onClick={() => { game.duelDo(act.id); onChange(); }}
+              >
+                {act.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>

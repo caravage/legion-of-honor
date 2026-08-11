@@ -1374,3 +1374,5 @@ button.gear:hover svg { transform: rotate(60deg); }
 .duel-journal li:last-child { color: var(--ink); font-weight: bold; }
 .duel-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
 .duel-ask { margin: 0 0 2px; font-size: 0.84rem; }
+.duel-pistolets { display: flex; gap: 14px; }
+.duel-pistolets img { height: 190px; border: 1px solid var(--gold-soft); border-radius: 4px; }

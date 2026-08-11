@@ -67,6 +67,8 @@ type DuelRun = {
   before: Record<number, Character>;
   /** Coup porté, en attente du jet de blessure que le joueur doit lancer. */
   wound?: { loser: Duelist; winner: Duelist; aim: Aim } | null;
+  /** État d'un duel au pistolet, qui procède par étapes et non par cartes. */
+  pistol?: PistolRun | null;
   /** Le jet une fois tombé : deux faces de d10, et ce qu'elles donnent. */
   roll?: { faces: [number, number]; bonus: number; total: number; result: string } | null;
   /** Décompte final, affiché dans la fenêtre avant de la refermer. */
@@ -76,6 +78,26 @@ type DuelRun = {
 /** Gravité comparée d'une blessure, pour retenir la pire de deux balles. */
 const GRAVITE: Record<string, number> = {
   scratch: 1, flesh: 2, badly: 3, severely: 4, gravely: 5, killed: 6,
+};
+
+/**
+ * Le pistolet ne se joue pas comme l'épée : pas de main, pas de table
+ * d'interaction, mais une suite d'étapes — pointer, vérifier les amorces,
+ * tirer, encaisser. Chacune s'arrête pour laisser le joueur agir quand il est
+ * sur le pré ; sans interface, elles s'enchaînent d'un trait.
+ */
+type PistolRun = {
+  step: 'aim' | 'primer' | 'fire' | 'wound' | 'again' | 'over';
+  aims: Record<Side, Aim>;
+  hitCap: number;
+  /** Tireurs restant à faire feu, dans l'ordre décidé par les dés. */
+  queue: Side[];
+  /** Tireur dont le coup a porté et dont la blessure attend son jet. */
+  shooter: Side | null;
+  outcome: SwordOutcome | null;
+  worst?: WoundRow;
+  /** Le tireur est en joue : le coup part au geste du joueur. */
+  armed?: boolean;
 };
 
 type Stage =
@@ -171,7 +193,7 @@ export class Game {
    * Duel achevé dont la fenêtre montre encore le décompte. Il est détaché de
    * `duelRun` à dessein : un duel clos ne doit plus rien détourner du journal.
    */
-  duelOver: { label: string; journal: string[]; summary: string; roll: DuelRun['roll'] } | null = null;
+  duelOver: { label: string; weapon: 'sword' | 'pistol'; journal: string[]; summary: string; roll: DuelRun['roll'] } | null = null;
   /** Batailles restant à résoudre pour la carte en cours */
   battleQueue: { ev: CampaignSubEvent; name: string; who: number }[] = [];
   /** À exécuter quand la file de batailles est vide */
@@ -790,8 +812,7 @@ export class Game {
     if (weapon === 'sword') {
       this.startSwordDuel({ a: me, b: other, first: 'a' }, terms);
     } else {
-      this.askAim('Pointer l’arme', (aim) =>
-        this.pistolDuel(me, other, terms, { a: aim, b: 'wound' }));
+      this.pistolDuel(me, other, terms, { a: 'wound', b: 'wound' });
     }
   }
 
@@ -1080,7 +1101,10 @@ export class Game {
     if (this.interactive && (run.a.pilot === 0 || run.b.pilot === 0)) {
       run.journal.push(tete);
       if (comptes) run.journal.push(comptes);
-      this.duelOver = { label: run.terms.label, journal: run.journal, summary: comptes || tete, roll: run.roll ?? null };
+      this.duelOver = {
+        label: run.terms.label, weapon: run.terms.weapon, journal: run.journal,
+        summary: comptes || tete, roll: run.roll ?? null,
+      };
     }
   }
 
@@ -1091,6 +1115,7 @@ export class Game {
    */
   duelView(): {
     label: string;
+    weapon: 'sword' | 'pistol';
     journal: string[];
     /** Le camp du joueur, s'il tient des cartes ; sinon il regarde. */
     mine: { name: string; cards: number } | null;
@@ -1105,6 +1130,7 @@ export class Game {
     ask: { title: string; options: string[] } | null;
     /** Les dés attendent d'être lancés. */
     awaitingRoll: boolean;
+    actions: { id: string; label: string }[];
     roll: { faces: [number, number]; bonus: number; total: number; result: string } | null;
     summary: string | null;
     done: boolean;
@@ -1114,9 +1140,10 @@ export class Game {
       const fini = this.duelOver;
       if (!fini) return null;
       return {
-        label: fini.label, journal: fini.journal, mine: null, foe: { name: '', cards: 0 },
+        label: fini.label, weapon: fini.weapon, journal: fini.journal, mine: null, foe: { name: '', cards: 0 },
         table: null, turnName: null, myTurn: false, hand: [], ask: null,
-        awaitingRoll: false, roll: fini.roll ?? null, summary: fini.summary, done: true,
+        awaitingRoll: false, actions: [{ id: 'close', label: 'Quitter le pré ▸' }],
+        roll: fini.roll ?? null, summary: fini.summary, done: true,
       };
     }
     const duel = run.sword;
@@ -1142,6 +1169,7 @@ export class Game {
       : null;
     return {
       label: run.terms.label,
+      weapon: run.terms.weapon,
       journal: run.journal,
       mine: moi ? { name: moi.name, cards: cartes(moi) } : null,
       foe: { name: lui.name, cards: cartes(lui) },
@@ -1150,7 +1178,8 @@ export class Game {
       myTurn: aMoi,
       hand: main,
       ask: question,
-      awaitingRoll: !!run.wound,
+      awaitingRoll: !!run.wound && !run.pistol,
+      actions: this.duelActions(),
       roll: run.roll ?? null,
       summary: null,
       done: false,
@@ -1206,9 +1235,72 @@ export class Game {
   duelRollWound() {
     const run = this.duelRun;
     const w = run?.wound;
-    const o = run?.sword?.outcome;
-    if (!run || !w || !o) return;
+    if (!run || !w) return;
+    if (run.pistol) { this.stepPistol(); return; }
+    const o = run.sword?.outcome;
+    if (!o) return;
     this.resolveDuelWound(run, o, w.loser, w.winner);
+  }
+
+  /**
+   * Ce que la fenêtre propose de faire, à cet instant précis. Elle n'a pas à
+   * connaître les étapes du pistolet : elle affiche des boutons et rend leur
+   * identifiant.
+   */
+  duelActions(): { id: string; label: string }[] {
+    const run = this.duelRun;
+    if (!run) return this.duelOver ? [{ id: 'close', label: 'Quitter le pré ▸' }] : [];
+    const p = run.pistol;
+    if (p) {
+      switch (p.step) {
+        case 'aim': return [
+          { id: 'aim-wound', label: 'Pointer pour blesser' },
+          { id: 'aim-kill', label: 'Pointer pour tuer' },
+        ];
+        case 'fire': {
+          const side = p.queue[0];
+          const qui = side === 'a' ? run.a : run.b;
+          return [{ id: 'step', label: `🔫 ${qui.name} fait feu` }];
+        }
+        case 'wound': return [{ id: 'step', label: '🎲 Lancer la blessure' }];
+        case 'again': return [
+          { id: 'again-no', label: 'L’honneur est satisfait' },
+          { id: 'again-yes', label: 'Recharger et recommencer' },
+        ];
+        default: return [{ id: 'step', label: 'Voir le décompte ▸' }];
+      }
+    }
+    if (run.wound) return [{ id: 'roll', label: '🎲 Lancer la blessure' }];
+    return [];
+  }
+
+  /** Exécute l'action rendue par `duelActions()`. */
+  duelDo(id: string) {
+    const run = this.duelRun;
+    if (id === 'close') { this.duelDismiss(); return; }
+    if (!run) return;
+    const p = run.pistol;
+    if (id === 'aim-kill' || id === 'aim-wound') {
+      const aim: Aim = id === 'aim-kill' ? 'kill' : 'wound';
+      if (!p) return;
+      for (const side of ['a', 'b'] as Side[]) {
+        if ((side === 'a' ? run.a : run.b).pilot === 0) p.aims[side] = aim;
+      }
+      this.duelSay(`Les armes se pointent — la vôtre ${aim === 'kill' ? 'pour tuer' : 'pour blesser'}.`);
+      p.step = 'primer';
+      this.stepPistol();
+      return;
+    }
+    if (id === 'again-yes' && p) {
+      // « otherwise, conduct another pistol duel » : on recharge
+      this.duelSay('Les témoins rechargent : on recommence.');
+      p.step = 'primer';
+      this.stepPistol();
+      return;
+    }
+    if (id === 'again-no' && p) { p.step = 'over'; this.stepPistol(); return; }
+    if (id === 'roll') { this.duelRollWound(); return; }
+    if (id === 'step') { this.stepPistol(); return; }
   }
 
   /** Les résultats de la planche, ou ceux que la carte impose à leur place. */
@@ -1245,62 +1337,122 @@ export class Game {
    * Le duel au pistolet. Chacun pointe son arme, les amorces décident de
    * l'ordre, et le second ne tire que s'il tient encore debout.
    */
+  /**
+   * Ouvre un duel au pistolet. Devant une interface, il avance étape par
+   * étape sous les clics du joueur ; sinon il se résout d'un trait, dans le
+   * même ordre de tirages — c'est ce qui garde les parties témoins intactes.
+   */
   private pistolDuel(a: Duelist, b: Duelist, terms: DuelTerms, aims: Record<Side, Aim>, hitCap = 5) {
-    // le duel s'ouvre avant le premier jet : les amorces appartiennent à sa
-    // fenêtre, pas à la chronique
     const run: DuelRun = {
       sword: null, terms, a, b, returnTo: this.active,
       journal: [], before: this.duelSnapshot(a, b),
+      pistol: { step: 'aim', aims: { ...aims }, hitCap, queue: [], shooter: null, outcome: null },
     };
     this.duelRun = run;
-    const ord = pistolOrder(this.rng);
-    this.duelSay(`Amorces : ${a.name} 2D10=${ord.rolls.a}${ord.misfire.a ? ' — raté !' : ''} · ${b.name} 2D10=${ord.rolls.b}${ord.misfire.b ? ' — raté !' : ''}`);
-    if (ord.priority) {
-      this.duelSay(`Qui tire le premier : ${a.name} 1D10=${ord.priority.a} · ${b.name} 1D10=${ord.priority.b}`);
-    }
-    if (ord.bothMisfired) {
-      // « the duel can be over by mutual agreement » — les témoins l'entendent ainsi
-      this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');
-      this.applyDuelResults(run, null);
-      terms.then?.(null);
-      // sans cette fermeture, le duel restait ouvert et avalait la chronique
-      this.closeDuel(run, null);
-      return;
-    }
-    const order: Side[] = ord.first === 'a' ? ['a', 'b'] : ['b', 'a'];
-    let outcome: SwordOutcome | null = null;
-    let blessure: WoundRow | undefined;
-    /**
-     * Les deux tirent, chacun son tour. Le second ne renonce que s'il est tué
-     * ou **gravement** blessé — une égratignure ne dispense pas de rendre le
-     * coup — ou si son amorce a raté. Les deux peuvent donc tomber.
-     */
-    let arrete = false;
-    for (const side of order) {
-      if (ord.misfire[side] || arrete) continue;
-      const shooter = side === 'a' ? a : b;
-      const target = side === 'a' ? b : a;
-      // le Burger n'est pas un tireur : jouant son rôle, on ne touche que sur 1-4
-      const cap = shooter.idx === null ? hitCap : 5;
-      const shot = pistolHits(this.rng, cap);
-      this.duelSay(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
-      if (!shot.hit) continue;
-      const tir = this.duelWound(target, aims[side]);
-      run.roll = { faces: tir.faces, bonus: tir.bonus, total: tir.total, result: this.woundName(tir.row.type) };
-      // le premier sang ne clôt pas l'affaire au pistolet : on garde le plus grave
-      if (!outcome || !blessure || GRAVITE[tir.row.type] > GRAVITE[blessure.type]) {
-        outcome = { woundedSide: other(side), winnerSide: side, aim: aims[side], deals: 0 };
-        blessure = tir.row;
+    this.stepPistol();
+  }
+
+  /** Le joueur tient-il l'un des deux pistolets ? */
+  private pistolInteractif(run: DuelRun): boolean {
+    return this.interactive && (run.a.pilot === 0 || run.b.pilot === 0);
+  }
+
+  /**
+   * Avance le duel au pistolet. Chaque étape rend la main dès qu'un geste est
+   * attendu ; sans interface, la boucle va jusqu'au bout.
+   */
+  private stepPistol() {
+    const run = this.duelRun;
+    const p = run?.pistol;
+    if (!run || !p) return;
+    const pause = this.pistolInteractif(run);
+    let garde = 0;
+    while (garde++ < 40) {
+      switch (p.step) {
+        case 'aim': {
+          // les deux pointent en même temps ; la machine choisit pour les siens
+          for (const side of ['a', 'b'] as Side[]) {
+            const d = side === 'a' ? run.a : run.b;
+            if (d.pilot === 0 && pause) continue;
+            p.aims[side] = d.pilot !== null && this.chars[d.pilot]?.persona === 'sabreur' ? 'kill' : p.aims[side];
+          }
+          if (pause && (run.a.pilot === 0 || run.b.pilot === 0)) return; // au joueur de pointer
+          p.step = 'primer';
+          continue;
+        }
+        case 'primer': {
+          const ord = pistolOrder(this.rng);
+          this.duelSay(`Amorces : ${run.a.name} 2D10=${ord.rolls.a}${ord.misfire.a ? ' — raté !' : ''} · ${run.b.name} 2D10=${ord.rolls.b}${ord.misfire.b ? ' — raté !' : ''}`);
+          if (ord.priority) {
+            this.duelSay(`Qui tire le premier : ${run.a.name} 1D10=${ord.priority.a} · ${run.b.name} 1D10=${ord.priority.b}`);
+          }
+          if (ord.bothMisfired) {
+            // « the duel can be over by mutual agreement, otherwise conduct
+            // another pistol duel » : le joueur tranche, la machine en reste là
+            this.duelSay('Les deux armes ont fait long feu.');
+            if (pause) { p.step = 'again'; return; }
+            p.step = 'over';
+            continue;
+          }
+          p.queue = (ord.first === 'a' ? ['a', 'b'] : ['b', 'a']).filter((s) => !ord.misfire[s as Side]) as Side[];
+          p.step = 'fire';
+          continue;
+        }
+        case 'fire': {
+          if (!p.queue.length) { p.step = 'over'; continue; }
+          // on met en joue, puis l'on attend : chaque coup part au geste du joueur
+          if (pause && !p.armed) { p.armed = true; return; }
+          p.armed = false;
+          const side = p.queue.shift()!;
+          const shooter = side === 'a' ? run.a : run.b;
+          const target = side === 'a' ? run.b : run.a;
+          // le Burger n'est pas un tireur : qui tient son rôle ne touche que sur 1-4
+          const cap = shooter.idx === null ? p.hitCap : 5;
+          const shot = pistolHits(this.rng, cap);
+          this.duelSay(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
+          if (!shot.hit) continue;
+          p.shooter = side;
+          run.wound = { loser: target, winner: shooter, aim: p.aims[side] };
+          p.step = 'wound';
+          if (pause) return; // au joueur de lancer la blessure
+          continue;
+        }
+        case 'wound': {
+          const side = p.shooter!;
+          const w = run.wound!;
+          const tir = this.duelWound(w.loser, w.aim);
+          run.roll = { faces: tir.faces, bonus: tir.bonus, total: tir.total, result: this.woundName(tir.row.type) };
+          run.wound = null;
+          // le premier sang ne clôt pas l'affaire : on retient la pire blessure
+          if (!p.outcome || !p.worst || GRAVITE[tir.row.type] > GRAVITE[p.worst.type]) {
+            p.outcome = { woundedSide: other(side), winnerSide: side, aim: w.aim, deals: 0 };
+            p.worst = tir.row;
+          }
+          // tué ou gravement atteint, le second ne rend pas son coup
+          if (tir.row.type === 'killed' || tir.row.type === 'gravely') p.queue = [];
+          p.step = p.queue.length ? 'fire' : 'over';
+          if (pause) return; // laisser voir les dés avant la suite
+          continue;
+        }
+        case 'again': return;   // le joueur décide de recommencer ou d'en rester là
+        case 'over': {
+          this.finishPistol(run, p);
+          return;
+        }
       }
-      if (tir.row.type === 'killed' || tir.row.type === 'gravely') arrete = true;
     }
-    if (!outcome) this.duelSay('Les deux balles se perdent : l’honneur est satisfait.');
-    this.applyDuelResults(run, outcome);
-    terms.then?.(outcome, blessure);
-    const gagnant = outcome ? (outcome.winnerSide === 'a' ? a : b) : null;
-    const perdant = outcome ? (outcome.woundedSide === 'a' ? a : b) : null;
-    this.closeDuel(run, gagnant && perdant && blessure
-      ? `${gagnant.name} touche ${perdant.name} — ${this.woundName(blessure.type).toLowerCase()}`
+  }
+
+  /** Compte les résultats du duel au pistolet et referme la fenêtre. */
+  private finishPistol(run: DuelRun, p: PistolRun) {
+    if (!p.outcome) this.duelSay('Aucune balle n’a porté : l’honneur est satisfait.');
+    this.applyDuelResults(run, p.outcome);
+    run.terms.then?.(p.outcome, p.worst);
+    const gagnant = p.outcome ? (p.outcome.winnerSide === 'a' ? run.a : run.b) : null;
+    const perdant = p.outcome ? (p.outcome.woundedSide === 'a' ? run.a : run.b) : null;
+    run.pistol = null;
+    this.closeDuel(run, gagnant && perdant && p.worst
+      ? `${gagnant.name} touche ${perdant.name} — ${this.woundName(p.worst.type).toLowerCase()}`
       : null);
   }
 
@@ -1317,6 +1469,9 @@ export class Game {
   private closeStrandedDuel() {
     const run = this.duelRun;
     if (!run || this.pending || run.wound) return;
+    // le pistolet avance par étapes et se referme lui-même : le filet ne doit
+    // pas le prendre pour un duel abandonné
+    if (run.pistol && run.pistol.step !== 'over') return;
     if (!run.sword || run.sword.done) this.closeDuel(run, null);
   }
 
@@ -2983,8 +3138,7 @@ export class Game {
           terms('sword'),
         );
       } else {
-        this.askAim('Pointer l’arme', (aim) =>
-          this.pistolDuel(this.asDuelist(drawer), burger, terms('pistol'), { a: aim, b: 'wound' }, 4));
+        this.pistolDuel(this.asDuelist(drawer), burger, terms('pistol'), { a: 'wound', b: 'wound' }, 4);
       }
     };
     // l'arme appartient à qui tient le Burger, jamais au tireur
@@ -3070,14 +3224,6 @@ export class Game {
     ]);
   }
 
-  /** Pointer l'arme : tuer, ou seulement blesser. */
-  private askAim(title: string, then: (aim: Aim) => void) {
-    if (this.ch.bot) { then(this.ch.persona === 'sabreur' ? 'kill' : 'wound'); return; }
-    this.ask(title, [
-      { label: 'Pour blesser (blessure adoucie)', run: () => then('wound') },
-      { label: 'Pour tuer (G+3, N−3 si mort)', run: () => then('kill') },
-    ]);
-  }
 
   private resolveIdleTime(c: GarrisonCard) {
     const opts = (c.actions ?? []).map((a) => ({
@@ -3199,8 +3345,7 @@ export class Game {
       if (weapon === 'sword') {
         this.startSwordDuel({ a: this.asDuelist(challenger), b: this.asDuelist(idx), first }, terms);
       } else {
-        this.askAim('Pointer l’arme', (aim) =>
-          this.pistolDuel(this.asDuelist(challenger), this.asDuelist(idx), terms, { a: aim, b: 'wound' }));
+        this.pistolDuel(this.asDuelist(challenger), this.asDuelist(idx), terms, { a: 'wound', b: 'wound' });
       }
     };
     /** Le défié arme la rencontre : l'acier ou la poudre, et qui ouvre. */
