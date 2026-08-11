@@ -805,7 +805,7 @@ body { transition: background-color 0.8s ease; }
   text-align: center;
   background: var(--navy);
   color: var(--parchment);
-  border-radius: 0 0 4px 4px;
+  border-radius: 4px 4px 0 0;
 }
 .combat-slot::before {
   content: 'Carte Combat';

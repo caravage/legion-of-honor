@@ -194,8 +194,21 @@ export class Game {
    * `duelRun` à dessein : un duel clos ne doit plus rien détourner du journal.
    */
   duelOver: { label: string; weapon: 'sword' | 'pistol'; journal: string[]; summary: string; roll: DuelRun['roll'] } | null = null;
-  /** Batailles restant à résoudre pour la carte en cours */
-  battleQueue: { ev: CampaignSubEvent; name: string; who: number }[] = [];
+  /** Batailles restant à résoudre pour la carte en cours — un groupe par bataille, tous ses Grognards ensemble */
+  battleQueue: { ev: CampaignSubEvent; name: string; whos: number[] }[] = [];
+  /**
+   * La bataille en cours : tous ses Grognards tirent d'abord leur carte Combat
+   * chacun leur tour, puis chacun résout la sienne dans le même ordre.
+   */
+  cohort: {
+    ev: CampaignSubEvent;
+    name: string;
+    excluded: string[];
+    isWaterloo: boolean;
+    drawQueue: number[];
+    cards: { who: number; card: CombatCard }[];
+    resolveIdx: number;
+  } | null = null;
   /** À exécuter quand la file de batailles est vide */
   afterBattles: (() => void) | null = null;
   /** Un Carry the Day tiré à Ligny/Quatre Bras/Wavre permet de repiocher à Waterloo */
@@ -358,7 +371,7 @@ export class Game {
         cartesCombat: this.battleCards.map((b) => ({ ...carte(b.card), qui: b.who })),
         enAttente: this.pending?.title ?? null,
         options: this.pending?.options.map((o) => o.label) ?? [],
-        filesDeBataille: this.battleQueue.map((b) => ({ nom: b.name, qui: b.who })),
+        filesDeBataille: this.battleQueue.map((b) => ({ nom: b.name, qui: b.whos })),
       },
       deck: this.deck.map((d) => ({ kind: d.kind, id: d.card.id })),
       tireesCeRound: this.drawnThisRound,
@@ -1530,7 +1543,7 @@ export class Game {
   /** Sauvegarde automatique — seulement à un point stable (aucune décision ni bataille en cours). */
   save() {
     try {
-      if (this.pending || this.battleQueue.length || this.afterBattles || this.duelRun || this.over) return;
+      if (this.pending || this.battleQueue.length || this.cohort || this.afterBattles || this.duelRun || this.over) return;
       const s = {
         v: 1,
         chars: this.chars,
@@ -1563,6 +1576,7 @@ export class Game {
       g.rng = defaultRng;
       g.pending = null;
       g.battleQueue = [];
+      g.cohort = null;
       g.afterBattles = null;
       g.duelRun = null;
       g.fairSex = false;
@@ -3808,7 +3822,7 @@ export class Game {
 
     const subEvents = c.subEvents ?? [c];
     let any = false;
-    const battles: { ev: CampaignSubEvent; name: string; who: number }[] = [];
+    const battles: { ev: CampaignSubEvent; name: string; whos: number[] }[] = [];
     let armistice = false;
 
     for (const ev of subEvents) {
@@ -3820,6 +3834,9 @@ export class Game {
       // certaines actions n'appartiennent qu'à celui qui a tiré la carte : les
       // autres n'y étaient pas, quand bien même leur commandement y figure
       const rota = ev.drawingGrognardOnly ? [drawer] : rotation;
+      // ceux qui tirent une carte Combat pour ce sous-évènement s'y retrouvent
+      // ensemble : ils la tireront tous avant que le premier ne la résolve
+      const combatWhos: number[] = [];
       for (const idx of rota) {
         const who = this.chars[idx];
         if (!engaged(cmds, who) || who.absent) continue;
@@ -3830,12 +3847,15 @@ export class Game {
           // Il rejoint la file au lieu d'être résolu sur-le-champ : une carte se
           // joue dans son ordre de lecture, et le second évènement attend que le
           // premier soit terminé pour tous ceux qu'il concerne.
-          battles.push({ ev: { ...ev, id: ev.id ?? c.id, noCombatCard: true }, name: ev.name ?? c.name, who: idx });
+          battles.push({ ev: { ...ev, id: ev.id ?? c.id, noCombatCard: true }, name: ev.name ?? c.name, whos: [idx] });
           continue;
         }
         if (ev.excluded !== undefined || ev.oneCombatCard || ev.oneEvent || ev.values) {
-          battles.push({ ev: { ...ev, id: ev.id ?? c.id }, name: ev.name ?? c.name, who: idx });
+          combatWhos.push(idx);
         }
+      }
+      if (combatWhos.length) {
+        battles.push({ ev: { ...ev, id: ev.id ?? c.id }, name: ev.name ?? c.name, whos: combatWhos });
       }
     }
     this.active = drawer;
@@ -3873,8 +3893,7 @@ export class Game {
 
   // ---------- batailles ----------
 
-  private queueBattles(list: { ev: CampaignSubEvent; name: string; who: number }[]) {
-    if (!this.battleQueue.length) this.battleCards = [];
+  private queueBattles(list: { ev: CampaignSubEvent; name: string; whos: number[] }[]) {
     this.battleQueue.push(...list);
     this.nextBattle();
   }
@@ -3890,57 +3909,103 @@ export class Game {
       f?.();
       return;
     }
-    this.active = t.who;
-    if (this.ch.absent) {
-      this.brief(`${t.name} : hors de combat`);
-      this.nextBattle();
-      return;
-    }
-    if (this.chars.length > 1) this.who();
     // un évènement de terrain n'appelle pas de carte Combat, mais il prend son
-    // rang dans la file : c'est ainsi que l'ordre de lecture est respecté
+    // rang dans la file : c'est ainsi que l'ordre de lecture est respecté. Il
+    // ne concerne qu'un seul Grognard à la fois, jamais un groupe.
     if (t.ev.noCombatCard) {
+      const idx = t.whos[0];
+      this.active = idx;
+      if (this.ch.absent) {
+        this.brief(`${t.name} : hors de combat`);
+        this.nextBattle();
+        return;
+      }
+      if (this.chars.length > 1) this.who();
       this.resolveFieldEvent(t.ev, this.currentCard?.card as CampaignCard);
       this.nextBattle();
       return;
     }
-    this.resolveBattle(t.ev, t.name);
+    this.resolveBattle(t.ev, t.name, t.whos);
   }
 
-  private resolveBattle(ev: CampaignSubEvent, name: string) {
+  /**
+   * Ouvre une bataille pour tout un groupe. Chacun des présents tire sa carte
+   * Combat à son tour — la table se garnit sous la carte d'évènement, un nom
+   * au-dessus de chaque carte — puis, une fois tous tirés, chacun résout la
+   * sienne dans le même ordre. La table se vide au passage à la bataille
+   * suivante ou à la fin de l'évènement, jamais avant.
+   */
+  private resolveBattle(ev: CampaignSubEvent, name: string, whos: number[]) {
+    const present = whos.filter((idx) => {
+      if (this.chars[idx].absent) { this.brief(`${name} : hors de combat`, idx); return false; }
+      return true;
+    });
+    if (!present.length) { this.nextBattle(); return; }
     this.title(`⚔ ${name}`);
+    this.battleCards = [];
     this.combatCard = null;
     const isWaterloo = ev.id === 'battle-of-waterloo';
     const excluded: string[] = [...(ev.excluded ?? [])];
     if (isWaterloo) excluded.push('carry-the-day', 'held-in-reserve');
+    this.cohort = { ev, name, excluded, isWaterloo, drawQueue: present, cards: [], resolveIdx: 0 };
+    this.drawNext();
+  }
+
+  /** Fait tirer sa carte au prochain de la bataille qui n'a pas encore tiré. */
+  private drawNext() {
+    const cohort = this.cohort!;
+    const idx = cohort.drawQueue.shift();
+    if (idx === undefined) { this.resolveNext(); return; }
+    this.active = idx;
+    if (this.chars.length > 1) this.who();
     this.ask('Votre commandement est engagé', [{
       label: 'Tirer une carte Combat',
-      run: () => this.drawCombat(ev, name, excluded, isWaterloo, isWaterloo && this.waterlooRedraw),
+      run: () => this.drawCombat(),
     }], { kind: 'draw-combat' });
   }
 
-  private drawCombat(ev: CampaignSubEvent, name: string, excluded: string[], isWaterloo: boolean, mayRedraw: boolean) {
+  private drawCombat() {
+    const cohort = this.cohort!;
     const pool = expandedCombatCards().filter((c) => {
       const base = combatBaseId(c.id);
-      if (base === 'victory-mont-st-jean') return isWaterloo;
-      return !excluded.includes(base);
+      if (base === 'victory-mont-st-jean') return cohort.isWaterloo;
+      return !cohort.excluded.includes(base);
     });
     const card = pool[Math.floor(this.rng() * pool.length)];
     this.combatCard = { kind: 'combat', card };
+    cohort.cards.push({ who: this.active, card });
     this.battleCards.push({ card: this.combatCard, who: this.active });
     this.drawnThisRound.push({ id: card.id, name: card.name });
     this.cardLog(`Carte Combat : ${card.name}`, card.id);
     if (combatBaseId(card.id) === 'victory-mont-st-jean') { this.resolveVictoryMSJ(); return; }
-    const proceed = () => this.chooseAct(ev, card);
+    const mayRedraw = cohort.isWaterloo && this.waterlooRedraw;
     if (mayRedraw) {
       this.ask('Le Carry the Day des jours précédents permet de rejouer ce tirage', [
-        { label: `Garder ${card.name}`, run: proceed },
+        { label: `Garder ${card.name}`, run: () => this.drawNext() },
         {
           label: 'Défausser et repiocher',
-          run: () => { this.waterlooRedraw = false; this.drawCombat(ev, name, excluded, isWaterloo, false); },
+          run: () => {
+            this.waterlooRedraw = false;
+            cohort.cards.pop();
+            this.battleCards.pop();
+            this.drawnThisRound.pop();
+            this.drawCombat();
+          },
         },
       ]);
-    } else proceed();
+    } else this.drawNext();
+  }
+
+  /** Fait résoudre sa carte au prochain de la bataille qui a déjà tiré. */
+  private resolveNext() {
+    const cohort = this.cohort!;
+    const entry = cohort.cards[cohort.resolveIdx];
+    if (!entry) { this.cohort = null; this.nextBattle(); return; }
+    cohort.resolveIdx++;
+    this.active = entry.who;
+    this.combatCard = { kind: 'combat', card: entry.card };
+    if (this.chars.length > 1) this.who();
+    this.chooseAct(cohort.ev, entry.card);
   }
 
   /** Le côté de la carte Combat qui vaut pour le grade du Grognard. */
@@ -4053,7 +4118,7 @@ export class Game {
       this.waterlooRedraw = true;
       this.info('Ce Carry the Day donnera droit à repiocher la première carte de Waterloo.');
     }
-    this.nextBattle();
+    this.resolveNext();
   }
 
   /** Jet de Légion d'Honneur : 1D10 ≤ gloire de la bataille ÷ 4. */
@@ -4121,6 +4186,7 @@ export class Game {
     if (ch.absent?.type !== 'death') this.applyStat('M', cb.M ?? 0, 'butin');
     this.info(`Gloire du jour : ${ch.G - gStart}.`);
     this.battleQueue = [];
+    this.cohort = null;
     this.afterBattles = null;
     this.roundEnded = true;
   }
@@ -4130,15 +4196,17 @@ export class Game {
     const seq = ['battle-of-quatre-bras', 'battle-of-wavre', 'battle-of-waterloo'];
     const n = this.chars.length;
     const rotation = Array.from({ length: n }, (_, k) => (this.active + k) % n);
-    const tasks: { ev: CampaignSubEvent; name: string; who: number }[] = [];
+    const tasks: { ev: CampaignSubEvent; name: string; whos: number[] }[] = [];
     for (const id of seq) {
       const e = CAMPAIGN_EVENTS.find((x) => x.id === id)!;
+      const whos: number[] = [];
       for (const idx of rotation) {
         const who = this.chars[idx];
         if (who.absent || !who.flags.bonapartist) continue;
         if (!(e.commands ?? []).includes(who.assignment)) continue;
-        tasks.push({ ev: e, name: e.name, who: idx });
+        whos.push(idx);
       }
+      if (whos.length) tasks.push({ ev: e, name: e.name, whos });
     }
     this.afterBattles = () => { this.roundEnded = true; };
     if (tasks.length) this.queueBattles(tasks);
