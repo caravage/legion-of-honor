@@ -4,6 +4,11 @@ Adaptation web de *Legion of Honor* (Clash of Arms, 2014) : un Grognard mené pa
 le joueur, seul ou face à cinq concurrents menés par la machine. React + TS +
 Vite, 100 % client, sauvegarde `localStorage`. Voir `README.md` pour les données.
 
+**Documentation étendue** (à lire seulement si la tâche touche le sujet) :
+- `docs/duel.md` — mécanique du duel, lecture du livret, griefs/défis.
+- `docs/permission-research.md` — mesures sur la règle de permission des concurrents.
+- `docs/card-reading-lessons.md` — lecture des cartes `verify`, cartes muettes.
+
 ## Conventions
 
 - **Tout est en français** : commentaires, texte du journal, interface.
@@ -36,79 +41,32 @@ tourne sur un dépôt fraîchement cloné.
 
 ## Pièges déjà rencontrés
 
-- **Ne jamais redéduire l'ordre de pioche dans l'interface.** La pioche part à
-  gauche du senior, et le senior est celui *figé* pour le round, pas le mieux
-  classé de l'instant. Demander à `Game.nextDrawer()`. L'interface se trompait
-  16 % du temps et offrait un bouton là où le joueur attendait un dos de carte.
+- **Ne jamais redéduire l'ordre de pioche dans l'interface.** Demander à
+  `Game.nextDrawer()` — la pioche part à gauche du senior *figé* pour le round,
+  pas du mieux classé de l'instant.
 - **Pas de `Math.max` sur des indices d'options** dans `policy.ts` : ça retourne
-  la dernière option proposée, pas celle qu'on veut. Ce bug faisait partir les
-  concurrents en permission en pleine santé.
-- **Un absent n'annule pas l'évènement qu'il tire.** Il n'y prend pas part, mais
-  la carte court pour les autres — `We Were There` en garnison, distribution aux
-  commandements engagés en campagne. L'oublier effaçait ~1,4 bataille par partie.
-- Les cartes 20, 75, 38 et 39 s'appliquent même à un absent ; la 40 est traitée
-  avant le test d'absence.
+  la dernière option proposée, pas celle qu'on veut.
+- **Un absent n'annule pas l'évènement qu'il tire** — il n'y prend pas part, mais
+  la carte court pour les autres (`We Were There` en garnison, distribution aux
+  commandements engagés en campagne). Les cartes 20, 75, 38 et 39 s'appliquent
+  même à un absent ; la 40 est traitée avant le test d'absence.
 - **Une question posée au joueur pendant qu'un concurrent a la main, c'est la
   machine qui y répond.** `resolveBotPending()` ne regarde que `this.ch` : si un
-  concurrent tire une carte qui entraîne le joueur en duel, il faut lui passer
-  `active` *et l'y laisser* jusqu'à sa réponse. Passer par `handOver()`, jamais
-  par une affectation qu'on rendrait aussitôt — un `try/finally` autour d'un
-  `ask()` rend la main avant que le joueur ait cliqué.
+  concurrent tire une carte qui entraîne le joueur en duel, passer `active` à ce
+  concurrent *et l'y laisser* jusqu'à sa réponse, via `handOver()` — jamais par
+  une affectation qu'on rendrait aussitôt (un `try/finally` autour d'un `ask()`
+  rend la main avant que le joueur ait cliqué).
 - **Les gains d'un concurrent attendent en mémoire** (`briefBuf`) d'être rendus
-  en une ligne, et la ligne prend le nom du Grognard actif *au moment du
-  vidage*. Écrire dans la feuille d'un rival sans vider d'abord attribue ses
-  pertes à celui qui les inflige. `asActor()` et `handOver()` s'en chargent.
-
-## Ce que les mesures ont établi
-
-Ces faits ne se lisent pas dans le code et ont coûté cher à obtenir.
-
-- **La permission n'est pas un repos, c'est un levier de mobilité.** Au service,
-  le transfert n'est proposé que sur une carte Idle Time — 11 occasions par
-  carrière. En permission, chaque carte devient une occupation choisie — 57.
-- L'effet **sature vers 13 permissions par carrière** ; au-delà, le grade et la
-  fortune reculent (demi-solde) sans rien gagner.
-- Pour le joueur, le score de carrière ne dit rien de la permission ; **les points
-  de victoire, si**.
-
-### Pourquoi la règle de permission des concurrents est celle-là
-
-Ils partent si la santé passe sous le seuil du tempérament **ou** si l'armée n'est
-pas engagée cette saison. Mesuré à 1 200 parties, joueur toujours au service :
-
-| règle des concurrents | permissions/carrière | vous l'emportez |
-|---|---|---|
-| seuil de santé seul | 1,0 | 33,0 % |
-| **+ si l'armée est au repos** | 12,7 | **29,9 %** |
-| toujours | 23,2 | 29,8 % |
-
-C'est un réglage de difficulté assumé : la règle coûte 3 points au joueur. La
-troisième ligne montre qu'aller plus loin ne rapporte plus rien.
-
-**Variante écartée, ne pas la réintroduire** : « attendre le premier round de
-garnison pour voir si un transfert se présente, ne partir qu'au second ». Deux
-raisons — plus de la moitié des saisons n'ont qu'un seul round de garnison, donc
-la clause ne se déclencherait jamais ; et surtout partir **augmente** les
-occasions de transfert (1,7 par round contre 0,59), donc attendre retarde l'accès
-au levier qu'on cherchait.
-
-**Piste non essayée** : n'accorder ce calcul qu'au courtisan, au prudent et à
-l'affairiste, en laissant le sabreur au quartier — il ne croit qu'au feu. Environ
-trois quarts de l'effet, et un tempérament plus lisible.
-
-**Piège des simulations** : `traitsOf` rabat un Grognard sans `persona` sur
-*sabreur*. Un banc d'essai qui fait piloter le joueur par `botChoice` lui donne
-donc ce tempérament-là, et ses résultats ne se transposent pas aux concurrents,
-qui en ont un vrai. Deux mesures de cette sorte se sont contredites pour cette
-seule raison.
+  en une ligne, qui prend le nom du Grognard actif *au moment du vidage*. Passer
+  par `asActor()` et `handOver()`, sinon les pertes d'un rival s'attribuent à
+  celui qui les inflige.
 
 ## Les cartes qui visent un rival
 
 Sept cartes exigent un autre Grognard : courir contre lui, le calomnier,
 l'accuser de lâcheté, boire avec lui, l'envoyer en mission, partager un butin,
 croiser le fer. Elles ne sont écartées **qu'en solo** — `cardAllowed()` interroge
-`multi`, et non plus `soloPlayable` seul. Deux d'entre elles étaient déjà dans le
-deck sans effet faute de cible (*Sack the Town*, *Dangerous Mission*).
+`multi`, et non plus `soloPlayable` seul.
 
 S'y ajoutent deux actions d'Idle Time qui ne vivaient que dans les données :
 `challenge` et le pari `againstGrognard` de `gambleRules`. La liste
@@ -119,121 +77,20 @@ Pour toucher la feuille d'un rival, passer par `asActor()` : `applyStat()` et
 tout ce qui en découle travaillent sur le Grognard actif, jamais sur un index.
 
 `flags.grievanceAgainst` est la seule porte vers un défi : sans partie lésée,
-pas de duel — c'est la règle de la planche, pas une prudence de notre part.
-
-Deux occasions l'ouvrent, et elles ne se valent pas :
-
-| source du grief | griefs/partie | défis/partie |
-|---|---|---|
-| accusation de lâcheté | 6,6 | 0,06 |
-| **disgrâce du commandement** | 0,41 | 0,44 |
-
-Mesuré à 600 parties, six Grognards. La disgrâce convertit cent fois mieux
-parce qu'elle lie d'office deux Grognards du **même commandement** — l'une des
-deux restrictions du défi. L'accusation de lâcheté, elle, frappe n'importe qui :
-le grief est ouvert, mais presque jamais exerçable.
-
-Le levier reste sous un défi par partie, et c'est la planche qui le veut : il
-faut un acte de discrétion déshonoré pour ouvrir un grief de commandement, et
-les concurrents ne se mettent à couvert qu'en dessous de leur seuil de
-tempérament. Les trois autres raisons que reconnaît `duel.json` — insulte,
-termes de prêt violés, cocuage — n'ont aucun support : la première n'est portée
-par aucune carte, la deuxième attend les prêts, la troisième *The Fair Sex*.
-
-L'effet sur la course est nul : joueur vainqueur 5,2 % sans le levier, 6,0 %
-avec, pour une erreur type de 0,9 point. Mortalité inchangée (0,46 → 0,45 par
-carrière). C'est un gain de fidélité, pas un réglage de difficulté.
-
-## Le duel
-
-`src/engine/duel.ts` applique `data/cards/duel.json` et ne connaît rien d'autre :
-il dit qui touche et avec quelle intention, jamais ce qu'il en coûte. C'est
-`game.ts` qui lance la table des blessures, et `policy.ts` qui choisit les cartes.
-
-**Le livret fait foi** : chapitre XVIII, pages 19 à 22 du PDF des règles. Il a
-démenti quatre lectures que nous tenions pour acquises — les voici, pour ne pas
-les refaire.
-
-- **Il n'y a ni attaquant ni défenseur.** « Les Grognards jouent tour à tour
-  leur carte *en réponse à celle que l'adversaire vient de poser* », et toute
-  issue non sanglante se conclut par « l'adversaire joue une autre carte ».
-  C'est une alternance stricte : chaque carte répond à la précédente et devient
-  celle à laquelle l'autre devra répondre. Notre modèle attaque/réponse faisait
-  jouer deux cartes de suite au même homme, et rendait le journal illisible.
-- **Qui tient les cartes n'est pas qui saigne.** Dans un duel contre un
-  personnage de carte, un autre Grognard tient le rôle et « is never affected in
-  any way by the results of the duel » — blessure comprise. D'où `pilot` et
-  `idx` séparés sur `Duelist` : l'un décide, l'autre encaisse.
-- **Les résultats communs ne s'appliquent pas à ces duels-là.** Chaque carte le
-  dit : « Do not apply any other modifications … (Exception: fencing F+1) ».
-  Le Burger vaut E+1, G+3, F+1 et son barème N/S — **pas** le S−3 du duel
-  ordinaire.
-- **Les gains d'un duel entre Grognards se cumulent**, et le texte l'écrit deux
-  fois (« an additional G+3 »). Tuer son homme vaut G+9, N−3, S−3, E+1, F+1.
-- **Le défié arme la rencontre** : il choisit l'épée ou le pistolet *et*
-  annonce qui pose la première carte.
-- **Au pistolet les deux tirent.** Le second ne renonce que s'il est tué ou
-  *gravement* blessé, ou si son amorce a raté — donc les deux peuvent tomber.
-  Et c'est celui qui **tient** le Burger qui ne touche que sur 1-4.
-
-Enfin, **pointer « pour blesser » ajoute 10 au jet de blessure**, donc adoucit :
-1 % de morts contre 11 %. Les concurrents pointent pour blesser, sauf le
-sabreur — c'est ce qui fait que les duels n'ont pas alourdi la mortalité.
-
-Restent à faire : le **fanatisme** (le gracié peut exiger qu'on rejoue, une fois
-par duel), la magnanimité pour les concurrents (ils frappent toujours), les
-griefs **multiples** — `flags.grievanceAgainst` n'en retient qu'un et les
-écrase — et leur extinction à la mort de l'offenseur.
-
-## Les cartes sont lisibles : les planches sont là
-
-`public/cards/slices/` contient les 186 découpes, et `data/cards/images.json`
-donne l'identifiant de chacune. **Une carte marquée `verify` se tranche en la
-lisant**, pas en raisonnant sur sa transcription. Elles ne sont pas versionnées
-(110 Mo) mais elles sont présentes en session.
-
-La leçon a coûté quatre erreurs sur la seule carte 52, toutes venues de sa
-transcription : la carte d'avantage revient au **tireur** et non au Burger, le
-choix de l'arme appartient au **Grognard qui tient le rôle** et non au tireur,
-le barème N/S était résumé en « selon la blessure » quand la carte le donne en
-clair, et le Burger n'est pas un personnage de carte — **c'est un duel
-ordinaire entre deux Grognards**, avec les résultats communs des deux côtés et
-les avantages habituels. Le E+1 et le G+3 que la carte rappelle sont ceux de la
-planche : ils ne s'y ajoutent pas. Il reste 31 cartes portant `verify`.
-
-## Une carte peut être muette sans que rien ne le signale
-
-Deux façons de ne rien faire, toutes deux silencieuses :
-
-- **Un champ que personne ne lit.** `choice` n'était traité que par les trois
-  cartes qui avaient leur propre `case` ; *You Are a Passing Fancy* (74), qui
-  n'a que lui, traversait la table sans rien produire — ni question, ni gain.
-  Il existe désormais un traitement générique, et `emperor-fancies-your-lady`
-  en profitera quand *The Fair Sex* arrivera.
-- **Un résultat de jet écrit en prose.** `resolveRollField` applique un objet,
-  mais une chaîne n'est qu'affichée : seuls `mort` et `emprisonné` y étaient
-  reconnus. Le « sinon N−2 » de la carte 74 se perdait ainsi.
-
-Pour les débusquer : instrumenter `resolveEntry`, marquer la longueur de
-`trace` à l'ouverture d'une carte et la relever à la carte suivante. Une carte
-souvent tirée qui ne fait jamais bouger la trace est muette. Deux réserves —
-les gains d'une bataille sont portés par sa carte Combat, non par l'évènement
-qui l'ouvre (Eckmühl affiche zéro et fonctionne), et une carte résolue *à
-l'intérieur* de `drawCombat` voit ses gains attribués à la précédente.
+pas de duel. Détails et mesures dans `docs/duel.md`.
 
 ## Chantiers ouverts
 
-- *Comrades in Arms* reste à faire : c'est le dernier bloc multijoueur.
-- **Les prêts entre Grognards** n'existent pas. Les données n'en disent qu'une
-  ligne — « multijoueur ; sans objet en solo » — sans montants, ni intérêt, ni
-  terme. Rien à implémenter tant que la règle n'est pas fournie ; c'est le seul
-  point de `cardsTargetingOtherPlayers` encore vide, et il tient en otage l'une
-  des raisons de défi.
+- *Comrades in Arms* reste à faire : dernier bloc multijoueur.
+- **Les prêts entre Grognards** n'existent pas — données incomplètes (pas de
+  montants, intérêt, terme). Seul point vide de `cardsTargetingOtherPlayers`,
+  et il tient en otage l'une des raisons de défi.
 - *The Terror* porte `commands: ["all"]` mais ne frappe que son piocheur.
 - Le maréchalat n'est couvert par aucune partie témoin.
 - 4 `any` subsistent dans `src/ui/Reference.tsx`.
 - L'interface ne montre pas les cartes d'un duel autrement que par des boutons :
   ni main, ni carte adverse sur la table.
+- Fanatisme, magnanimité des concurrents, griefs multiples : voir `docs/duel.md`.
 - Le README interdit encore de publier le contenu ; l'auteur a indiqué que cette
   restriction ne s'applique plus.
 
@@ -242,6 +99,6 @@ l'intérieur* de `drawCombat` voit ses gains attribués à la précédente.
 Que les concurrents jouent le mieux possible. Leviers non encore mesurés : leur
 règle de transfert (ils ne demandent qu'au repos ou si standing ≤ −2), leur
 arbitrage entre acte de gloire et acte de discrétion, les poids de tempérament
-dans `TRAITS`, et maintenant leur conduite sur le pré — `duelChoice` pare puis
-riposte sans jamais compter ses cartes, et `acceptsDuel` ne pèse pas les cinq
-points de gloire d'un refus contre le risque encouru.
+dans `TRAITS`, et leur conduite sur le pré — `duelChoice` pare puis riposte sans
+jamais compter ses cartes, et `acceptsDuel` ne pèse pas les cinq points de
+gloire d'un refus contre le risque encouru.
