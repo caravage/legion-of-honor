@@ -210,18 +210,24 @@ export function botTarget(
 // ---------- le duel ----------
 
 /**
- * Quelle carte poser. En défense, la parade sauve et la riposte renvoie le
- * coup ; poser une botte pour répondre à une botte, c'est se faire embrocher.
- * En attaque, on porte l'estoc — et l'on ne pointe « pour tuer » que si l'on a
- * l'estomac de perdre la notice que coûte un mort sur le pré.
+ * Quelle carte poser — affaire de stratégie, pas de tempérament. On use la
+ * parade tant qu'on l'a, la riposte ensuite, la botte en dernier : c'est la
+ * carte la plus dangereuse à jouer (elle ne protège pas), on la garde donc
+ * pour quand il ne reste plus rien d'autre en main.
  */
-export function duelChoice(choices: SwordChoice[], self: Character | null, defending: boolean): number {
+export function duelChoice(
+  choices: SwordChoice[],
+  self: Character | null,
+  opponent: Character | null = null,
+  rng: () => number = Math.random,
+): number {
   if (!choices.length) return -1;
-  const order: SwordChoice['card'][] = defending
-    ? ['parry', 'riposte', 'lunge']
-    : ['lunge', 'riposte', 'parry'];
-  // le sabreur cherche le mort ; les autres se contentent du sang
-  const wants: 'kill' | 'wound' = self?.persona === 'sabreur' ? 'kill' : 'wound';
+  const order: SwordChoice['card'][] = ['parry', 'riposte', 'lunge'];
+  // Pour tuer ou pour blesser : affaire de tempérament, pas de stratégie.
+  // On ne joue le mort que contre un adversaire de rang inférieur, une fois
+  // sur deux — jamais contre un supérieur ou un égal.
+  const wants: 'kill' | 'wound' =
+    self && opponent && opponent.rankIdx < self.rankIdx && rng() < 0.5 ? 'kill' : 'wound';
   for (const card of order) {
     const exact = choices.findIndex((c) => c.card === card && (!c.aim || c.aim === wants));
     if (exact >= 0) return exact;

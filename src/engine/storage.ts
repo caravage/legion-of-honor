@@ -9,6 +9,7 @@
 
 const SAVE_KEY = 'loh-save-v1';
 const HALL_KEY = 'loh-hall';
+const PORTRAITS_KEY = 'loh-portraits-v1';
 
 function store(): Storage | null {
   try {
@@ -80,5 +81,39 @@ export function pushHall(entry: HallEntry): void {
     store()?.setItem(HALL_KEY, JSON.stringify(list.slice(0, 20)));
   } catch {
     /* stockage indisponible */
+  }
+}
+
+/**
+ * Portrait de chaque Grognard : purement cosmétique, jamais lu par le
+ * moteur. Un visage tient tant que `deaths` ne change pas ; une renaissance
+ * en réclame un nouveau (voir `ui/portraits.ts`).
+ */
+export interface PortraitEntry {
+  visage: number;
+  deaths: number;
+}
+
+export function readPortraits(): PortraitEntry[] {
+  try {
+    return JSON.parse(store()?.getItem(PORTRAITS_KEY) ?? '[]') as PortraitEntry[];
+  } catch {
+    return [];
+  }
+}
+
+export function writePortraits(list: PortraitEntry[]): void {
+  try {
+    store()?.setItem(PORTRAITS_KEY, JSON.stringify(list));
+  } catch {
+    /* stockage indisponible */
+  }
+}
+
+export function clearPortraits(): void {
+  try {
+    store()?.removeItem(PORTRAITS_KEY);
+  } catch {
+    /* rien à faire */
   }
 }
