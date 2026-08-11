@@ -4,23 +4,24 @@
  * au flux de dés que compare la régression.
  */
 import type { Game } from '../engine/game';
+import { publicPath } from '../engine/data';
 import { readPortraits, writePortraits } from '../engine/storage';
 
 const VISAGE_COUNT = 10;
 
 export function portraitSrc(visage: number): string {
-  return `/portraits/visage-${visage}.jpg`;
+  return publicPath(`portraits/visage-${visage}.jpg`);
 }
 
 export const BADGE = {
-  N: '/badges/N.jpg',
-  G: '/badges/G.jpg',
-  E: '/badges/E.jpg',
-  C: '/badges/C.jpg',
-  F: '/badges/F.jpg',
-  S: '/badges/S.jpg',
-  mParis: '/badges/paris.jpg',
-  mPurse: '/badges/bourse.jpg',
+  N: publicPath('badges/N.jpg'),
+  G: publicPath('badges/G.jpg'),
+  E: publicPath('badges/E.jpg'),
+  C: publicPath('badges/C.jpg'),
+  F: publicPath('badges/F.jpg'),
+  S: publicPath('badges/S.jpg'),
+  mParis: publicPath('badges/paris.jpg'),
+  mPurse: publicPath('badges/bourse.jpg'),
 };
 
 /**
