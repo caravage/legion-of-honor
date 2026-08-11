@@ -84,15 +84,11 @@ pas de duel. Détails et mesures dans `docs/duel.md`.
 ## Chantiers ouverts
 
 - *Comrades in Arms* reste à faire : dernier bloc multijoueur.
-- **Les prêts entre Grognards** n'existent pas — données incomplètes (pas de
-  montants, intérêt, terme). Seul point vide de `cardsTargetingOtherPlayers`,
-  et il tient en otage l'une des raisons de défi.
 - *The Terror* porte `commands: ["all"]` mais ne frappe que son piocheur.
 - Le maréchalat n'est couvert par aucune partie témoin.
 - 4 `any` subsistent dans `src/ui/Reference.tsx`.
 - L'interface ne montre pas les cartes d'un duel autrement que par des boutons :
   ni main, ni carte adverse sur la table.
-- Fanatisme, magnanimité des concurrents, griefs multiples : voir `docs/duel.md`.
 - Le README interdit encore de publier le contenu ; l'auteur a indiqué que cette
   restriction ne s'applique plus.
 
