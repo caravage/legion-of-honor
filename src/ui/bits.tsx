@@ -41,16 +41,11 @@ export function SheetGroup({ title, children }: { title: string; children: React
   );
 }
 
-export function Stat({ k, v, bar }: { k: string; v: ReactNode; bar?: number }) {
+export function Stat({ k, v }: { k: string; v: ReactNode }) {
   return (
     <div className="stat">
       <span className="stat-k">{k}</span>
       <span className="stat-v">{v}</span>
-      {bar !== undefined && (
-        <span className="stat-bar">
-          <i style={{ width: `${Math.max(0, Math.min(1, bar)) * 100}%` }} />
-        </span>
-      )}
     </div>
   );
 }

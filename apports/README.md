@@ -14,7 +14,9 @@ le même commit. Ce qui reste ici est donc ce qui attend encore.
 
 ## En attente
 
-Rien pour l'instant.
+Rien pour l'instant. Les dix visages et les huit badges de compteurs (Notice,
+Gloire, Expérience, Charme, Escrime, Standing, argent Paris, argent Bourse)
+sont passés dans `public/portraits/` et `public/badges/`.
 
 ## Pourquoi ce dossier existe
 

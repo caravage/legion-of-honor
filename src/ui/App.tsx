@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Game } from '../engine/game';
 import type { SetupMode } from '../engine/game';
 import { generateName } from '../engine/names';
-import { pushHall } from '../engine/storage';
+import { clearPortraits, pushHall } from '../engine/storage';
 import { Reference, RefKind } from './Reference';
 import { BugReport } from './BugReport';
 import { Header, ProgressBar } from './bits';
@@ -35,6 +35,7 @@ export default function App() {
     if (g?.over && !archivedRef.current) {
       archivedRef.current = true;
       Game.clearSave();
+      clearPortraits();
       pushHall({
         name: g.me.name,
         rank: g.rankName(),
@@ -50,6 +51,7 @@ export default function App() {
   });
 
   const start = (mode: SetupMode) => {
+    clearPortraits();
     gameRef.current = new Game(name.trim(), Math.random, mode, bots);
     gameRef.current.interactive = true;
     archivedRef.current = false;
@@ -60,6 +62,7 @@ export default function App() {
   /** Atelier : une carrière neuve, amenée d'office à la saison demandée. */
   const jumpTo = (season: number) => {
     if (!gameRef.current) {
+      clearPortraits();
       gameRef.current = new Game(name.trim(), Math.random, 'quick', bots);
       gameRef.current.interactive = true;
       archivedRef.current = false;
@@ -205,12 +208,14 @@ export default function App() {
       )}
       <div className="layout">
         <aside className="panel sheet">
-          <div className="sheet-name">{ch.name}</div>
           {prog.blockKind === 'setup' ? (
-            <SetupSheet
-              game={game}
-              revealedRolls={game.log.slice(0, revealed).filter((e) => e.cls === 'roll').length}
-            />
+            <>
+              <div className="sheet-name">{ch.name}</div>
+              <SetupSheet
+                game={game}
+                revealedRolls={game.log.slice(0, revealed).filter((e) => e.cls === 'roll').length}
+              />
+            </>
           ) : (
             <GrognardSheet game={game} ch={ch} />
           )}
@@ -320,6 +325,7 @@ export default function App() {
 
       {sheetOf !== null && (
         <RivalSheet
+          game={game}
           idx={sheetOf}
           ch={(replaying ? game.snapshotAll(revealed) : game.chars)[sheetOf]}
           onClose={() => setSheetOf(null)}
