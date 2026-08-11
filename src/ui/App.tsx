@@ -51,6 +51,7 @@ export default function App() {
 
   const start = (mode: SetupMode) => {
     gameRef.current = new Game(name.trim(), Math.random, mode, bots);
+    gameRef.current.interactive = true;
     archivedRef.current = false;
     setRevealed(0);
     refresh();
@@ -60,6 +61,7 @@ export default function App() {
   const jumpTo = (season: number) => {
     if (!gameRef.current) {
       gameRef.current = new Game(name.trim(), Math.random, 'quick', bots);
+      gameRef.current.interactive = true;
       archivedRef.current = false;
     }
     gameRef.current.jumpToSeason(season);
@@ -71,6 +73,7 @@ export default function App() {
     const g = Game.load();
     if (!g) return;
     gameRef.current = g;
+    g.interactive = true;
     archivedRef.current = g.over;
     setRevealed(g.log.length);
     refresh();
@@ -328,7 +331,8 @@ export default function App() {
       {god && (
         <GodMode game={game} onJump={jumpTo} onClose={() => setGod(false)} onChange={refresh} />
       )}
-      {!replaying && <DuelWindow game={game} onChange={refresh} />}
+      {/* le duel est modal : il reste au-dessus même quand la chronique se dévoile */}
+      <DuelWindow game={game} onChange={refresh} />
     </div>
   );
 }

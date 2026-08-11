@@ -65,6 +65,12 @@ type DuelRun = {
   journal: string[];
   /** Feuilles au moment de dégainer, pour dire ce que l'affaire a coûté. */
   before: Record<number, Character>;
+  /** Coup porté, en attente du jet de blessure que le joueur doit lancer. */
+  wound?: { loser: Duelist; winner: Duelist; aim: Aim } | null;
+  /** Le jet une fois tombé : deux faces de d10, et ce qu'elles donnent. */
+  roll?: { faces: [number, number]; bonus: number; total: number; result: string } | null;
+  /** Décompte final, affiché dans la fenêtre avant de la refermer. */
+  summary?: string | null;
 };
 
 /** Gravité comparée d'une blessure, pour retenir la pire de deux balles. */
@@ -152,8 +158,20 @@ export class Game {
   wwtQueue: number[] = [];
   wwtCard: DeckEntry | null = null;
   wwtDrawer = 0;
+  /**
+   * Vrai quand une interface suit la partie. Le moteur s'en sert pour attendre
+   * un geste — lancer les dés d'une blessure — là où une simulation doit
+   * résoudre d'un trait. Les bancs d'essai le laissent faux, et retrouvent
+   * exactement la mécanique d'avant la fenêtre de duel.
+   */
+  interactive = false;
   /** Duel en cours : tant qu'il dure, la partie ne tient pas en place. */
   duelRun: DuelRun | null = null;
+  /**
+   * Duel achevé dont la fenêtre montre encore le décompte. Il est détaché de
+   * `duelRun` à dessein : un duel clos ne doit plus rien détourner du journal.
+   */
+  duelOver: { label: string; journal: string[]; summary: string; roll: DuelRun['roll'] } | null = null;
   /** Batailles restant à résoudre pour la carte en cours */
   battleQueue: { ev: CampaignSubEvent; name: string; who: number }[] = [];
   /** À exécuter quand la file de batailles est vide */
@@ -995,11 +1013,12 @@ export class Game {
     // la magnanimité : renoncer à frapper vaut plus que le sang, mais on ne
     // l'accorde pas à un personnage de carte, qui n'a rien à en faire
     const spare = run.terms.magnanimity && loser.idx !== null && winner.idx !== null;
+    const humain = this.interactive && (run.a.pilot === 0 || run.b.pilot === 0);
     const strike = () => {
-      const row = this.duelWound(loser, o.aim);
-      this.applyDuelResults(run, o);
-      run.terms.then?.(o, row);
-      this.closeDuel(run, `${winner.name} touche ${loser.name} — ${this.woundName(row.type).toLowerCase()}`);
+      // Sur le pré, le joueur lance lui-même : le duel s'arrête ici et la
+      // fenêtre lui tend les dés. Entre concurrents, rien n'attend personne.
+      if (humain) { run.wound = { loser, winner, aim: o.aim }; return; }
+      this.resolveDuelWound(run, o, loser, winner);
     };
     if (!spare) { strike(); return; }
     const askSpare = () => {
@@ -1056,52 +1075,140 @@ export class Game {
     this.duelRun = null;
     this.title(`⚔ ${run.terms.label} — ${tete}`, comptes || undefined);
     if (comptes) this.info(comptes);
+    // le joueur doit pouvoir lire ce qui vient de se passer avant que la
+    // fenêtre disparaisse ; entre concurrents, il n'y a rien à montrer
+    if (this.interactive && (run.a.pilot === 0 || run.b.pilot === 0)) {
+      run.journal.push(tete);
+      if (comptes) run.journal.push(comptes);
+      this.duelOver = { label: run.terms.label, journal: run.journal, summary: comptes || tete, roll: run.roll ?? null };
+    }
   }
 
   /**
-   * Ce que la fenêtre de duel a besoin de savoir. Elle ne touche jamais à
-   * l'état : elle lit, et rend la main au moteur par `choose()`.
+   * Ce que la fenêtre de duel a besoin de savoir. Elle lit, elle n'écrit pas :
+   * tout ce qu'elle décide repasse par `playDuelCard`, `duelRollWound` ou
+   * `choose`, comme n'importe quelle question posée au joueur.
    */
   duelView(): {
     label: string;
     journal: string[];
-    a: { name: string; cards: number; mine: boolean };
-    b: { name: string; cards: number; mine: boolean };
-    table: { card: string; aim: Aim; side: Side } | null;
-    turn: Side | null;
+    /** Le camp du joueur, s'il tient des cartes ; sinon il regarde. */
+    mine: { name: string; cards: number } | null;
+    foe: { name: string; cards: number };
+    table: { card: string; aim: Aim } | null;
+    /** Qui doit poser une carte, en clair. */
+    turnName: string | null;
     myTurn: boolean;
-    hand: { card: string; aim?: Aim; label: string }[];
+    /** La main du joueur, carte par carte, avec les pointes possibles. */
+    hand: { card: string; aims: Aim[] }[];
+    /** Une question du moteur pendant le duel — magnanimité, arme… */
+    ask: { title: string; options: string[] } | null;
+    /** Les dés attendent d'être lancés. */
+    awaitingRoll: boolean;
+    roll: { faces: [number, number]; bonus: number; total: number; result: string } | null;
+    summary: string | null;
+    done: boolean;
   } | null {
     const run = this.duelRun;
-    const duel = run?.sword;
-    if (!run || !duel) return null;
-    const tenu = (d: Duelist) => d.pilot === 0;
-    const side = duel.turn;
-    const who = side === 'a' ? run.a : run.b;
+    if (!run) {
+      const fini = this.duelOver;
+      if (!fini) return null;
+      return {
+        label: fini.label, journal: fini.journal, mine: null, foe: { name: '', cards: 0 },
+        table: null, turnName: null, myTurn: false, hand: [], ask: null,
+        awaitingRoll: false, roll: fini.roll ?? null, summary: fini.summary, done: true,
+      };
+    }
+    const duel = run.sword;
+    const mienne = (d: Duelist) => d.pilot === 0;
+    const moi = mienne(run.a) ? run.a : mienne(run.b) ? run.b : null;
+    const lui = moi === run.a ? run.b : run.a;
+    const side = duel?.turn ?? null;
+    const qui = side ? (side === 'a' ? run.a : run.b) : null;
+    const aMoi = !!side && !!qui && mienne(qui) && !!this.pending;
+    const cartes = (d: Duelist): number => {
+      if (!duel) return 0;
+      return duel.hands[d === run.a ? 'a' : 'b'].length;
+    };
+    const main: { card: string; aims: Aim[] }[] = [];
+    if (aMoi && duel && side) {
+      for (const c of duel.hands[side]) {
+        main.push({ card: c, aims: c === 'parry' ? [] : (['wound', 'kill'] as Aim[]) });
+      }
+    }
+    // une question qui n'est pas un coup à jouer : elle s'affiche dans la fenêtre
+    const question = this.pending && !aMoi
+      ? { title: this.pending.title, options: this.pending.options.map((o) => o.label) }
+      : null;
     return {
       label: run.terms.label,
       journal: run.journal,
-      a: { name: run.a.name, cards: duel.hands.a.length, mine: tenu(run.a) },
-      b: { name: run.b.name, cards: duel.hands.b.length, mine: tenu(run.b) },
-      table: duel.table,
-      turn: side,
-      myTurn: !!side && tenu(who) && !!this.pending,
-      hand: side && tenu(who) ? duel.choices() : [],
+      mine: moi ? { name: moi.name, cards: cartes(moi) } : null,
+      foe: { name: lui.name, cards: cartes(lui) },
+      table: duel?.table ? { card: duel.table.card, aim: duel.table.aim } : null,
+      turnName: qui?.name ?? null,
+      myTurn: aMoi,
+      hand: main,
+      ask: question,
+      awaitingRoll: !!run.wound,
+      roll: run.roll ?? null,
+      summary: null,
+      done: false,
     };
   }
 
-  /** La table des blessures, pointée par l'intention du coup. */
-  private duelWound(loser: Duelist, aim: Aim): WoundRow {
+  /** Pose la carte d'indice `i` de la main, pointée comme demandé. */
+  playDuelCard2(i: number, aim: Aim) {
+    const run = this.duelRun;
+    const duel = run?.sword;
+    const side = duel?.turn;
+    if (!run || !duel || !side) return;
+    const card = duel.hands[side][i];
+    if (!card) return;
+    const choix = duel.choices().findIndex((c) => c.card === card && (!c.aim || c.aim === aim));
+    if (choix >= 0) this.choose(choix);
+  }
+
+  /** Referme la fenêtre une fois le décompte lu. */
+  duelDismiss() {
+    this.duelOver = null;
+    this.save();
+  }
+
+  /**
+   * La table des blessures, pointée par l'intention du coup. Les deux faces du
+   * d10 sont rendues séparément : la fenêtre les montre rouler.
+   */
+  private duelWound(loser: Duelist, aim: Aim): { row: WoundRow; faces: [number, number]; total: number; bonus: number } {
     const bonus = aim === 'wound' ? 10 : 0;
-    const r = Math.min(100, d100(this.rng) + bonus);
-    const row = findWoundRow(r);
-    this.roll(`Blessure : 2D10${bonus ? `+${bonus}` : ''}=${r} → ${this.woundName(row.type)}`);
-    if (loser.idx === null) {
-      this.info(`${loser.name} : ${this.woundName(row.type).toLowerCase()}`);
-      return row;
-    }
-    this.asActor(loser.idx, () => this.applyWoundRow(row, true));
-    return row;
+    const t = d10(this.rng) % 10;
+    const u = d10(this.rng) % 10;
+    const brut = t * 10 + u === 0 ? 100 : t * 10 + u;
+    const total = Math.min(100, brut + bonus);
+    const row = findWoundRow(total);
+    this.duelSay(`Blessure : 2D10=${brut}${bonus ? ` +${bonus}` : ''} → ${this.woundName(row.type)}`);
+    if (loser.idx === null) this.duelSay(`${loser.name} : ${this.woundName(row.type).toLowerCase()}`);
+    else this.asActor(loser.idx, () => this.applyWoundRow(row, true));
+    return { row, faces: [t, u], total, bonus };
+  }
+
+  /** Porte le coup, applique les résultats, et prépare le décompte. */
+  private resolveDuelWound(run: DuelRun, o: SwordOutcome, loser: Duelist, winner: Duelist) {
+    const { row, faces, total, bonus } = this.duelWound(loser, o.aim);
+    run.roll = { faces, bonus, total, result: this.woundName(row.type) };
+    run.wound = null;
+    this.applyDuelResults(run, o);
+    run.terms.then?.(o, row);
+    this.closeDuel(run, `${winner.name} touche ${loser.name} — ${this.woundName(row.type).toLowerCase()}`);
+  }
+
+  /** Le joueur lance les dés de blessure ; la fenêtre reste ouverte ensuite. */
+  duelRollWound() {
+    const run = this.duelRun;
+    const w = run?.wound;
+    const o = run?.sword?.outcome;
+    if (!run || !w || !o) return;
+    this.resolveDuelWound(run, o, w.loser, w.winner);
   }
 
   /** Les résultats de la planche, ou ceux que la carte impose à leur place. */
@@ -1175,13 +1282,14 @@ export class Game {
       const shot = pistolHits(this.rng, cap);
       this.roll(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
       if (!shot.hit) continue;
-      const row = this.duelWound(target, aims[side]);
+      const tir = this.duelWound(target, aims[side]);
+      run.roll = { faces: tir.faces, bonus: tir.bonus, total: tir.total, result: this.woundName(tir.row.type) };
       // le premier sang ne clôt pas l'affaire au pistolet : on garde le plus grave
-      if (!outcome || !blessure || GRAVITE[row.type] > GRAVITE[blessure.type]) {
+      if (!outcome || !blessure || GRAVITE[tir.row.type] > GRAVITE[blessure.type]) {
         outcome = { woundedSide: other(side), winnerSide: side, aim: aims[side], deals: 0 };
-        blessure = row;
+        blessure = tir.row;
       }
-      if (row.type === 'killed' || row.type === 'gravely') arrete = true;
+      if (tir.row.type === 'killed' || tir.row.type === 'gravely') arrete = true;
     }
     if (!outcome) this.duelSay('Les deux balles se perdent : l’honneur est satisfait.');
     this.applyDuelResults(run, outcome);
@@ -1198,8 +1306,9 @@ export class Game {
     // Un duel oublié ouvert détournerait toute la chronique vers sa fenêtre.
     // Rien ne doit pouvoir le laisser traîner : si plus personne n'attend une
     // carte et qu'aucune question n'est posée, on le referme.
-    if (this.duelRun && !this.pending && (!this.duelRun.sword || this.duelRun.sword.done)) {
-      this.closeDuel(this.duelRun, null);
+    if (this.duelRun && !this.pending) {
+      if (this.duelRun.wound) this.duelRollWound();
+      else if (!this.duelRun.sword || this.duelRun.sword.done) this.closeDuel(this.duelRun, null);
     }
     if (this.pending || this.over) return;
     if (this.wwtQueue.length) { this.processWWT(); this.save(); return; }
@@ -1224,7 +1333,8 @@ export class Game {
     const p = this.pending;
     if (!p || !p.options[i]) return;
     this.pending = null;
-    this.cardLog(`▸ ${p.options[i].label}`);
+    // pendant un duel, la carte posée est déjà racontée : pas d'écho
+    if (!this.duelRun) this.cardLog(`▸ ${p.options[i].label}`);
     p.options[i].run();
     this.resolveBotPending();
     this.save();
