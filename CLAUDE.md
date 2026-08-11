@@ -20,6 +20,8 @@ Vite, 100 % client, sauvegarde `localStorage`. Voir `README.md` pour les donnée
 
 ## Contrôles
 
+⚠️ **Avant de lancer l'une des commandes de test/simulation ci-dessous, demander validation d'abord** — elles consomment des ressources importantes (output volumineux, tokens, temps). Exception : `npm run dev`.
+
 | Commande | Rôle |
 |---|---|
 | `npm run check` | compilation + régression + données |
