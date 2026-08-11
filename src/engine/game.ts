@@ -1183,13 +1183,24 @@ export class Game {
       }
       if (row.type === 'killed' || row.type === 'gravely') arrete = true;
     }
-    if (!outcome) this.info('Les deux balles se perdent : l’honneur est satisfait.');
+    if (!outcome) this.duelSay('Les deux balles se perdent : l’honneur est satisfait.');
     this.applyDuelResults(run, outcome);
     terms.then?.(outcome, blessure);
+    const gagnant = outcome ? (outcome.winnerSide === 'a' ? a : b) : null;
+    const perdant = outcome ? (outcome.woundedSide === 'a' ? a : b) : null;
+    this.closeDuel(run, gagnant && perdant && blessure
+      ? `${gagnant.name} touche ${perdant.name} — ${this.woundName(blessure.type).toLowerCase()}`
+      : null);
   }
 
   // ---------- avancement ----------
   advance() {
+    // Un duel oublié ouvert détournerait toute la chronique vers sa fenêtre.
+    // Rien ne doit pouvoir le laisser traîner : si plus personne n'attend une
+    // carte et qu'aucune question n'est posée, on le referme.
+    if (this.duelRun && !this.pending && (!this.duelRun.sword || this.duelRun.sword.done)) {
+      this.closeDuel(this.duelRun, null);
+    }
     if (this.pending || this.over) return;
     if (this.wwtQueue.length) { this.processWWT(); this.save(); return; }
     switch (this.stage) {

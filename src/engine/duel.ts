@@ -187,15 +187,24 @@ export class SwordDuel {
   }
 
   /** Joue le choix d'indice `i` — ou, à −1, l'aveu qu'on n'a plus de carte. */
-  play(i: number): { card: SwordCardType | 'no-card'; aim: Aim; side: Side; wounded: boolean } | null {
+  play(i: number) {
+    const pick = this.choices()[i];
+    return this.playCard(pick ? pick.card : 'no-card', pick?.aim ?? 'wound');
+  }
+
+  /**
+   * Pose une carte de la main, pointée comme on l'entend. La parade n'a pas de
+   * pointe ; la botte, la riposte et le feu se retournent à volonté, et c'est
+   * au joueur d'en décider à chaque fois.
+   */
+  playCard(card: SwordCardType | 'no-card', aim: Aim = 'wound'):
+  { card: SwordCardType | 'no-card'; aim: Aim; side: Side; wounded: boolean } | null {
     const side = this.turn;
     if (!side) return null;
-    const pick = this.choices()[i];
-    const card: SwordCardType | 'no-card' = pick ? pick.card : 'no-card';
-    const aim: Aim = pick?.aim ?? 'wound';
-    if (pick) {
-      const k = this.hands[side].indexOf(pick.card);
-      if (k >= 0) this.hands[side].splice(k, 1);
+    if (card !== 'no-card') {
+      const k = this.hands[side].indexOf(card);
+      if (k < 0) return null;
+      this.hands[side].splice(k, 1);
     }
 
     let wounded = false;
