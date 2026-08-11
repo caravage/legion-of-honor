@@ -208,19 +208,26 @@ export class SwordDuel {
     }
 
     let wounded = false;
+    // la riposte pare puis se substitue : l'adversaire répond au type qu'elle
+    // « compte comme » (botte ou parade), jamais à la riposte elle-même
+    let effective: SwordCardType | 'no-card' = card;
     if (this.table) {
       const row = this.data.swordInteraction[`vs-${this.table.card}`] ?? {};
-      if ((row[card] ?? 'safe').includes('wounded')) {
+      const result = row[card] ?? 'safe';
+      if (result.includes('wounded')) {
         // le coup porte, avec l'intention que lui donnait la carte reçue
         this.outcome = {
           woundedSide: side, winnerSide: other(side), aim: this.table.aim, deals: this.deals,
         };
         return { card, aim, side, wounded: true };
       }
+      if (result.includes('counts-as-lunge')) effective = 'lunge';
+      else if (result.includes('counts-as-parry')) effective = 'parry';
     }
 
-    // la carte posée devient celle à laquelle l'adversaire doit répondre
-    this.table = card === 'no-card' ? null : { card, aim, side };
+    // la carte posée (ou ce qu'elle compte comme) devient celle à laquelle
+    // l'adversaire doit répondre
+    this.table = effective === 'no-card' ? null : { card: effective, aim, side };
     this.toPlay = other(side);
 
     // personne n'a plus rien à poser : on redistribue, le duel continue
