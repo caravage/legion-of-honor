@@ -1262,6 +1262,8 @@ export class Game {
       this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');
       this.applyDuelResults(run, null);
       terms.then?.(null);
+      // sans cette fermeture, le duel restait ouvert et avalait la chronique
+      this.closeDuel(run, null);
       return;
     }
     const order: Side[] = ord.first === 'a' ? ['a', 'b'] : ['b', 'a'];
@@ -1301,15 +1303,29 @@ export class Game {
       : null);
   }
 
+  /**
+   * Referme un duel que plus personne n'attend. Tant qu'il reste ouvert,
+   * `add()` détourne tout vers sa fenêtre : la chronique n'affiche plus que
+   * les titres et les phases — plus une carte, plus un jet — et rien ne le
+   * signale. Une seule sortie de `pistolDuel` oubliait la fermeture ; le filet
+   * vaut pour toutes les autres, y compris celles qu'on n'a pas vues.
+   *
+   * Ne touche jamais un duel qui attend vraiment quelqu'un : une question
+   * posée, des dés de blessure à lancer, une passe à jouer.
+   */
+  private closeStrandedDuel() {
+    const run = this.duelRun;
+    if (!run || this.pending || run.wound) return;
+    if (!run.sword || run.sword.done) this.closeDuel(run, null);
+  }
+
   // ---------- avancement ----------
   advance() {
     // Un duel oublié ouvert détournerait toute la chronique vers sa fenêtre.
     // Rien ne doit pouvoir le laisser traîner : si plus personne n'attend une
     // carte et qu'aucune question n'est posée, on le referme.
-    if (this.duelRun && !this.pending) {
-      if (this.duelRun.wound) this.duelRollWound();
-      else if (!this.duelRun.sword || this.duelRun.sword.done) this.closeDuel(this.duelRun, null);
-    }
+    if (this.duelRun && !this.pending && this.duelRun.wound) this.duelRollWound();
+    this.closeStrandedDuel();
     if (this.pending || this.over) return;
     if (this.wwtQueue.length) { this.processWWT(); this.save(); return; }
     switch (this.stage) {
@@ -1337,6 +1353,10 @@ export class Game {
     if (!this.duelRun) this.cardLog(`▸ ${p.options[i].label}`);
     p.options[i].run();
     this.resolveBotPending();
+    // La fenêtre de duel remplace les commandes : tant qu'elle est ouverte,
+    // `advance()` n'est plus atteignable et son filet ne sert à rien. C'est
+    // donc ici qu'il faut le tendre — un duel clos dans la réponse même.
+    this.closeStrandedDuel();
     this.save();
   }
 
