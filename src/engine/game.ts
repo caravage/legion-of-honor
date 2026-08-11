@@ -1246,17 +1246,18 @@ export class Game {
    * l'ordre, et le second ne tire que s'il tient encore debout.
    */
   private pistolDuel(a: Duelist, b: Duelist, terms: DuelTerms, aims: Record<Side, Aim>, hitCap = 5) {
-    this.phase(terms.label);
-    const ord = pistolOrder(this.rng);
-    this.roll(`Amorces : ${a.name} 2D10=${ord.rolls.a}${ord.misfire.a ? ' — raté !' : ''} · ${b.name} 2D10=${ord.rolls.b}${ord.misfire.b ? ' — raté !' : ''}`);
-    if (ord.priority) {
-      this.roll(`Qui tire le premier : ${a.name} 1D10=${ord.priority.a} · ${b.name} 1D10=${ord.priority.b}`);
-    }
+    // le duel s'ouvre avant le premier jet : les amorces appartiennent à sa
+    // fenêtre, pas à la chronique
     const run: DuelRun = {
       sword: null, terms, a, b, returnTo: this.active,
       journal: [], before: this.duelSnapshot(a, b),
     };
     this.duelRun = run;
+    const ord = pistolOrder(this.rng);
+    this.duelSay(`Amorces : ${a.name} 2D10=${ord.rolls.a}${ord.misfire.a ? ' — raté !' : ''} · ${b.name} 2D10=${ord.rolls.b}${ord.misfire.b ? ' — raté !' : ''}`);
+    if (ord.priority) {
+      this.duelSay(`Qui tire le premier : ${a.name} 1D10=${ord.priority.a} · ${b.name} 1D10=${ord.priority.b}`);
+    }
     if (ord.bothMisfired) {
       // « the duel can be over by mutual agreement » — les témoins l'entendent ainsi
       this.info('Les deux armes ont fait long feu : les témoins déclarent l’honneur satisfait.');
@@ -1282,7 +1283,7 @@ export class Game {
       // le Burger n'est pas un tireur : jouant son rôle, on ne touche que sur 1-4
       const cap = shooter.idx === null ? hitCap : 5;
       const shot = pistolHits(this.rng, cap);
-      this.roll(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
+      this.duelSay(`${shooter.name} fait feu : 1D10=${shot.roll} ≤ ${cap} ? — ${shot.hit ? 'touché !' : 'manqué.'}`);
       if (!shot.hit) continue;
       const tir = this.duelWound(target, aims[side]);
       run.roll = { faces: tir.faces, bonus: tir.bonus, total: tir.total, result: this.woundName(tir.row.type) };
