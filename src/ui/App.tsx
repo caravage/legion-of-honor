@@ -199,14 +199,14 @@ export default function App() {
     <div className={`tone-${tone}`}>
       <Header season={game.seasonDef()} game={game} onOpen={setModal} onGod={() => setGod(true)} />
       <ProgressBar prog={prog} />
-      {game.chars.length > 1 && (
-        <Rivals
-          game={game}
-          all={replaying ? game.snapshotAll(revealed) : game.chars}
-          onOpen={setSheetOf}
-        />
-      )}
       <div className="layout">
+        {game.chars.length > 1 && (
+          <Rivals
+            game={game}
+            all={replaying ? game.snapshotAll(revealed) : game.chars}
+            onOpen={setSheetOf}
+          />
+        )}
         <aside className="panel sheet">
           {prog.blockKind === 'setup' ? (
             <>

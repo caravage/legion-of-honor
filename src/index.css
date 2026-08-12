@@ -117,15 +117,36 @@ body {
 }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
 
-/* ---------- mise en page ---------- */
+/* ---------- mise en page ----------
+ * La fiche occupe toute la hauteur de la colonne de gauche, sous la barre de
+ * phase ; le bandeau des concurrents se décale au-dessus de la chronique et
+ * de la table plutôt que de traverser toute la largeur.
+ */
 .layout {
   display: grid;
   grid-template-columns: 320px 330px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "sheet rivals rivals"
+    "sheet chron  stage";
   gap: 16px;
   align-items: start;
 }
-@media (max-width: 1240px) { .layout { grid-template-columns: 320px minmax(0, 1fr); } }
-@media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 1240px) {
+  .layout {
+    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-areas:
+      "sheet rivals"
+      "sheet chron"
+      "sheet stage";
+  }
+}
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "rivals" "sheet" "chron" "stage";
+  }
+}
 
 .panel {
   background:
@@ -148,7 +169,8 @@ body {
 }
 
 /* ---------- feuille de Grognard ---------- */
-.sheet { position: sticky; top: 14px; }
+.sheet { grid-area: sheet; position: sticky; top: 14px; }
+.chronicle-panel { grid-area: chron; }
 .sheet-name {
   font-size: 1.05rem;
   color: var(--accent);
@@ -251,7 +273,7 @@ body {
 .setup-table tr.pendingrow td { color: var(--dim); font-style: italic; font-weight: normal; }
 
 /* ---------- scène ---------- */
-.stage { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
+.stage { grid-area: stage; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (max-width: 700px) { .stage { grid-template-columns: 1fr; } }
 
 .stage-card { position: sticky; top: 14px; }
@@ -1078,7 +1100,6 @@ button.chip.on { background: var(--accent); color: #fff; border-color: var(--acc
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   gap: 8px;
-  margin-bottom: 14px;
 }
 @media (max-width: 900px) { .rivals-bar { grid-auto-flow: row; grid-auto-columns: auto; } }
 
@@ -1139,11 +1160,11 @@ button.rival.acting.is-player::before { content: '▶ à vous'; }
 
 /* ---------- bandeau des concurrents ---------- */
 .rivals-bar {
+  grid-area: rivals;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: 1fr;
   gap: 8px;
-  margin-bottom: 14px;
 }
 @media (max-width: 900px) { .rivals-bar { grid-auto-flow: row; grid-auto-columns: auto; } }
 
@@ -1230,7 +1251,6 @@ button.rival.acting {
 .modal.narrow { width: min(400px, 100%); }
 .modal .sheet { position: static; }
 
-.rivals-bar { margin-top: 4px; }
 .draw-note {
   border: 1px dashed var(--gold-soft);
   border-radius: 4px;
