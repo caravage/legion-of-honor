@@ -18,6 +18,18 @@ Vite, 100 % client, sauvegarde `localStorage`. Voir `README.md` pour les donnée
 - Le tirage passe toujours par la fonction `rng` du moteur, jamais par
   `Math.random` direct : les parties doivent rester reproductibles à graine fixe.
 
+## Déploiement
+
+**Chaque changement demandé va en ligne, systématiquement.** Le site vit à
+<https://caravage.github.io/legion-of-honor/>. `.github/workflows/deploy.yml`
+construit et publie `dist/` sur GitHub Pages à chaque push sur `main` — rien
+d'autre ne déclenche la publication. Une branche non fusionnée, même poussée
+sur `origin`, n'est pas en ligne.
+
+Donc, une fois un changement fait et validé : le fusionner dans `main` et
+pousser `main`, sans attendre qu'on le demande séparément. Ne pas laisser un
+correctif vivre uniquement sur une branche de travail.
+
 ## Contrôles
 
 ⚠️ **Avant de lancer l'une des commandes de test/simulation ci-dessous, demander validation d'abord** — elles consomment des ressources importantes (output volumineux, tokens, temps). Exception : `npm run dev`.
