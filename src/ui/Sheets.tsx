@@ -57,12 +57,12 @@ function Sheet({
       <div className="badge-grid">
         <BadgeTile art={BADGE.N} name="Notice" value={ch.N} />
         <BadgeTile art={BADGE.G} name="Gloire" value={ch.G} />
-        <BadgeTile art={BADGE.E} name="Exp." value={ch.E} />
-        <BadgeTile art={BADGE.C} name="Charme" value={ch.C} />
-        <BadgeTile art={BADGE.F} name="Escrime" value={ch.F} />
+        <BadgeTile art={BADGE.E} name={'Expé­rience'} value={ch.E} />
+        <BadgeTile art={BADGE.C} name="Cha." value={ch.C} />
+        <BadgeTile art={BADGE.F} name="Esc." value={ch.F} />
         <BadgeTile
           art={BADGE.S}
-          name="Standing"
+          name="Sta."
           value={standing ?? (ch.standing >= 0 ? `+${ch.standing}` : ch.standing)}
         />
       </div>
