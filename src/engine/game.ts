@@ -181,6 +181,15 @@ export class Game {
   wwtCard: DeckEntry | null = null;
   wwtDrawer = 0;
   /**
+   * We Were There à lancer une fois la question du piocheur tranchée : le
+   * jet ne peut pas suivre `resolveGarrisonEvent`/`resolveCampaignEvent` sur
+   * l'instant si celle-ci vient de poser un `ask()` (ex. Louis XVI Arrested,
+   * « Entonner la Marseillaise ? ») — `this.pending` est alors vrai et le
+   * lancer se perdrait. On le range ici et `choose()`/`applyMoney()` le
+   * relance dès que la main est libre.
+   */
+  private pendingWWT: { entry: DeckEntry; wwt: boolean | { restrictedTo?: string } } | null = null;
+  /**
    * Vrai quand une interface suit la partie. Le moteur s'en sert pour attendre
    * un geste — lancer les dés d'une blessure — là où une simulation doit
    * résoudre d'un trait. Les bancs d'essai le laissent faux, et retrouvent
@@ -1528,11 +1537,21 @@ export class Game {
     if (!this.duelRun) this.cardLog(`▸ ${p.options[i].label}`);
     p.options[i].run();
     this.resolveBotPending();
+    this.fireQueuedWWT();
     // La fenêtre de duel remplace les commandes : tant qu'elle est ouverte,
     // `advance()` n'est plus atteignable et son filet ne sert à rien. C'est
     // donc ici qu'il faut le tendre — un duel clos dans la réponse même.
     this.closeStrandedDuel();
     this.save();
+  }
+
+  /** Relance un We Were There mis en attente par `resolveGarrisonEvent`/`resolveCampaignEvent`. */
+  private fireQueuedWWT() {
+    if (this.pendingWWT && !this.pending) {
+      const w = this.pendingWWT;
+      this.pendingWWT = null;
+      this.startWWT(w.entry, w.wwt);
+    }
   }
 
   // ---------- sauvegarde ----------
@@ -1633,6 +1652,7 @@ export class Game {
           : `▸ Retirer ${-a} F de Paris`,
     );
     p.apply(a);
+    this.fireQueuedWWT();
     this.save();
   }
 
@@ -2629,14 +2649,20 @@ export class Game {
     if (entry.kind === 'garrison-event') {
       const card = entry.card;
       this.resolveGarrisonEvent(card);
-      if (card.wwt && !this.pending) this.startWWT(entry, card.wwt);
+      if (card.wwt) {
+        if (this.pending) this.pendingWWT = { entry, wwt: card.wwt };
+        else this.startWWT(entry, card.wwt);
+      }
       return;
     }
     if (entry.kind === 'campaign-event') {
       const card = entry.card;
       this.resolveCampaignEvent(card);
       const w = card.wwt ?? (card.subEvents ?? []).find((e) => e.wwt)?.wwt;
-      if (w && !this.pending) this.startWWT(entry, w);
+      if (w) {
+        if (this.pending) this.pendingWWT = { entry, wwt: w };
+        else this.startWWT(entry, w);
+      }
       return;
     }
     if (entry.kind === 'combat') return; // les cartes Combat passent par resolveBattle
