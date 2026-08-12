@@ -219,13 +219,13 @@ body {
 .stat-v { font-weight: bold; font-variant-numeric: tabular-nums; }
 
 /* Qualités et Fortune, en badges plutôt qu'en lignes */
-.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .badge-grid.fortune { grid-template-columns: repeat(2, 1fr); }
 .badge-tile {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 4px;
+  gap: 6px;
+  padding: 4px 6px;
   background: rgba(255, 255, 255, 0.35);
   border: 1px solid var(--gold-soft);
   border-radius: 4px;
@@ -234,13 +234,14 @@ body {
 .badge-tile img { width: 40px; height: 40px; border-radius: 3px; box-shadow: 0 0 0 1px var(--gold-soft); object-fit: cover; flex-shrink: 0; }
 .badge-tile .txt { display: flex; flex-direction: column; min-width: 0; line-height: 1; }
 .badge-tile .name {
-  font-size: 0.5rem;
-  letter-spacing: 0.2px;
+  font-size: 0.6rem;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
   color: var(--ink-soft);
-  line-height: 1.15;
-  white-space: normal;
-  overflow-wrap: break-word;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .badge-tile .num { font-size: 1.4rem; font-weight: bold; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.2; }
 
